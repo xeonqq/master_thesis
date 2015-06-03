@@ -1,0 +1,63 @@
+\chapter{Related Work\label{cha:chapter2}}
+
+Many researches have been done regarding robot self-localization in various application domains. 
+Most of the localization algorithm fall into the class of paricle filter or Kalman filter variants like \gls{EKF} and \gls{UKF}.
+
+%This chapter talks about the background information and related work concerned to the image processing solutions for space applications. This chapter is organised as follows. The section \ref{sec:2.1} discusses the basics of Image Compression. The section \ref{sec:2.2} provides an overview of the popular image compression standards. The section \ref{sec:2.3} explains the various computing architectures used for running image compression algorithms. The section \ref{sec:2.4} brings out the prior work with reference to \gls{CCSDS} image compression standard.  
+
+
+\section{Basics of Image Compression\label{sec:2.1}}
+
+As the name suggests, the main goal of image compression is to reduce the size of the original input image. The reduction in size could mean that more data could be stored on a memory constrained system due to lesser space required to store the smaller image; and/or lesser time needed to transmit the image from its source to destination. The above two advantages are extremely relevant for space and air borne applications as both the memory and communication bandwidths are expensive entities owing to budgetary reasons. Hence the need for image compression is quite significant in space and air borne applications. 
+
+\subsection{Transform based Encoding}
+The most popular image compression techniques involves the usage of transforms to remove spatial and/or spectral redundancy present in image data. The \autoref{fig:img_comp:transform_enc_dec} illustrates the basic symmetrical structure of the transform based encoder/decoder. The input image is initially transformed, followed by optional quantizing of transformed coefficients in case of lossy compression and finally entropy coding to remove statistical redundancy. The quantization results in loss of information and hence is not involved in lossless compression techniques. The entropy coded data constitutes the final compressed bitstream which could be stored or transmitted based on the system requirements. The decoding procedure is exactly the reverse of the encoding where in the compressed data is entropy decoded followed by approximation in order to reconstruct the quantized information to finally apply inverse transform to get back the reconstructed image. \\\\
+The reconstructed image in case of lossless compression chains is bitwise equal to the original input image so that there is no loss of information during compression/decompression. The lossy compression/decompression techniques on the other hand does not regenerate the exact original image, but is intended to achieve higher compression efficiency as a trade-off.
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.95\textwidth]{transform_enc_dec}
+  \caption{Symmetrical structure of a transform encoder and decoder}
+  \label{fig:img_comp:transform_enc_dec}
+\end{figure}
+\subsection{Popular Transform algorithms}
+The transforms as mentioned before are useful to eliminate the spatial and/or spectral redundancies present in the image data. Ideally the transforms convert the signals from time to frequency domain or vice versa. The transforms are either continuous or discrete with reference to time or frequency domain. The discrete signals are obtained by aquiring the values of a continuous signal at periodic intervals of time called ``Sampling". The continuous-time signal analysis is usually redundant and consumes higher memory. Hence discrete analysis is quite sufficient and ensures space-saving coding mechanisms. Discrete signals encompass digital signals which are usually characterised by the number of bits required to represent a sample. The most widely used Transform algorithms are tabulated in \autoref{fig:img_comp:list_of_transforms}\cite{LeonidP.Yaroslavsky}. As seen in the \autoref{fig:img_comp:list_of_transforms}, most of the transforms are commonly used in image compression applications. 
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.95\textwidth]{list_of_transforms}
+  \caption{List of popular transforms employed in Image compression}
+  \label{fig:img_comp:list_of_transforms}
+\end{figure}
+
+%The spatial as well as the spectral resolution of air borne and space borne image data increases steadily with new technologies and user requirements resulting in higher precision and new application scenarios. On the technical side, there is a tremendous increase in data rate that has to be handled by such remote sensing systems.
+\section{\gls{DWT} based Image Compression Standards\label{sec:2.2}}
+A wide overview on wavelet-based image compression algorithms is given in \cite{Sudhakar2006}.
+\subsection{\gls{EZW}\label{ezw}}
+The standard description in \cite{Shapiro1993} ......
+\subsection{\gls{ICER}\label{icer}}
+The standard description in \cite{A.Kiely} ......
+\subsection{\gls{SPECK}\label{speck}}
+The standard description in \cite{Pearlman2004} ......
+\subsection{\gls{WDR}\label{wdr}}
+The standard description in \cite{JunTian} ......
+\subsection{\gls{ASWDR}\label{aswdr}}
+The standard description in \cite{Walker2000} ......
+\subsection{\gls{SPIHT}\label{spiht}}
+The proposed work in \cite{Said1996} ......
+\subsection{\gls{JPEG2000}\label{j2000}}
+The standard description \cite{ITU2004,Christopoulos2000}. The proposed work in \cite{Kurowski2012} ......
+\subsection{\gls{CCSDS}\label{ccsds}}
+Prior work of \cite{CCSDS122blue,CCSDS122green}
+\subsection{\gls{LCE}\label{lce}}
+Prior work of \cite{Garcia2014}
+\section{Image Compression Standards for space applications\label{sec:2.3}}
+The paper \cite{Yu2009} describes the state of the art on-board image compressors used in satellites......
+\section{Various architectures for Image Compression\label{sec:2.4}}
+Having seen significant research in the \gls{DWT} implementations on \gls{GPGPU}, the paper focuses on parallelizing the \gls{BPE} stage of the \gls{CCSDS} 122.0-B-1 standard in lossless mode. This paper also comparatively analyzes the \gls{GPGPU} implementation with the state of the art hardware \gls{FPGA} implementation of the CCSDS 122.0-B-1 standard by \cite{Manthey2014}. The FPGA implementation achieves an average throughput of \unitfrac[238.274]{Mbyte}{s}.
+\subsection{\gls{ASIC}\label{asic}}
+\subsection{\gls{FPGA}\label{fpga}}
+Prior work of \cite{Chang2012}....\cite{Li2013}....\cite{Manthey2014}
+\subsection{\gls{GPGPU}\label{gpgpu}}
+Many image compression standards which demand high throughput have been ported to \gls{GPGPU} platform. The \gls{DWT} is an integral part of most of the image compression standards and is completely data parallel wherein every pixel could be independently processed. The implementation proposed in \cite{Le2011} achieves 100 times speed-up in comparison with the reference implementation. Another CUDA implementation proposed in \cite{Matela2009} achieves 148 times speed-up on a GeForce GTX 295. Inverse \gls{DWT} for a \gls{SPIHT} decoding system proposed in \cite{Song2011} achieves 158 times speed-up in comparison with the reference implementation. The \gls{LCE} hyper-spectral compressor \gls{GPGPU} implementation proposed in \cite{Santos2012} achieves a speed-up of $15.41$ times over its \gls{CPU} implementation. 2D fast wavelet transform proposed by \cite{Franco2009} achieves a speedup of 20.8 for an image size of $8192\times8192$, when compared with the fastest host-only version implementation using OpenMP and including the data transfers between main memory and device memory.
+
+\section{Prior work in \gls{CCSDS} Image Compression Standard\label{sec:2.5}}
+Shifting focus to the \gls{CCSDS} compression standards, \cite{Keymeulen2012} proposes a \gls{GPGPU}-based Fast Lossless hyper-spectral image compressor which achieves a throughput of \unitfrac[583.08]{Mbit}{s} and a speed-up of $6$ times in comparison with \unit[3.47]{GHz} single core Intel{\textregistered} Xeon{\texttrademark} processor. Another parallel \gls{GPGPU} implementation proposed by \cite{Hopson2012} accomplishes $11$x speed up.

@@ -1,0 +1,237 @@
+\chapter{Motion and Sensor Model\label{cha:chapter3}}
+
+The choice of motion model and sensor model is fundamental for both Kalman filter's prediction and measurement step. The more precise and comprehensive the model describes the system, the more accurate the outcome will be. 
+
+\section{Motion Model}\label{sub:Motion Model}
+
+
+\section{Sensor Model}\label{sub:Sensor Model}
+
+
+Image data is assumed to use R-bit pixels to represent either signed or unsigned integer values, where $R\leq\unit[16]{bit}$. The application of the decomposition procedure to be described in \autoref{sec:fundamentals:ccsds_block_decomposition} requires that the image dimensions are integer multiples of eight. This -- if necessary -- is achieved by padding columns and subsequently padding rows to the input image (copying the last column or row). Furthermore, the minimum input image width and height is \unit[17]{px}. As denoted in \cite{CCSDS122blue}, ``Implementation schemes and image reconstruction methods are not part of the Recommended Standard [...]'' and are not provided by the \gls{CCSDS}.
+
+\section{Discrete Wavelet Transform stage}\label{sec:fundamentals:ccsds_dwt}
+As already mentioned, the standard uses either the Float DWT or the Integer DWT. Both transforms are separable and apply the column transform after the row transform.
+
+\subsection{One-dimensional DWT}\label{subsec:1d_dwt}
+Starting from a signal s of length N, two sets of coefficients are computed: approximation coefficients $\mathrm{cA}_1$, and detail coefficients $\mathrm{cD}_1$. These vectors are obtained by convolving s with the low-pass filter $Lo\_D$ for approximation and with the high-pass filter $Hi\_D$ for detail, followed by dyadic decimation.
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.55\textwidth]{1d_dwt}
+  \caption{Overview of 1-d DWT}
+  \label{fig:ccsds:1d_dwt_overview}
+\end{figure}
+\subsubsection{\gls{CDF}(9/7) Float DWT}\label{subsec:1d_float_dwt}
+
+\subsubsection{Integer DWT}\label{subsec:1d_float_dwt}
+An alternative transform in this Recommended Standard is a non-linear approximation to a 9/7 DWT. The non-linearity is introduced as the result of round-off operations used for the sake of producing integer outputs from the decorrelation step. The non-linear transform can be used to achieve lossless compression\cite{Calderbank}. Like the Float DWT defined in equation 3, the single-level, 1-d Integer DWT maps a signal vector (equation 2) to two sets of wavelet coefficients, one high-pass set, Dj , and one lowpass set, Cj , in accordance with equations \autoref{eq:ccsds:eq1} and \autoref{eq:ccsds:eq2}. Special boundary filters are required at either end of the signal, and lead to the formulas given in equations 5 and 6 for $j=0$, $j=N-2$, and $j=N-1$.
+\\\\
+The analysis filter coefficients of the Float DWT differ from the coefficients already presented in \autoref{tab:fundamentals:wavelet_filter}. The reason is that the low-pass filter coefficients are scaled by a factor of $-\frac{1}{\sqrt{2}}$ and the high-pass coefficients are scaled by a factor of $\sqrt{2}$ (see \cite[p.~3-3]{CCSDS122blue}). The Integer DWT of a signal  $x=\{x_0,x_1,x_2,\ldots,x_{2N-1}\}$ with $N>2$ is as follows:
+\begin{align}
+D_0     &= x_1-\left\lfloor\frac{9}{16}(x_0+x_2)-\frac{1}{16}(x_2+x_4)+\frac{1}{2}\right\rfloor\nonumber\\
+D_j     &= x_{2j+1}-\left\lfloor\frac{9}{16}(x_{2j}+x_{2j+2})-\frac{1}{16}(x_{2j-2}+x_{2j+4})+\frac{1}{2}\right\rfloor\qquad\ \mathrm{for}\ j=1,\ldots,N-3\label{eq:ccsds:eq1}\\
+D_{N-2} &= x_{2N-3}-\left\lfloor\frac{9}{16}(x_{2N-4}+x_{2N-2})-\frac{1}{16}(x_{2N-6}+x_{2N-2})+\frac{1}{2}\right\rfloor\nonumber\\
+D_{N-1} &= x_{2N-3}-\left\lfloor\frac{9}{8}x_{2N-2}-\frac{1}{8}x_{2N-4}+\frac{1}{2}\right\rfloor\nonumber\\
+C_0     &= x_0-\left\lfloor-\frac{D_0}{2}+\frac{1}{2}\right\rfloor\nonumber\\
+C_j     &= x_{2j}-\left\lfloor-\frac{D_{j-1}+D_j}{4}+\frac{1}{2}\right\rfloor\qquad\ \mathrm{for}\ j=1,\ldots,N-1\label{eq:ccsds:eq2}
+\end{align}
+where $D_j$ denotes the high-pass wavelet coefficients, and $C_j$ denotes the low-pass wavelet coefficients. Note that a symmetrical extension of the signal $x$ is implicitly considered by these formulas.
+\subsection{Two-dimensional Single-level DWT}\label{subsec:2d_dwt}
+Image decorrelation is accomplished using a two-dimensional DWT, which is performed by iterated application of the one-dimensional DWT. Viewing the image as a data matrix consisting of rows and columns of signal vectors, a single-level 2-d DWT shall be performed on the image in the following two steps in the following order:
+\begin{enumerate}
+\item The 1-d DWT shall be performed on each image row, producing a horizontally lowpass and a horizontally high-pass filtered intermediate data array, each half as wide as the original image array, as illustrated in \autoref{fig:ccsds:dwt_overview}(b);
+\item The 1-d DWT shall be applied to each column of both intermediate data arrays to produce four subbands as shown in \autoref{fig:ccsds:dwt_overview}(c).
+\end{enumerate}
+Each of the four subband data arrays obtained is half as wide and half as tall as the original image array. In illustrations, these subbands are often shown arranged as one array which as the same size as the original image array (see \autoref{fig:ccsds:dwt_overview}(c)). Starting at the upper left and proceeding clockwise in \autoref{fig:ccsds:dwt_overview}(c), the four subbands are referred to as LL, HL, HH, LH.
+
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.9\textwidth]{ccsds_blue_figure_3_1}
+  \caption{Row and column transform of a two-dimensional DWT\cite{CCSDS122blue}}
+  \label{fig:ccsds:dwt_overview}
+\end{figure}
+
+\subsection{Three-level Two-dimensional DWT}
+To increase compression effectiveness, correlation remaining in the LL subband after the 2-d DWT decomposition is exploited by applying further levels of DWT decomposition to produce a multi-level 2-d DWT. This produces the pyramidal decomposition described in \cite{Mallat1989}. \\\\
+The \gls{CCSDS} compression standard\cite{CCSDS122green} specifies three levels of decomposition. At each level, the 2-d DWT described in \autoref{subsec:2d_dwt} shall be applied to the LL subband produced by the previous level of decomposition. \autoref{fig:ccsds:3l_2d_dwt} illustrates a three-level 2-d DWT decomposition. At each level of decomposition, the LL subband from the previous level is decomposed, using a 2-d DWT, and is replaced with four new subbands. Each new subband is half the width and half the height of the LL subband from which it was computed. Each additional level of decomposition thus increases the number of subbands by three but leaves unchanged the total number of DWT coefficients used to represent the image data. Following n levels of 2-d DWT decomposition, the total number of subbands is therefore $3n+1$. Following the recommendation of a three-level decomposition, ten subbands are generated. The subbands are typically shown arranged to form an array of the same dimensions as the original image, as depicted in \autoref{fig:ccsds:3l_2d_dwt}. In the first level, the input image is decomposed into the sub-bands $\mathrm{LL}_1$, $\mathrm{HL}_1$, $\mathrm{LH}_1$, and $\mathrm{HH}_1$. In the second level, the result of the sub-band $\mathrm{LL}_1$ is again decomposed into the sub-bands $\mathrm{LL}_2$, $\mathrm{HL}_2$, $\mathrm{LH}_2$, and $\mathrm{HH}_2$. In the third level, the result of the sub-band $\mathrm{LL}_2$ is decomposed into the sub-bands $\mathrm{LL}_3$, $\mathrm{HL}_3$, $\mathrm{LH}_3$, and $\mathrm{HH}_3$. 
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.9\textwidth]{ccsds_figure_2_3}
+  \caption{3-level 2D DWT\cite{CCSDS122blue}}
+  \label{fig:ccsds:3l_2d_dwt}
+\end{figure}
+\\
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.7\textwidth]{ccsds_figure_2_2}
+  \caption{Program and Data Flow of DWT Module\cite{CCSDS122green}}
+  \label{fig:ccsds:dwt_stages}
+\end{figure}
+%Both transforms are separable and apply the column transform after the row transform (see \autoref{subsec:2d_dwt}).\\
+
+\section{Block decomposition stage}\label{sec:fundamentals:ccsds_block_decomposition}
+The \gls{DWT} module forms a hierarchy of wavelet coefficients:
+\begin{description}
+  \item[DC] The DC coefficients refer to the coefficients of the $\mathrm{LL}_3$ sub-band. The DC coefficients are a representation of the original image at the lowest resolution.
+  \item[Parents] The coefficients in sub-bands $\mathrm{HL}_3$, $\mathrm{LH}_3$, and $\mathrm{HH}_3$ are called \textit{parent} coefficients.
+  \item[Children] The coefficients in sub-bands $\mathrm{HL}_2$, $\mathrm{LH}_2$, and $\mathrm{HH}_2$ are called \textit{children} coefficients.
+  \item[Grandchildren] The coefficients in sub-bands $\mathrm{HL}_1$, $\mathrm{LH}_1$, and $\mathrm{HH}_1$ are called \textit{grandchildren} coefficients.
+\end{description}
+
+A \textit{block} is a group of one DC coefficient and the 63 corresponding AC coefficients (3 parents, 12 children, 48 grandchildren). A block loosely represents a region in the input image. \autoref{fig:ccsds:wavelet_block} shows this relationship. For the \gls{BPE}, the blocks are further arranged into groups: A segment is a group of $S$ consecutive blocks, where $16\leq S\leq 2^{20}$. Segments are encoded independently and are further partitioned into \textit{gaggles}, which is a group of $G=16$ consecutive blocks. The last segment or gaggle of an image can contain less than $G$ blocks. The horizontal and vertical number of blocks of a transformed image are
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.8\textwidth]{schematic_of_wavelet_transformed_image}
+  \caption[A block consisting of a DC coefficient and 63 AC coefficients]{A block consisting of a DC coefficient and 63 AC coefficients \cite[p.~4-1]{CCSDS122blue}}
+  \label{fig:ccsds:wavelet_block}
+\end{figure}
+\begin{equation}
+\mathrm{S}_x=\left\lfloor\frac{I_w+7}{8}\right\rfloor
+\end{equation}
+and
+\begin{equation}
+\mathrm{S}_y=\left\lfloor\frac{I_h+7}{8}\right\rfloor
+\end{equation}
+where $I_w$ and $I_h$ are the number of columns and rows in the image. In \textit{strip-mode}, the number of blocks in a segment is $S=\mathrm{S}_x$. In \textit{frame mode}, the number of blocks in a segment is $S=\mathrm{S}_x\cdot\mathrm{S}_y$.
+\section{Coding stages}\label{sec:fundamentals:ccsds_bpe}
+Once the coefficient are grouped into segments, the \gls{BPE} can start to encode the image. Figure \autoref{fig:ccsds:ccsds_figure_2_10} shows the program and data flow of the \gls{BPE} \cite{CCSDS122green}.
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.6\textwidth]{ccsds_program_data_flow}
+  \caption[Program and data flow of the BitPlaneEncoder]{Program and data flow of the \gls{BPE} \cite[p.~2-12]{CCSDS122green}}
+  \label{fig:ccsds:ccsds_figure_2_10}
+\end{figure}
+
+\subsection{Preparation steps}
+Two steps have to be done before the coding:
+\begin{enumerate}
+  \item \textit{Weight} the coefficients if the Integer DWT is used: This is necessary to optimize the rate distortion \cite[p.~E-1~ff.]{CCSDS122green}. Since the sub-band weights have been obtained empirically, the standard supports user-defined weights. Every sub-band has its own weighting factor $w$ and the coefficients of each sub-band are multiplied by $2^w$ (shifted left by \unit[w]{bits}).
+  \item Determining of the bit depth of the DC coefficients of a segment $\mathrm{BitDepthDC}$ and the bit depths of the AC coefficients for each Block $m$ referred to as $\mathrm{BitDepthAC}_m$. The DC coefficients are coded in two's complement representation. Thus, the number of bits necessary to code a DC coefficient $c_m$ is as follows:
+\begin{equation}
+\mathrm{BitDepthDC}(c_m)=\left\{
+  \begin{array}{ll}
+    1+\left\lceil\log_2\left|c_m\right|\right\rceil,   & c_m<0\\
+    1+\left\lceil\log_2\left(1+c_m\right)\right\rceil, & \mathrm{otherwise}
+  \end{array}\right.
+\end{equation}
+The AC coefficients are coded in sign-magnitude representation. Thus, the number of bits necessary to code an AC coefficient $d_m$ is as follows:
+\begin{equation}
+\mathrm{BitDepthAC}(d_m)=\left\lceil\log_2\left(1+\left|d_m\right|\right)\right\rceil
+\end{equation}
+Finally, maximum values for the DC and AC coefficients' bit-depth are determined over the entire segment and denoted as $\mathrm{BitDepthDC}$ and $\mathrm{BitDepthAC}$. $\mathrm{BitDepthAC}_m$ denotes the number of bits necessary to code any AC coefficient in a block $m$.
+\end{enumerate}
+
+\subsection{Segment header}
+Each segment starts with a \textit{segment header} containing information about the current segment. It consists of mandatory and optional parts. The mandatory part contains flags for the first and last segment of an image, the $\mathrm{BitDepthDC}$ and $\mathrm{BitDepthAC}$, a segment counter, and indicates which optional header parts are included. See \cite[pp.~4-5ff]{CCSDS122blue} for details about the segment header.
+
+\subsection{Initial coding}\label{sec:fundamentals:ccsds_initial_coding}
+In the initial coding stage, the DC coefficients are quantized and coded. Then, optionally, some additional DC bit-planes are coded. At the end, $\mathrm{BitDepthAC}_m$ will be coded for each block $m$\footnote{The blocks {\S}4.3 and {\S}4.4 are referred to herein as initial coding.}.\\
+
+The DC coefficients $c_m$ are quantized with a quantization factor $q$:
+\begin{equation}
+c'_m=\left\lfloor\frac{c_m}{2^q}\right\rfloor
+\end{equation}
+The quantization factor $q$ depends on the wavelet transform type and on the dynamic range of the wavelet coefficients:
+\begin{equation}
+q'=
+\begin{cases}
+  0                                                 & \mathrm{BitDepthDC}\leq 3\\
+  \mathrm{BitDepthDC}-3                             & \mathsmaller{\mathrm{BitDepthDC}-(1+\left\lfloor\mathrm{BitDepthAC}/2\right\rfloor)\leq 1\text{ and }\mathrm{BitDepthDC}>3}\\
+  \mathrm{BitDepthDC}-10                            & \mathsmaller{\mathrm{BitDepthDC}-(1+\left\lfloor\mathrm{BitDepthAC}/2\right\rfloor)> 10\text{ and }\mathrm{BitDepthDC}>3}\\
+  1+\left\lfloor\mathrm{BitDepthAC}/2\right\rfloor  & \text{otherwise}.
+\end{cases}
+\end{equation}
+and
+\begin{equation}
+q=\max(q', \mathrm{BitShift}(LL3)),
+\end{equation}
+where $\mathrm{BitShift}(LL3)$ denotes the weighting factor of sub-band $\mathrm{LL}_3$. The number of bits necessary to represent each quantized DC coefficient $c'_m$ is as follows:
+\begin{equation}
+N=\max(\mathrm{BitDepthDC}-q,1)
+\end{equation}
+In a next step, \gls{DPCM} is applied on the quantized DC coefficients $c'_m$:
+\begin{equation}
+\delta'_m=
+\begin{cases}
+  c'_m          & m=0\\
+  c'_m-c'_{m-1} & \text{otherwise}.
+\end{cases}
+\end{equation}
+and
+\begin{equation}
+\delta_m=
+\begin{cases}
+  2(\delta'_m)                    & 0\leq\delta'_m=\leq\theta_m\\
+  2\left|\delta'_m\right|-1       & -\theta_m\leq\delta'_m<0\\
+  \theta_m+\left|\delta'_m\right| & \text{otherwise},
+\end{cases}
+\end{equation}
+where $\theta_m=\min(c'_{m-1}-x_{\mathrm{min}},x_{\mathrm{max}}-c'_{m-1})$, $x_\mathrm{min}=2^{N-1}$, and $x_\mathrm{max}=2^{N-1}-1$. \gls{DPCM} is followed by Rice Coding \cite[p.~4-19ff]{CCSDS122blue}. After all quantized DC coefficients are encoded and depending on $q$ and BitDepthAC, some additional DC bit-planes may be refined \cite[section~4.3.3]{CCSDS122blue}. The next step is to encode $\mathrm{BitDepthAC}_m$ (bitdepth of the AC coefficients of block $m$) with the same \gls{DPCM} method already used for the quantized DC coefficients.
+
+\subsection{Bitplane coding}
+The \gls{BPE} encodes the wavelet coefficients, as the name suggests, bit-plane-wise starting with bit-plane $b=\mathrm{BitDepthAC}-1$ and in decreasing order. Within a bit-plane $b$, the coding process is divided into 5 stages (stages 0--4). In stage 0, remaining bits of the DC coefficients are coded (DC refinement). Stage 1--3 encode the AC coefficients' sign and the position of the \textit{significant bit}. The significant bit is the highest non-zero bit. A coefficient is selected if the significant bit is encoded. Once an AC coefficient is selected, Stage 4 encodes the AC coefficients' refinement. The type $t_b(x)$ of coefficient $x$ depends on the current bit-plane index $b$ and the position of the first non-zero bit (see \cite[p.~4-26]{CCSDS122blue}):
+\begin{equation}
+t_b(x)=\left\{
+  \begin{array}{ll}
+    -1 & b<\mathrm{BitShift}(\mathrm{subband}(x))\\
+     0 & \left|x\right|<2^b\\
+     1 & 2^b\leq\left|x\right|<2^{b+1}\\
+     2 & 2^{2+1}\leq\left|x\right|
+  \end{array}\right. .
+\end{equation}
+Here, $\mathrm{BitShift}(\mathrm{subband}(x))$ denotes the number of bits shifted during the quantization step. Stage 1 refers to the refinement of the parents coefficients. When a new bit-plane is encoded, the type of each AC coefficient is determined. The same procedure is applied to the children coefficients at stage 2 and to the grandchildren coefficients at stage 3. If a coefficient's type is 1, i.\,e. it is \textit{selected}, its sign is coded in stages 1, 2 or 3. At the next bit-plane, its type will be 2 or -1. At stage 4, the bits of all AC coefficients of type 2 are encoded. Stages 1--3 produce words which are first mapped to symbols. The symbols are then encoded with \gls{VLC}. All bits of a stage are written to the output bit-stream before the next stage is commenced, even though the optimal code for the \gls{VLC} is determined by the stage 1 to 3.\\
+\begin{figure}[tb]
+  \centering
+  \includegraphics[width=.6\textwidth]{ccsds_figure_4_2}
+  \caption[Overview of the stage coding withing a segment]{Overview of the stage coding withing a segment \cite[p.~4-4]{CCSDS122blue}}
+  \label{fig:ccsds:ccsds_figure_4_2}
+\end{figure}
+
+The procedure of coding the stages 1, 2, and 3 is well explained in \cite[pp.~4-27~ff]{CCSDS122blue} and is summarized below (\autoref{fig:ccsds:ccsds_figure_4_2}). The entropy coding process defines three new groups of coefficients (see also \autoref{fig:ccsds:wavelet_block}):
+\begin{equation}
+P=\{p_0,p_1,p_2\}\qquad D_i=\{C_i,G_i\}\qquad B=\{D_0,D_1,D_2\}
+\end{equation}
+A shorthand notation is used for certain binary words:
+\begin{itemize}
+  \item $\mathrm{types}_b[\Psi]$ denote the binary word consisting of the b\textsuperscript{th} magnitude bit of each coefficient $x$ in $\Psi$ such that $t_b(x)$ equals $0$ or $1$.
+  \item $\mathrm{signs}_b(\Psi)$ denote the binary word consisting of the sign bit of each coefficient $x$ in $\Psi$ such that $t_b(x)=1$, with a sign bit of ``1'' for negative coefficients and ``0'' for non-negative coefficients.
+  \item Given a list of type values $\Lambda=\{\lambda_0,\ \lambda_1,\ \lambda_2,\ \ldots,\ \lambda_l\}$, let $\mathrm{tword}[\Lambda]$ denote the binary word consisting of the sequence of type values $\lambda_i$ in $\Lambda$ that are equal to $0$ or $1$.
+\end{itemize}
+The \gls{BPE} uses the following transition words to indicate when groups of coefficients are all of type $0$:
+\begin{itemize}
+  \item $\mathrm{tran}_B=
+        \begin{cases}
+          \text{null}                           & \text{if $\mathrm{tran}_B=1$ at any more significant bit plane,}\\
+          \mathrm{tword}[\{t_\mathrm{max}(B)\}] & \text{otherwise}.
+        \end{cases}$
+  \item $\mathrm{tran}_D=\mathrm{tword}[\{t_\mathrm{max}(D_i):i=0,\ 1,\ 2$, such that $t_\mathrm{max}(D_i)\neq 1$ in all more significant bit planes$\}]$
+  \item $\mathrm{tran}_G=\mathrm{tword}[\{t_\mathrm{max}(G_i):i=0,\ 1,\ 2$, such that $t_\mathrm{max}(D_i)>0$ in current or any more significant bit planes$\}]$
+  \item $\mathrm{tran}_{Hi}=\mathrm{tword}[\{t_\mathrm{max}(H_{i0}),\ t_\mathrm{max}(H_{i1}),\ t_\mathrm{max}(H_{i2}),\ t_\mathrm{max}(H_{i3})\}]$ for $i=0,\ 1,\ 2$.
+\end{itemize}
+As already mentioned, bit-plane coding operates on bit-planes $b=\mathrm{BitDepthAC}-1,\ \mathrm{BitDepthAC}-2,\ \ldots,\ 0$. At bit-plane $b$ the following sequence of words are generated for each block of a segment:
+\begin{description}
+  \item[Stage 1] (parents): $\mathrm{types}_b[P]$, $\mathrm{signs}_b[P]$
+  \item[Stage 2] (children):
+      \begin{enumerate}
+        \item $\mathrm{tran}_B$
+        \item $\mathrm{tran}_D$, if $\mathrm{tran}_B\neq 0$ and $t_\mathrm{max}(B)\neq -1$
+        \item $\mathrm{types}_b[C_i]$ and $\mathrm{signs}_b(C_i)$ for each $i$ such that $t_\mathrm{max}(D_i)>0$
+      \end{enumerate}
+  \item[Stage 3] (grandchildren): If $\mathrm{tran}_B=0$ or $t_\mathrm{max}(B)=-1$, then stage 3 is unnecessary and shall be omitted. Otherwise:
+      \begin{enumerate}
+        \item $\mathrm{tran}_G$
+        \item $\mathrm{tran}_{Hi}$, for each $i$ such that $t_\mathrm{max}(G_i)>0$
+        \item $\mathrm{types}_b[H_{ij}]$ and $\mathrm{signs}_b[H_{ij}]$ for each $i$ such that $t_\mathrm{max}(G_i)>0$ and each $j$ such that $t_\mathrm{max}(H_{ij})>0$
+      \end{enumerate}
+\end{description}
+Words corresponding to signs, i.\,e. $\mathrm{signs}_b[P]$, $\mathrm{signs}_b(C_i)$, and $\mathrm{signs}_b[H_{ij}]$ and those having a length of less than \unit[2]{bits} are directly written to the output bit-stream. All other words are entropy encoded with \gls{VLC} as follows:
+\begin{itemize}
+  \item The words are mapped to \textit{symbols}, see \cite[p.~4-30]{CCSDS122blue}
+  \item An optimum code option is determined for a group of symbols and each symbol is encoded using a variable-length binary codeword, see \cite[p.~4-31]{CCSDS122blue}
+\end{itemize}
+The standard specifies that ``for each word size within a gaggle, the code option selected is the one that minimizes the encoded length of the gaggle when all words are coded'' (see \cite[p.~4-32]{CCSDS122blue}). The code option identifier is written immediately before a symbol with the corresponding length is written. It is a little unclear, about which set of symbols the optimal code option is determined. According to the CCSDS reference compressed files supplied in \cite{CCSDS122ref}, the optimal code option is determined for each gaggle and for stages 1, 2, and 3.
+
+\section{Summary}\label{sec:fundamentals:ccsds_summary}
+
+This chapter has presented the CCSDS 122.0-B-1 algorithm which is the basis for this thesis. First the structure of the compression algorithm was presented. The algorithm uses a three-level two-dimensional wavelet transform for spatial decorrelation and an entropy encoder that exploits the hierarchy of the wavelet coefficients to efficiently encode the image data. The algorithm was explained by presenting the mathematical background.
+

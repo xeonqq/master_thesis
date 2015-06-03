@@ -1,0 +1,166 @@
+%\documentclass[hidelinks,bibtotoc,liststotoc,BCOR5mm,DIV12]{scrbook}
+\documentclass[bibtotoc,liststotoc,BCOR5mm,DIV12]{scrbook}
+
+% use this declaration to set specific page margins
+%\usepackage[a4paper , lmargin = {2.7cm} , rmargin = {2.9cm} , tmargin = {2.7cm} , bmargin = {4.6cm} ]{geometry}
+\usepackage[a4paper]{geometry}
+
+\newcommand{\cpp}{C\nolinebreak\hspace{-.05em}\raisebox{.4ex}{\relsize{-3}{\textbf{+}}}\nolinebreak\hspace{-.10em}\raisebox{.4ex}{\relsize{-3}{\textbf{+}}}} % from http://tex.stackexchange.com/questions/4302/prettiest-way-to-typeset-c-cplusplus
+\let\tmp\oddsidemargin
+\let\oddsidemargin\evensidemargin
+\let\evensidemargin\tmp
+\reversemarginpar
+\usepackage[ngerman, english]{babel}
+\usepackage{bibgerm}       		% german references
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{relsize}
+\usepackage[latin1]{inputenc} % german characters
+\usepackage{graphicx} 				% it's recommended to use PDF images but you can use JPG or PNG as well
+\usepackage{floatrow} % side by side figures
+\usepackage{url}           		% format URLs
+\usepackage[hidelinks]{hyperref} 				% create hyperlinks
+\usepackage{bookmark}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{scrpage2}					% header and footer line
+%\usepackage{lscape}
+%\usepackage{a4wide}
+\usepackage{color}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{footmisc}
+\usepackage{sectsty}
+\usepackage{wasysym}
+\usepackage{xcolor}
+\usepackage{courier}
+\usepackage{units}
+\usepackage{adjustbox}
+\usepackage[
+  %style=altlist,
+  acronym,
+  toc,
+  nonumberlist,
+  %shortcuts                % ???
+]{glossaries}
+\usepackage[toc,title]{appendix}
+\makeglossaries
+\newacronym{EKF}{EKF}{Extended Kalman Filter}
+\newacronym{UKF}{UKF}{Unscented Kalman Filter}
+\newacronym{AI}{AI}{Artifical Intellegence}
+\newacronym{SPL}{SPL}{Standard Platform League}
+\newacronym{DWT}{DWT}{Discrete Wavelet Transform}
+\newacronym{BPE}{BPE}{Bit-Plane Encoder}
+\newacronym{DPCM}{DPCM}{Differential Pulse Code Modulation}
+\newacronym{VLC}{VLC}{Variable-Length Code}
+\newacronym{GCS}{GCS}{Ground Control Station}
+\newacronym{GPGPU}{GPGPU}{General-Purpose Computation on Graphics Processing Unit}
+\newacronym{CCSDS}{CCSDS}{Consultative Committee for Space Data Systems}
+\newacronym{COTS}{COTS}{commercial off-the-shelf}
+\newacronym{CDF}{CDF}{Cohen-Daubechies-Feauveau}
+\newacronym{TLP}{TLP}{Thread Level Parallelism}
+\newacronym{ILP}{ILP}{Instruction Level Parallelism}
+\newacronym{GPU}{GPU}{Graphics Processing Unit}
+\newacronym{CPU}{CPU}{Central Processing Unit}
+\newacronym{FPGA}{FPGA}{Field-Programmable Gate Array}
+\newacronym{SM}{SM}{Streaming Multiprocessor}
+\newacronym{CUDA}{CUDA}{Compute Unified Device Architecture}
+\newacronym{IDC}{IDC}{Image Data Compression}
+\newacronym{OoO}{OoO}{Out of Order execution}
+\newacronym{ASIC}{ASIC}{Application-Specific Integrated Circuit}
+\newacronym{HPEC}{HPEC}{High Performance Embedded Computing}
+\newacronym{FPA}{FPA}{Focal Plane Assembly}
+\newacronym{SWaP}{SWaP}{Size, Weight and Power}
+\newacronym{EZW}{EZW}{Embedded Zerotree of Wavelet transforms}
+\newacronym{ICER}{ICER}{Compressor in NASA MARS Rovers}
+\newacronym{SPECK}{SPECK}{Set Partitioned Embedded Block Coder}
+\newacronym{WDR}{WDR}{Wavelet Difference Reduction}
+\newacronym{ASWDR}{ASWDR}{Adaptively Scanned Wavelet Difference Reduction}
+\newacronym{JPEG2000}{JPEG2000}{Joint Photographic Experts Group in 2000}
+\newacronym{LCE}{LCE}{Lossy Compression for Exomars}
+\newacronym{SPIHT}{SPIHT}{Set Partitioning In Hierarchical Trees}
+\newacronym{CNES}{CNES}{Centre national d'\'etudes spatiales}
+\newacronym{NASA}{NASA}{The National Aeronautics and Space Administration}
+
+% header and footer line - no header & footer line on pages where a new chapter starts
+\pagestyle{scrheadings}
+%\ohead{Multi-Hypotheses Kalman Filter based Self-Localization for autonomous soccer robots}
+%\ihead{Qian Qian}
+\ofoot[]{\thepage}
+%\ifoot{Master Thesis, TU Berlin, FG AES, 2015}
+
+% set path where images are stored
+\graphicspath{{./img/}}
+
+\input{./misc/hyphenation} 					% use this file to set explicit hyphenations (doesn't seem to work correctly)
+
+\begin{document}
+% ---------------------------------------------------------------
+\frontmatter
+\include{./misc/deckblatt}
+\thispagestyle{empty}
+\cleardoublepage
+
+\include{./misc/thanx}
+\thispagestyle{empty}
+\cleardoublepage
+
+\include{./misc/self-assertion}
+\thispagestyle{empty}
+\cleardoublepage
+
+\include{./misc/abstract}
+\thispagestyle{empty}
+\cleardoublepage
+
+\include{./misc/abstract_de}
+\thispagestyle{empty}
+
+\glsunsetall
+\tableofcontents
+\glsresetall
+\thispagestyle{empty}
+
+\listoffigures
+\thispagestyle{empty}
+
+\listoftables
+\thispagestyle{empty}
+
+\printglossaries
+%\listoftables
+%\thispagestyle{empty}
+
+% --------------------------------------------------------------
+
+\mainmatter % comment single chapters for faster compilation
+
+\input{./chapters/chapter1}
+\input{./chapters/chapter2}
+\input{./chapters/chapter3}
+\input{./chapters/chapter4}
+\input{./chapters/chapter5}
+\input{./chapters/chapter6}
+%\input{./chapters/chapter7}
+%\input{./chapters/chapter8}
+
+% ---------------------------------------------------------------
+%\backmatter % no page numbering from here
+%\pagenumbering{gobble}
+%\input{./misc/acronyms}
+
+% if you want to provide a glossary with explanations of important terms put it in here
+
+%\bibliographystyle{geralpha}
+\bibliographystyle{ieeetr}
+\bibliography{./bib/refpaper,./bib/rfc,./bib/references,./bib/url}
+%\bibliography{./bib/references.bib}
+
+%\input{./misc/annex}
+%Start appendix mode
+\begin{appendices}
+%\backmatter
+\input{./misc/appendix}
+\end{appendices}
+\end{document}

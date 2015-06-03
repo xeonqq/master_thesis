@@ -1,0 +1,268 @@
+\chapter{Evaluation and Discussion\label{cha:chapter7}}
+This chapter describes the various scenarios under which TCP-NCR and TCP-aNCR are evaluated. In the first section of this chapter, TCP-NCR and TCP-aNCR are evaluated under the internet environment by emulating the characteristics found in the wild internet. In the latter section, the algorithms are evaluated in data center scenarios.
+The algorithms are evaluated for Throughput, Application perceived delay, number of spurious retransmits and convergence time under varying parameters of bottleneck bandwidth, round trip time, reordering delay, message size and connection time
+
+\section{Internet environment\label{sec:InternetScenario}}
+In this section, the algorithms are evaluated under different scenarios present in the wild internet. The internet environment is emulated with reference to the \textit{Common TCP Evaluation Suite.}\cite{tcpevalsuite} The topology used for the measurements is as described in fig\ref{fig:internet}.
+
+\subsection{Scenario 1: Performance without packet reordering under different bottleneck bandwidths\label{ss:is1}}
+In this section we study the performance of TCP-NCR and TCP-aNCR with no Packet reordering the network. Without packet reordering in the network, the only reason for packet loss is due to network congestion.
+With no reordering, TCP-aNCR maintains a duplicate threshold of three packets unlike TCP-NCR which waits for a congestion window worth of packets to decide that the packet has been lost and not reordered.
+Thus, TCP-aNCR should be more responsive to network congestion and should immediately retransmit the lost packet. We should further see a smaller application perceived RTT with aNCR because of the retransmission after three duplicate acks.
+\\
+\\
+With this scenario, we also highlight the faireness of TCP-aNCR to other competing flows. We expect to see a lower throughput and lower application perceived latency with aNCR compared to NCR in the presence of competing flows.
+\\
+\\
+\textbf{Testbed settings:}
+\begin{tabbing}
+\quad RTT: 40ms \\
+\quad BNBW: 1Mbps - 100Mbps \\
+\quad Reordering rate: 0\%
+\end{tabbing}
+This scenario is studied under:
+\begin{enumerate}
+    \item Without competing flows to check the maximum attainable throughput
+    \item With competing flows to check the fairness, latency and throughput
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.75]{1.pdf}\\
+    \caption{Performance without packet reordering under different bottleneck bandwidths}\label{fig:1_i}
+\end{figure}
+
+\subsection{Scenario 2: Performance with packet reordering under different bottlenecks\label{ss:is2}}
+In this scenario, we compare the performance of TCP-NCR and TCP-aNCR under different bottlenecks varying from 1Mbps upto 100Mbps. We introduce a reordering percentage of 2\% on the link and a reordering delay of 20ms.
+We should see a similar performance with TCP-NCR and TCP-aNCR. The reason being, The acknowledgement of the reordered packet arrives when the sender is still in Disorder phase. Upon the receival of an ack for the reordered packet,
+both the algorithms transit to Open or a new Disorder phase. Packet retransmits occur during network congestion and it should be interesting to observe the performance of TCP-NCR and TCP-aNCR in Recovery phases when packet reordering occurs.
+\\
+\\
+Furthermore, we should be able to see the benefits of TCP-aNCRs burst protection in Disorder phases during network congestion with packet reordering.
+\\
+\\
+\textbf{Testbed settings:}
+\begin{tabbing}
+\enspace RTT: 40ms \\
+\enspace BNBW: 1Mbps - 100Mbps \\
+\enspace Reordering rate: 2\% \\
+\enspace Reordering delay: 20ms
+\end{tabbing}
+This scenario is studied under:
+\begin{enumerate}
+    \item Without competing flows to check the maximum attainable throughput
+    \item With competing flows to check the fairness, latency and throughput
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.75]{2.pdf}\\
+    \caption{Performance with packet reordering under different bottlenecks}\label{fig:2_i}
+\end{figure}
+
+\
+\subsection{Scenario 3: Performance with packet reordering under varying RTTs\label{ss:is3}}
+In this section we study the performance of TCP-NCR and TCP-aNCR under varying RTTS and a reordering rate of 2\% and a reordering delay of 5ms. With a constant reordering delay and varying RTT, the relative reordering extent of aNCR also varies from a high value at lower RTTS to a lower value at high RTTs.
+Thus, at higher RTTS, with a lower reordering delay, aNCR's duplicate threshold value is much lesser. Especially during both network congestion and packet reordering, we should observe aNCR quickly detecting packet loss as it quickly acheives the required dupthresh to enter recovery.
+\\
+\\
+\textbf{Testbed settings:}
+\begin{tabbing}
+\enspace RTT: 40ms \\
+\enspace Reordering rate: 2\% \\
+\enspace Reordering delay: 5ms
+\end{tabbing}
+This scenario is studied under:
+\begin{enumerate}
+    \item limitation by Bottleneck bandwidth
+    \item Application limited data rate
+    \item limited by the receiver window
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.75]{3.pdf}\\
+    \caption{Performance with packet reordering under varying RTTs}\label{fig:3_i}
+\end{figure}
+
+\
+\subsection{Scenario 4: Performance with varying packet reordering rate\label{ss:is4}}
+In this section we study the performance of TCP-NCR and TCP-aNCR under varying reordering rate from 0\% upto 40\% and a constant reordering delay of 20ms. The goal of this scenario is to study the throughput, latency and spurious retransmissions at different reordering rates.
+\\
+\\
+\textbf{Testbed settings:}
+\begin{tabbing}
+\enspace RTT: 40ms \\
+\enspace Reordering rate: 0\% - 40\% \\
+\enspace Reordering delay: 20ms
+\end{tabbing}
+This scenario is studied under:
+\begin{enumerate}
+    \item limitation by Bottleneck bandwidth
+    \item Application limited data rate
+    \item limited by the receiver window
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.75]{4.pdf}\\
+    \caption{Performance with varying packet reordering rate}\label{fig:4_i}
+\end{figure}
+
+\
+\subsection{Scenario 5: Performance with varying reordering delay\label{ss:is5}}
+In this section we study the performance of TCP-NCR and TCP-aNCR under varying reordering delay from 5m upto 100ms and a constant reordering delay of 20ms. The goal of this scenario is to study the throughput, latency and spurious retransmissions at different reordering rates.
+With a varying reordering delay, we are also varying the relative reordering extent. At higher reordering delays, aNCR's reordering extent reaches a factor of 1, i.e., equals the duplicate threshold value of NCR. We should expect a similar performance between NCR and aNCR at higher reordering delays. However, we should expect better performance at lower reordering delays.
+\\
+\\
+\textbf{Testbed settings:}
+\begin{tabbing}
+\enspace RTT: 40ms \\
+\enspace Reordering rate: 2\% \\
+\enspace Reordering delay: 5ms - 100ms
+\end{tabbing}
+This scenario is studied under:
+\begin{enumerate}
+    \item limitation by Bottleneck bandwidth
+    \item Application limited data rate
+    \item limited by the receiver window
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.75]{5.pdf}\\
+    \caption{Performance with varying reordering delay}\label{fig:5_i}
+\end{figure}
+
+\
+\subsection{Scenario 6: Performance with reverse path loss\label{ss:is6}}
+In this section we study the performance of TCP-NCR and TCP-aNCR under reverse path losses and packet reordering. aNCR depends on DSACKs to detect spurious retransmissions. In the event of finding a DSACK, aNCR restores the previous relative reordering extent. However, DSACKs are reported in only 1 acknowledgement. Therefore, aNCR may be vulnerable to high reverse path losses.
+On the contarary, aNCR implements burst protection during extended limited transmit. In the event of a duplicate ack with a SACK block acknowledging more than one segment, aNCR ensure that only IW worth of packets are transmitted. Therefore, with high reverse path losses and when in extended limited transmit, we can observe the reduction in the throughput with aNCR in reaction to the congested network.
+\\
+\\
+\textbf{Testbed settings:}
+\begin{tabbing}
+\enspace RTT: 40ms \\
+\enspace Reordering rate: 2\% \\
+\enspace Reordering delay: 20ms \\
+\enspace Reverse path loss: 0\% - 30\%
+\end{tabbing}
+This scenario is studied under:
+\begin{enumerate}
+    \item limitation by Bottleneck bandwidth
+    \item Application limited data rate
+    \item limited by the receiver window
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.75]{6.pdf}\\
+    \caption{Performance with reverse path loss}\label{fig:6_i}
+\end{figure}
+
+\
+\section{Data center environment\label{sec:DCScenario}}
+In this section, we study the performance of TCP-NCR and TCP-aNCR under data center environment. The data center environment is emulated with reference to \textit{Common TCP Evaluation Suite.}\cite{tcpevalsuite}, \textit{Understanding Data Center Traffic Characteristics}\cite{Benson:2010:UDC:1672308.1672325} and \textit{Network traffic characteristics of data centers in the wild.}\cite{Benson:2010:NTC:1879141.1879175} In our test bed, the following experiments are conducted over 1GbE and 10GbE links as described in fig\ref{fig:dcsetup}.
+There are no traffic shaping or traffic policing in the following experiments.
+%The core link utilization is maintained at 70\%. There is plentiful of bandwidth, no bottlenecks and the datarate is application limited based on the required number of flows. Since there are no current documents regarding packet reordering in data centers, We introduce a small reordering percentage in the network and observe the behavior of TCP-NCR and TCP-aNCR under various parameters as detailed in the following sub-sections.
+\\
+\subsection{Scenario 1: Performance without packet reordering.\label{ss:dc1}}
+This scenario is studied under:
+\begin{enumerate}
+    \item Without competing flows to check the maximum attainable throughput
+    \item With competing flows to check the fairness, latency and throughput
+\end{enumerate}
+
+%for fairness to other TCP flows at different link utilizations.
+\textbf{Testbed settings:}
+\begin{tabbing}
+\quad RTT: 0.3ms \\
+\quad bottleneck link capacity: 1Gbps and 10Gbps \\
+\quad Reordering rate: 0\% \\
+\quad Reordering delay: 0ms \\
+%\quad Number of flows: 1000/100 \\
+\quad Number of flows: TBD \\
+%\quad Datarate of each flow: 1Mbps/100Kbps
+\end{tabbing}
+Note: To be decided\\
+
+\subsection{Scenario 2: Performance under mild packet reordering.\label{ss:dc2}}
+%In this section, we study TCP-NCR and TCP-aNCR with mild Packet reordering in the network for fairness to other TCP flows. We introduce a mild packet reordering of 2\% and a reordering delay of 0.2ms. The scenario is run at different link utilizations.
+In this section, we study TCP-NCR and TCP-aNCR with mild Packet reordering in the network. We introduce a mild packet reordering of 2\% and a reordering delay of 0.2ms. The scenario is run at different bottleneck link capacities.
+\\
+\\
+This scenario is studied under:
+\begin{enumerate}
+    \item Without competing flows to check the maximum attainable throughput
+    \item With competing flows to check the fairness, latency and throughput
+\end{enumerate}
+
+\textbf{Testbed settings:}
+\begin{tabbing}
+\quad RTT: 0.3ms \\
+\quad bottleneck link capacity: 1Gbps and 10Gbps \\
+\quad Reordering rate: 2\% \\
+\quad Reordering delay: 0.2ms \\
+\quad Number of flows: TBD \\
+%\quad Number of flows: 100/1000 \\
+%\quad Datarate of each flow: 1Mbps/100Kbps
+\end{tabbing}
+Note: To be decided\\
+
+%\subsection{Scenario 3: Performance under varying RTTs.\label{ss:dc3}}
+%In this section, we study TCP-NCR and TCP-aNCR with mild Packet reordering in the network for fairness to other TCP flows. We introduce a mild packet reordering of 2\% and a reordering delay of 0.2ms. The scenario is run at varying RTTs from 0.3ms to 1ms.
+%\\
+%\\
+%\textbf{Testbed settings:}
+%\begin{tabbing}
+%\quad RTT: 0.3ms - 1ms\\
+%\quad Core link: 10Gbps \\
+%\quad Reordering rate: 2\% \\
+%\quad Reordering delay: 0.2ms \\
+%\quad Number of flows: 100/1000 \\
+%\quad Datarate of each flow: 1Mbps/100Kbps
+%\end{tabbing}
+%Note: To be decided\\
+
+\subsection{Scenario 3: Performance under varying reordering rates.\label{ss:dc3}}
+In this section, we study TCP-NCR and TCP-aNCR with varying reordering rates in the network for fairness to other TCP flows. We maintain a constant RTT of 0.3ms and vary the reordering rate from 0\% to 10\% with a reordering delay of 0.2ms.
+\\
+\\
+This scenario is studied under:
+\begin{enumerate}
+    \item Without competing flows to check the maximum attainable throughput
+    \item With competing flows to check the fairness, latency and throughput
+\end{enumerate}
+
+\textbf{Testbed settings:}
+\begin{tabbing}
+\quad RTT: 0.3ms\\
+\quad bottleneck link capacity: 1Gbps and 10Gbps \\
+\quad Reordering rate: 0\% - 10\% \\
+\quad Reordering delay: 0.2ms \\
+\quad Number of flows: TBD \\
+%\quad Number of flows: 100/1000 \\
+%\quad Datarate of each flow: 1Mbps/100Kbps
+\end{tabbing}
+Note: To be decided\\
+
+\subsection{Scenario 4: Performance under varying reordering delays.\label{ss:dc54}}
+In this section, we study TCP-NCR and TCP-aNCR with varying reordering delays in the network for fairness to other TCP flows. We maintain a constant RTT of 1ms, reordering rate of 2\% and vary the reordering delay from 0.1ms to 1ms.
+\\
+\\
+This scenario is studied under:
+\begin{enumerate}
+    \item Without competing flows to check the maximum attainable throughput
+    \item With competing flows to check the fairness, latency and throughput
+\end{enumerate}
+\textbf{Testbed settings:}
+\begin{tabbing}
+\quad RTT: 0.3ms\\
+\quad bottleneck link capacity: 1Gbps and 10Gbps \\
+\quad Reordering rate: 0\% - 10\% \\
+\quad Reordering delay: 0.2ms \\
+\quad Number of flows: TBD \\
+%\quad Number of flows: 100/1000 \\
+%\quad Datarate of each flow: 1Mbps/100Kbps
+\end{tabbing}
+Note: To be decided\\
