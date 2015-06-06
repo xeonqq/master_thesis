@@ -1,30 +1,57 @@
 \chapter{Introduction\label{cha:chapter1}}
 
 Robot Soccer World Cup, known as RoboCup, is an annual international robotics competition conducted since 1997. It aims to foster research and development of robotics and \gls{AI}, by offering a public appealing but challenging competition. RoboCup consists five major competition domain, they are RoboCup Soccer, RoboCup Rescue, RoboCup@Home, RoboCup Logistics and RoboCup Junior. Currently the RoboCup Soccer includes several soccer leagues to cover difference research challenges. The main concern in this paper is the \gls{SPL} under the sub-category of RoboCup soccer, in which all the teams use identical humanoid robot NAO that manufactured by Aldebaran Robotics{\textregistered}. The robots should operate fully autonomously without external control. 
-The research regarding RoboCup \gls{SPL} has been actively conducted under various topics. DAInamite, a team from DAI-Labor, TU-Berlin, which also has continuous research on humanoid robots NAO, and their first participation in the world championship in the SPL was in RoboCup 2013 in Eindhoven, reaching the quater finals. %In addition to \cpp{}, Python is mainly used in the team's code.
+The research regarding RoboCup \gls{SPL} has been actively conducted under various topics. DAInamite, a team from DAI-Labor, TU-Berlin, which is dedicated in advancing robot technology, they have continuous reseach on humanoid robot NAO and their first participation in the world championship in the SPL was in RoboCup 2013 in Eindhoven, reaching the quater finals. The code base from DAInamite consists of several modules including motion, vision, behavior, localization, etc, which makes the NAO robot fully functional and competitive in the RoboCup game.
+The implementation of the localization algrithm proposed in this paper will be based on the current software infrastructure of DAInamite,  
+%In addition to \cpp{}, Python is mainly used in the team's code.
 %The main advantage for using Python is having a flexible programming language for rapid development of new ideas and prototypes.
 %The time-critical components for motion, and vision are implemented in \cpp{}. The remaining modules such as localization,  behavior, and ball-tracking are implemented in Python.
 
 \section{Motivation\label{sec:moti}}
-Localization awareness is a central aspect for many pervasive computing applications, especially for autonomous robots playing soccer. The high level decision making depends highly on the accuracy of the location of the robot, e.g. moving towards a particular direction to split the defense of the defender, or kicking the ball to the goal, or distinguishing the opponent's goal from its own. If the result of localization is inaccurate, it will not only curtail the performance of other algorithms like ball tracking and goal saving, but also prohibit developing advanced techniques for competitive enhancement like opponent modeling or passing ball to teammate. Because, for example, if the ball's position has been correctly detected, due to the inaccuracy of the self-localization of the robot, it perceives itself to be next to the ball, although it is not, so the following ball kicking decision made by the high level robot engine will have no effect. \autoref{fig:robot_perception} illustrates how the robot perceives itself at one particular time.
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.6\textwidth]{robot_perceive.png}
-  \caption{Robot perception of its location at one particular time~\cite{Quinlan2010}}
-  \label{fig:robot_perception}
-\end{figure}
+Localization awareness is a central aspect for many pervasive computing applications, especially for autonomous robots playing soccer. Just like human,  when playing soccer, we need to know where we are on the field, in order to make decsions and perform actions. The same applies to the robots playing soccer in RoboCup. The high level decision making depends highly on the accuracy of the location of the robot, e.g. moving towards a particular direction to split the defense of the defender, or kicking the ball to the goal, or distinguishing the opponent's goal from its own. If the result of localization is inaccurate, it will not only curtail the performance of other algorithms like ball tracking and goal saving, but also prohibit developing advanced techniques for competitive enhancement like opponent modeling or passing ball to teammate. 
+
+%Because, for example, if the ball's position has been correctly detected, due to the inaccuracy of the self-localization of the robot, it perceives itself to be next to the ball, although it is not, so the following ball kicking decision made by the high level robot engine will have no effect. \autoref{fig:robot_perception} illustrates how the robot perceives itself at one particular time.
+%\begin{figure}[h]
+%  \centering
+%  \includegraphics[width=0.6\textwidth]{robot_perceive.png}
+%  \caption{Robot perception of its location at one particular time~\cite{Quinlan2010}}
+%  \label{fig:robot_perception}
+%\end{figure}
 
 In many other applications like self driving car, many sensors including the GPS, laser scanners, radar or high end 3D cameras are being used to help localizing the car. 
-However, for the NAO robot, with limited number of sensors and restricted computational capability of the processing unit, the localization problem becomes particularly challenging. The robot is able to get odometry and sensor data from the gyro and accelerometer to help predict the location. It also has two HD cameras to provide information about the surrounding environment, but the depth information in the images from the cameras is not provided. From the images, the robot
-extracts landmarks as input for localization calculation. Due to the non-uniqueness of most of the landmarks in the \gls{SPL} field and the false positive results from image processing, 
-the location of the robot cannot be easily calculated from vision result. First, the environment is dynamically changing as the other moving robots may occlude the landmark or the robot can be confused 
-by the object outside the field. Second, the movement of the robot can not be predicted when the robot collides with each other and falls down or slips on the ground. Furthermore, the soccer field itself is symmetrically structured, which means the two halfs of the field are the same, this further increases the ambiguity in the environment 
-and imposes difficulty on localizing the robot. Hence, the localization algorithm should be able to 
-handle noisy observations with ambiguous data and give optimal result. Last but not least, as a robot with an embedded platform, Nao uses a single core Intel Atom @ 1.6 GHz as processing unit. 
-In order not to affect other critical modules like motion and vision which have higher execution priorities, the algorithm for localization should also be computational efficient.
+However, for the NAO robot, with limited number of sensors and restricted computational capability of the processing unit, the localization problem becomes particularly challenging. The robot is able to get odometry information from the body kinematics and \gls{IMU} to calculate the supposed walking distance, and using this to help predict its location. 
+Although the odometry information is the most direct measurement for the input of localization calculation, inherited systematic error like insymmetry of the installation of the joint motors will cause the robot to constantly produce offset in walking, or unpredicted enviroment factor like foot slipping on the ground, bump into obstacles. 
+The accumulated odometry error throughout a time period will result in unaccecptable localization result. 
 
-The proposed localization algorithm will base on the work of DAInamite team from TU Berlin. DAInamite team is dedicated in advancing robot technology and has participated in RoboCup 2013 and 2014, and they achieved good result in both competitions.  They have done many research as well as implementation for the NAO robot, the current localization algorithm is implemented based on particle filter.
- 
+Besides odometry information, the NAO robot can also use its two \gls{HD} cameras to sense the surrounding environment, but without depth information. Since the cameras are not wide angle, the robot can only get local partial perception of field at any given time.
+%, thus activly sensing the enviroment is necessary for the robot.
+With image processing, landmarks or features can be extacted from the images as another input for localization calculation. However, due to the non-uniqueness of most of the landmarks in the \gls{SPL} field and false positive results from image processing, the landmarks become severely ambiguous. On the other hand, the image could also be blurred due to the motion of the robot and the environment is dynamically changing as the other moving robots may occlude the landmark. These challenges impose significant difficulties not only in detecting the features from the noisy image, but also the kownhow of employing ambiguous landmarks for localization. 
+
+
+Furthermore, the soccer field itself is symmetrically structured, which means the two halfs of the field are the same. To counter this problem, normally features outside of the field needed to be considered to differentiate one side from the other.
+Not to mention,  NAO robot has limited computation power, which require the localization algorithm to be computational efficient and not to affect other critical modules like motion and vision which have higher execution priorities.
+
+\section{Robot Structure and Hardware}
+The robot used in this paper for localization algorithm development is NAO V4 robot from Aldebaran Robotics{\textregistered}. The robot is 573 mm in height, 275 mm in width. The body construction and the equipped sensors are illustrated in \autoref{fig:nao body construction}
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.7\textwidth]{nao_h21_pres.png}
+  \caption{Body construction of NAO V4}
+  \label{fig:nao body construction}
+\end{figure}
+
+Which is not shown in \autoref{fig:nao body construction} is that the robot also has one 2 axis gyrometer and one 3 axis accelerometer inside the body, a \gls{FSR} on each foot bottom.
+The robot runs a Gentoo version of Linux and the mother board reside in the head of the robot. The specification of the mother board is:
+\begin{itemize}
+  \item ATOM Z530 1.6 GHz CPU\footnote{It is a single core processor, but with hacking of the linux kernel, Interl{\textregistered} Hyper-Threading can be enabled}
+\item 1 GB RAM
+\item 2 GB Flash memory
+\item 8 GB Micro SDHC
+\end{itemize}
+
+
+
 \section{Problem Formulation}
 
 In the robotic localization problem, the algorithm is mainly concerned with estimating the ``state'' of the robot. The ``state'' in the context of the RoboCup \gls{SPL} refers to the location (2D Cartesian coordinate) and the orientation of the robot. In this case the state to be estimated can be written as a 3 dimensional vector $x(t)$
@@ -36,78 +63,11 @@ $x(t) =
   \theta(t) 
  \end{bmatrix} $ \\
 \end{center}
-where ($x_{r}(t)$, $x_{r}(t)$) denote the Cartesian coordinates and $\theta(t)$ is the orientation of the robot at time $t$. A probabilistic representation is used to describe the uncertainty, it is a probability distribution over the state $x(t)$ called belief, written as $Bel(x_{t})$.
+where ($x_{r}(t)$, $x_{r}(t)$) denote the Cartesian coordinates and $\theta(t)$ is the orientation of the robot at time $t$. As stated in \autoref{sec:moti}, the environment the robot reside in is inherently unpredictable, sensors are limited in what they can percieve, the joint motors are also to some extent unpredictable. Hence, a probabilistic representation is used to describe the uncertainty of the robot location, the probability distribution over the state $x(t)$ is called belief, written as $Bel(x_{t})$.
  
-In order to estimate the state $x(t)$, localization algorithm takes the detected objects from vision in the field as one of the inputs for the localization algorithm. The DAInamite's vision module can detect goal post, lines in the field and boundary of the field, and by projecting the landmarks from the image frame to the robot's local frame, distances to the robot can be estimated. Furthermore, the odometry is also fed to the localization algorithm. The odometry of the robot is calculated by motion module, given that the robot has at least one foot fixed on the ground. To compensate drawbacks of the odometry, the moving trajectory has been estimated from the equipped motion sensors like accelerometers and gyrometers.
+In order to estimate the state $x(t)$ and the belief $Bel(x_{t})$, localization algorithm takes the detected objects from vision in the field as one of the inputs for the localization algorithm. The DAInamite's vision module can detect yellow goal post, center circle, penalty area, lines in the field and boundary of the field, and by projecting the landmarks from the image frame to the robot's local frame, distances to the robot can be estimated. Furthermore, the odometry information is also fed to the localization algorithm. The odometry of the robot is obtained from the motion module by calculating the body kinematics, given that the robot has at least one foot fixed on the ground. 
 
 
-\section{Motivation2\label{sec:moti}}
-\subsection{GPGPUs for airborne and satellite imagery}
-Designers of \gls{HPEC} systems for the military, space and aerospace markets have some criteria when choosing the primary processor for signal- and image-processing applications. The focus being on space and remote sensing applications, the architectures deployed need to be mandatorily space-qualified in order to be a potential solution. The \autoref{tab:comparchs} lists the criteria for the choice of computing architectures for space and remote sensing applications. 
-\\
-\begin{table}[h]
-\begin{tabular}{@{}ccc@{}}
-\toprule
-Architectures & Radiation Tolerance     & High Throughput capabilities \\ \midrule
-COTS CPU      & No                      & No                           \\
-ASIC          & Yes                     & Yes                          \\
-FPGA          & Yes                     & Yes                          \\
-GPGPU         & No, maybe in the future & Yes                          \\ \bottomrule
-\end{tabular}
-\caption{Choice of computing architectures for space and remote sensing applications}\label{tab:comparchs}
-\end{table}
-\\
-\glspl{GPU} historically have been power hogs, which is problematic in battery-critical scenarios, but the latest \gls{GPGPU} products have reduced that liability. NVIDIA's Tegra X1 \gls{GPU}/\gls{CPU} chipset, for example, burns less than 10W. Two developments have manifested the choice of \glspl{GPGPU} over \glspl{FPGA} in the recent past. First, \glspl{GPGPU} have emerged that are nearing parity with \glspl{FPGA} in both performance and power consumption. Second, the space/aerospace markets itself have changed, with budgetary necessity driving officials to demand \gls{SWaP} tradeoffs. As a result, \glspl{GPGPU} are becoming more popular and may eventually overshadow \glspl{FPGA}, as the latter alternative takes on a more subordinate role. Thus, the \glspl{GPGPU} being software programmable and their suitability to data parallel throughput expecting algorithms, the \gls{CCSDS} 122.0-B-1 compression standard is investigated for its data level parallelism and consequently ported to a \gls{GPGPU} platform.
-
-\section{Problem Description\label{sec:probdesc}}
-The previous section discussed the suitability of the GPUs for signal processing based space applications in a broader sense. Many image compression standards such as JPEG2000, SPIHT and EZW to name a few, have been tried on \glspl{GPGPU} owing to inherent data-parallelism in some way or another. The \gls{CCSDS} compression standard also exhibits data parallelism in its encoding stages. It comprises of 2 major stages namely, \gls{DWT} and \gls{BPE} as illustrated in the \autoref{fig:ccsds_schematic}. Both these stages offer data parallelism. However, there has been a lot of \gls{GPGPU} implementations in the recent past concerned to the \gls{DWT} as it is a generic transformation used in various image compression standards. Hence, the thesis focusses on the Bitplane encoder stage of the \gls{CCSDS} 122.0-B-1 standard. Thus the primary goal of the thesis is:
-\\
-\\
-``\textit{To parallelize \gls{CCSDS} 122.0-B-1 Bit Plane Encoder using GPGPUs to achieve high throughput performance}"
-%\\
-%\\
-%The DWT stage of encoding is also parallelised using the already available work so that both the CCSDS 122.0-B-1 encoding stages are parallelised separately. 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.9\textwidth]{ccsds_schematic}\\
-    \caption{General Schematic of the \gls{CCSDS} 122.0-B-1 Encoder\cite{CCSDS122blue}}\label{fig:ccsds_schematic}
-\end{figure}
-
-\section{Scope\label{sec:scope}}
-As previously highlighted, the focus is particularly on the \gls{CCSDS} 122.0-B-1 encoder as the image stream captured by the satellite needs to be real-time compressed to reduce the amount of storage memory and/or conserve communication bandwidth. Although the decoder in principle is as computationally intensive as the encoder, it is not so time-critical in this regard as it has the convenience of running on the \gls{GCS} on Earth in order to render the decoded data. Moreover, since the encoder needs to be deployed on-board with the satellites, it is relevant for the thesis to focus only on implementing the encoder on the \gls{GPGPU} platform, and performing comparative analysis against its host and \gls{FPGA} implementations.
-\subsection{Hardware Platform}
-The reference implementation of the encoder shall be run on the state of the art \unit[3.47]{GHz} single core Intel{\textregistered} Xeon{\texttrademark} for obtaining a host profile. The state of the art FPGA implementation from \cite{Manthey2014} is used for comparative analysis. The GPU used shall be NVIDIA{\textregistered} GeForce{\textregistered} GTX 670 launched in 2013 as a GPGPU platform to demonstrate the prototype. The \autoref{fig:gtx670} illustrates the block diagram of this \gls{GPU} platform. The \autoref{fig:gtx670specs} shows the specifications of this chipset. In a nutshell, the \gls{GPU} card contains 7 \glspl{SM}, each with 192 \gls{CUDA} cores to sum up to a total of 1344 cores. Also, the presence of \unit[2048]{MB} of global \gls{GPU} memory ensures a significant storage to fit the large input image data of the orders of \unit[16]{k} by \unit[32]{k} pixel words. Hence the \gls{GPU} card used is a good enough prototype platform, although it is not one of the latest NVIDIA graphic cards as of now.
-%\begin{figure}[!h]
-%\begin{floatrow}
-%    \ffigbox{\includegraphics[scale = 0.26]{gtx_670.jpg}}{\caption{GTX 670 block diagram}\label{fig:gtx670}}
-%    \ffigbox{\includegraphics[scale = 0.345]{gtx_670_specs.jpg}}{\caption{GTX 670 specifications}\label{fig:gtx670specs}}
-%\end{floatrow}
-%\end{figure}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.55\textwidth]{gtx_670}\\
-    \caption{Geforce GTX 670 architecture block diagram}\label{fig:gtx670}
-\end{figure}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.55\textwidth]{gtx_670_specs}\\
-    \caption{Geforce GTX 670 specifications}\label{fig:gtx670specs}
-\end{figure}
-\subsection{Test Images}
-The conformance single spectrum image set specified by the \gls{CCSDS} 122.0-B-1 standard is used to test the correctness of the encoder(Put a reference here to Appendix). The encoded bitstream is validated by decoding using a reference implementation of the \gls{CCSDS} 122.0-B-1 decoder on the host machine. The input image raw data to the encoder and the output raw data from the decoder is checked for bitwise match to ensure lossless reconstruction of the input image from the compressed bitsteam.
-\subsection{Image Channels}
-The \gls{CCSDS} 122.0-B-1 compression standard inherently has multispectral support. However, the implementation shall be restricted to testing single spectrum conformance input images. The reference-, \gls{FPGA}- and \gls{GPGPU}-implementation shall be profiled for single spectrum image-set for consistency reasons in benchmarking.
-\subsection{Compression Mode}
-Also, the \gls{CCSDS} 122.0-B-1 compression standard operates in lossy/lossless modes. The compression standard is explained in detail in the \autoref{cha:chapter3}. The lossless mode is expected to run through the entirety of the algorithm without exiting intermediately, to produce the worst case execution time in comparison to the lossy mode which could be configured to exit at different stages based on the quality parameters. The thesis focuses on the ``\textbf{\textit{lossless}}" due to the aforesaid reason to analyse the worst case execution time of the encoder. Also, it could also be safe enough to assume lossless or near-lossless compression to be obligatory in several cutting-edge scientific missions which refuse the ideology of abiding by lossy compression.
-
-\section{Contributions\label{sec:contributions}}
-The thesis proposes \gls{GPGPU} as a new potential architecture for space and remote sensing applications for DLR. The thesis contributes the following in this regard.
-\begin{itemize}
-  \item The \gls{CCSDS} 122.0-B-1 algorithm is thoroughly profiled on the host reference implementation to identify the most appropriate loopnest(s) to be parallelised and eventually ported to run on GPU.
-  \item The bit-plane encoding module of the \gls{CCSDS} 122.0-B-1 is ported and optimised for high performance on the NVIDIA \gls{GPU} platform using \gls{CUDA}.
-  \item The comparative analyses of performance/power/area metrics versus the state of the art reference and \gls{FPGA} implementations.
-\end{itemize}
-%The state of the art open-source 3 level 2D integer DWT CUDA implementation(Put the reference here) is reused and the bit plane encoder CUDA implementation is developed from scratch. 
 \section{Thesis Outline\label{sec:outline}}
 
 The rest of the thesis is structed as follows.
@@ -119,11 +79,10 @@ The rest of the thesis is structed as follows.
 \textbf{\autoref{cha:chapter2}} This chapter describes the `Background and Related Work' concerned to localization methods for robots in RoboCup. 
 \\
 \\
-\textbf{\autoref{cha:chapter3}} This chapter formulates the localization problem in a mathematic way.   
+\textbf{\autoref{cha:chapter3}} This chapter xxx  
 \\
 \\
 %\textbf{\autoref{cha:chapter4}} This chapter describes the current DAInamite software architecture in NAO robot for RoboCup, and how localization is related to other modules like motion and vision. 
-
 \textbf{\autoref{cha:chapter5}} This chapter explains the motion model and sensor model chosen for Kalman Filter based localiztion 
 \\
 \\
