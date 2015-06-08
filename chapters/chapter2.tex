@@ -7,7 +7,7 @@ In robotics, significant researches have been carried out to make the robot loca
 \section{Bayes Filters}\label{sec:2.1}
 Bayes filter aims to sequentially estimate the belief of the state conditioned on all the information obtained in the sensor data. As illustration, assume the sensor data has a sequences of time-indexed sensor data. The belief of state $x(t)$ $Bel(x_{t})$ can be represented as a posterior probability density conditioned on all the sensor data from the past observations, $z_{1},z_{2} \ldots z_{t}$.
 $$Bel(x_{t}) = p(x_{t}|z_{1}, z_{2}, \ldots, z_{t})$$
-However, the computation complexity of such belief is growing exponentially with the increase of observations. To make the computation feasible, Bayes filters assume that the the dynamic system is Markov. It means the state belief at time $t$ only depends only on the preivious state information at time $t-1$. Bayes filter includes two components to estimate the state belief.
+However, the computation complexity of such belief is growing exponentially with the increase of observations. To make the computation feasible, Bayes filters assume that the dynamic system is Markov. It means the state belief at time $t$ only depends only on the previous state information at time $t-1$. Bayes filter includes two components to estimate the state belief.
 \\
 \\
 \noindent \textit{Time update (prediction)}\\
@@ -24,7 +24,7 @@ $p(z_{t}|x_{t})$ represent the probability of making observation $z_{t}$ given t
 Moreover, the update of the belief in Bayes filter is recursive, which means the belief at time $t$ is calculated from belief at time $t-1$. This process continues recursively. Bayes Filter provides the theoretical basis for the following filters to be discussed, namely particle filters and Kalman filters. 
 
 \subsection{Particle Filter}
-Particle Filter, also known as \gls{MCL}, is the localization algorithm that is currently under use for the SPL robot in DAInamite. Particle filter represent a probability distribution by a set of samples or particles. Each particle represents a concrete state in the current system at time t, in our case it will be the one instantiation of coordinates and the orientation. Meanwhile each particle is also associated with a weight which indicates how probable the state is in the system. In practice, the number of particles is huge in order to provide a close hypothesis for the true world, and normally 1000 particles are needed to approximate the SPL soccer field. Following the principle of Bayes filters, the motion update will move the particles according to the motion model; measurement update will result in a resampling of the particles, in which the particles with higher weigh will survive, on the other hand, the ones with lower weight will die out, and in replacement particles close to the area of the surviving ones will be generated. In the DAInamite SPL robot, due to limited computation power of NAO, only 60 particles are instantiated in the system, with such low number of particles, the system state can hardly being estimated. As an enhancement for this, the technique of Particle filter resetting is used to improve the performance of the localization algorithm with low number of particles. It produces particles with high weights for locations where unambiguous observations are made. The high weight particles help to provide relatively reliable base states which help to result in correct location interpretation in the later recursive processing. 
+Particle Filter, also known as \gls{MCL}, is the localization algorithm that is currently under use for the \gls{SPL} robot in DAInamite. Particle filter represent a probability distribution by a set of samples or particles. Each particle represents a concrete state in the current system at time $t$, in our case it will be the one instantiation of coordinates and the orientation. Meanwhile each particle is also associated with a weight which indicates how probable the state is in the system. In practice, the number of particles is huge in order to provide a close hypothesis for the true world, and normally 1000 particles are needed to approximate the \gls{SPL} soccer field. Following the principle of Bayes filters, the motion update will move the particles according to the motion model; measurement update will result in a resampling of the particles, in which the particles with higher weigh will survive, on the other hand, the ones with lower weight will die out, and in replacement particles close to the area of the surviving ones will be generated. In the DAInamite \gls{SPL} robot, due to limited computation power of NAO, only 60 particles are instantiated in the system, with such low number of particles, the system state can hardly being estimated. As an enhancement for this, the technique of Particle filter resetting is used to improve the performance of the localization algorithm with low number of particles. It produces particles with high weights for locations where unambiguous observations are made. The high weight particles help to provide relatively reliable base states which help to result in correct location interpretation in the later recursive processing. 
 Advantages
 
 \noindent\textbf{Advantages}
@@ -57,14 +57,14 @@ $$x_k = F_kx_{k-1}+B_k\mu_k+w_k$$
 
 where
 \begin{itemize}
-  \item $F_k$ is the state transition model which is applied to the previous state $x_{k-1}$;  
-  \item $B_k$ is the control-input model which is applied to the control vector uk;
-  \item $w_k$ is the process noise which is assumed to be drawn from a zero mean multivariate normal distribution with covariance $Q_k$.
+  \item $F_k$ is the state transition model which is applied to the previous state $x_{k-1}$;  
+  \item $B_k$ is the control-input model which is applied to the control vector $u_k$;
+  \item $w_k$ is the process noise which is assumed to be drawn from a zero mean multivariate normal distribution with covariance $Q_k$.
 \end{itemize}
 $$w_k \sim N(0,Q_k)$$
-At time k an observation (or measurement) $z_k$ of the true state $x_k$ is made according to
+At time $k$ an observation (or measurement) $z_k$ of the true state $x_k$ is made according to
 $$z_k = H_kx_k + v_k$$
-Where $H_k$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
+Where $H_k$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
 $$v_k \sim N(0,R_k)$$
 Since Kalman filter is a variant implementing the Bayes filters, it follows the prediction-correction routine defined in Bayes filters.
 \\
@@ -76,7 +76,7 @@ Predicted (a priori) estimate covariance $P_{k\mid k-1} =  F_{k} P_{k-1\mid k-1}
 \noindent\textit{Measurement Update}\\
 Innovation or measurement residual $\tilde{y}_k = z_k - H_k\hat{x}_{k\mid k-1}$ \\
 Innovation (or residual) covariance $S_k = H_k P_{k\mid k-1} H_k^\text{T} + R_k$ \\
-Optimal Kalman gain $K_k = P_{k\mid k-1}H_k^\text{T}S_k^{-1}$ \\
+Optimal Kalman gain $K_k = P_{k\mid k-1}H_k^\text{T}S_k^{-1}$ \\
 Updated (a posteriori) state estimate $\hat{x}_{k\mid k} = \hat{x}_{k\mid k-1} + K_k\tilde{y}_k$ \\
 Updated (a posteriori) estimate covariance $P_{k|k} = (I - K_k H_k) P_{k|k-1}$ \\
 
@@ -89,12 +89,12 @@ Updated (a posteriori) estimate covariance $P_{k|k} = (I - K_k H_k) P_{k|k-1}$ \
 \noindent\textbf{Disadvantages}
 \begin{itemize}
   \item  Kalman filter works well only with linear system dynamics. In the SPL, neither the motion model nor the observation model of the robot is linear, thus the state transition equation defined above cannot be straightforwardly used. Others techniques to deal with non-linearity proposed in Extended Kalman filter and Unscent Kalman filter needed to be applied.
-  \item  Kalman filter works with uni-modal probability distribution, in other words, uni-modal means there is only a single highest value in the probability distribution under consideration. However, due to the ambiguity of the vision data input, there could be multiple locations which are the potential candidates. In this case, the probability distribution is multi-modal.
+  \item  Kalman filter works with uni-modal probability distribution, in other words, uni-modal means there is only a single highest value in the probability distribution under consideration. However, due to the ambiguity of the vision data input, there could be multiple locations which are the potential candidates. In this case, the probability distribution is multi-modal.
 \end{itemize}
 
 
 \subsection{Multi-Model Kalman Filter}
-While in the realm of robot system, the sensor model and motion model for robot localization are hardly linear, many other theories like \gls{EKF} has been proposed which approximate the system to be linear so that the equations from Kalman filer can be utilized. However since \gls{EKF} assume the posterior probability is still Gaussian distribution, it performs rather like a maximum likelihood estimator than as a minimum variance estimator~\cite{alspach1972nonlinear}. As a result, it greatly reduces the amount of information which is in the true density distribution which might be multi-modal. To overcome the shortcoming of Kalman filter and its ramifications which perform poorly in multi-modal probability distribution, Multi-Model Kalman Filter was proposed in~\cite{alspach1972nonlinear}. Multi-Model Kalman Filter represent the probability distribution using the weighted sum of multiple Gaussian distribution models, and each Gaussian distribution model i has its weight $\alpha_i$, for $\alpha_i \in $[0, 1].
+While in the realm of robot system, the sensor model and motion model for robot localization are hardly linear, many other theories like \gls{EKF} has been proposed which approximate the system to be linear so that the equations from Kalman filer can be utilized. However since \gls{EKF} assume the posterior probability is still Gaussian distribution, it performs rather like a maximum likelihood estimator than as a minimum variance estimator~\cite{alspach1972nonlinear}. As a result, it greatly reduces the amount of information which is in the true density distribution which might be multi-modal. To overcome the shortcoming of Kalman filter and its ramifications which perform poorly in multi-modal probability distribution, Multi-Model Kalman Filter was proposed in~\cite{alspach1972nonlinear}. Multi-Model Kalman Filter represent the probability distribution using the weighted sum of multiple Gaussian distribution models, and each Gaussian distribution model $i$ has its weight $\alpha_i$, for $\alpha_i \in $[0, 1].
 
 For each model, the multivariate normal probability distribution function(pdf) is given by:
 
@@ -108,7 +108,7 @@ During the measurement update, the weight $\alpha_i$ is updated using the method
 
 $$\alpha_{i}(x) = \nu\alpha_i'\frac{1}{\sigma \sqrt {(2\pi)^k|P_\eta|}}exp(-\frac{1}{2}\eta^{-1}P_\eta^{-1}\eta)$$
 
-Where $\eta = (z_t - z\widehat{}_i)$indicate the m-dimensional innovation vector between the measured observation $z_t$ and the expected observation $z\widehat{}_i$ for the fixed correspondence according the i'th model. $P_\eta$ is the sum of the measurement and the prediction covariance, and $\nu$ is a normalization factor.
+Where $\eta = (z_t - z\widehat{}_i)$indicate the $m$-dimensional innovation vector between the measured observation $z_t$ and the expected observation $z\widehat{}_i$ for the fixed correspondence according the $i$'th model. $P_\eta$ is the sum of the measurement and the prediction covariance, and $\nu$ is a normalization factor.
 
 There exist two situations to be considered for measurement update for multi-model Kalman filter. One is when the observation is unambiguous, which means when goal post or unique land marks have been detected, so only one approximation of the robot state will be generated from the vision. In this case, the measurement update will be applied on each Gaussian term and result in the same number of terms as before. Another case is when the vision measurement is ambiguous, for example, it may generate N approximations of the robot state from the vision input, because the landmark is not unique or cannot provide enough information. In this case, suppose initially the system has M Gaussian models, after update the system will split into M*N Gaussian models. With ambiguous measurement update the terms of Gaussian are increasing multiplicatively. Methods needed to be applied to prune the growing number of Gaussian models. Model merge equations and decisions has been proposed in \cite{Quinlan2010}, in which several Gaussian models are merged into one if some metrics are met. In \cite{Jochmann2012}, for efficiency, the author only takes the Gaussian models with maximum likelihood, and compensates the information which is lost when models are pruned by introducing filter resetting technique to reproduce the missing models, which is an ingredient taken from particle filter theory.
 

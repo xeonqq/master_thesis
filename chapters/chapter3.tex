@@ -1,14 +1,79 @@
 \chapter{Design\label{cha:chapter3}}
 
-\section{Perception and Ground Truth}\label{sec:3.1}
-
-\section{Motion Model and Sensor Model}\label{sec:3.2}
-The choice of motion model and sensor model is fundamental for both Kalman filter's prediction and measurement step. The more precise and comprehensive the model describes the system, the more accurate the outcome will be. 
-
-\subsection{Motion Model}\label{sub:Motion Model}
 
 
-\subsection{Sensor Model}\label{sub:Sensor Model}
+\section{Software Architecture of DAInamite}\label{sec:3.1}
+DAInamite adopted modular programming pattern, so the tasks could be isolated in different modules. And more importantly, different people can focus on the development of its own module without interfering other modules. In addition to \cpp{}, Python is mainly used in the DAInamite team's code.
+The time-critical components for motion, and vision are implemented in \cpp{}. The remaining modules such as localization, behavior, and ball-tracking are implemented in Python. The modules concerning the control of the robot will be connected to Naoqi. Naoqi is the software framework from Aldebaran, through which to directly control the NAO robot. A brief illustration of the physical architecture of the software is shown in \autoref{fig:architecture}. 
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=.8\textwidth]{physical_architecture.png}
+  \caption{Physical Architecture of DAInamite Code Base}
+  \label{fig:architecture}
+\end{figure}
+
+\section{Vision Perception and Ground Truth}\label{sec:3.2}
+\subsection{Vision Perception}\label{sub:vision}
+As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent module. In reality, localization is running as a separate thread at \unit[30]{Hz}. Localization module will be able to get odometry information from motion module and vision perception result from vision module. As the vision module process the raw image from the cameras, it extracts features such as field lines, field border, orange balls, yellow goals as shown in \autoref{fig:perception}. The localization module concerns only with the features from the vision result instead of the raw image.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.7\textwidth]{vision.png}
+  \caption{The vision perception result of the robot in the field}
+  \label{fig:perception}
+\end{figure}
+
+\subsection{Ground Truth}\label{sub:ground truth}
+Before we dig into the implementation of localization, there is still one thing missing. Because in the end, the quality of the localization algorithm should be assessed. Thus, the true position of the robot needed to be obtained in order to do the comparisons and benchmarks. The true position of the robot or the so called \textit{ground truth} can not be obtained from the robot itself, since it does not have built in \gls{GPS} or other position tracking sensors. Moreover, the accuracy within centimeters is required for this purpose. 
+
+The approach adopted in this paper is SSL-Vision \cite{zickler2010ssl}, the vision system used in RoboCup Small Size League to obtain the position of the robots. SSL-Vision requires a camera mounted on the ceiling, and a marker with specific pattern on top of the robot. By detecting the pattern through the ceiling camera, the ground truth can be obtained. For NAO robot, since its head could be scanning left and right, the marker can not be directly attached on its head, otherwise the robot's orientation obtained is not correct. To counter this, a plastic support is printed using 3D printer. As illustrated by \autoref{fig:collage}, the support is worn by the robot from the back, and the marker is attached on the top of the support.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=.7\textwidth]{sslvision-collage.png}
+  \caption{The 3D printed support and the pattern marker}
+  \label{fig:collage}
+\end{figure}
+
+In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robot height, camera height and the corners of the field to calibrate the camera, so a point in the image plane can be mapped to the coordinate of the global frame. Then the colors in the field and the colors from the marker needed also to be calibrated. Shown in \autoref{fig:calibration} is the visualization result after calibration. When the marker is detected by SSL-Vision, the coordinate of the robot position in global frame will be broadcasted via network. The detected robot position is drawn in the field GUI in \autoref{fig:position}.\\
+
+\begin{figure}
+        \centering
+        \begin{subfigure}[h]{0.59\textwidth}
+                \includegraphics[width=\textwidth]{gt2.png}
+                \caption{calibration result}
+                \label{fig:calibration}
+        \end{subfigure}%
+        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+          %(or a blank line to force the subfigure onto a new line)
+        \begin{subfigure}[h]{0.41\textwidth}
+                \includegraphics[width=\textwidth]{gt1crop.png}
+                \caption{position in field}
+                \label{fig:position}
+        \end{subfigure}%
+	\caption{SSL-Vision color and camera calibration result(a), robot position result (b)}
+	\label{fig:sslVision result}
+\end{figure}
+
+
+\noindent\textbf{Disadvantages of SSL-Vision}
+\begin{itemize}
+  \item The system highly depend on the light of the environment, once the surrounding light changes, the color metrics need to be recalibrated. 
+  \item If the marker is printed using normal paper, it may cause reflection at certain angle from the view point of the camera, then the pattern can not be detected. For this reason, fuzzy materials are specially chosen to manually create the marker. 
+  \item The system can not detect the pattern when the robot is fallen.
+\end{itemize}
+
+\subsection{Logging Perception and Ground Truth}
+\label{sub:Logging Perception and Ground Truth}
+
+%\section{Motion Model and Sensor Model}\label{sec:3.3}
+%The choice of motion model and sensor model is fundamental for both Kalman filter's prediction and measurement step. The more precise and comprehensive the model describes the system, the more accurate the outcome will be. 
+
+%\subsection{Motion Model}\label{sub:Motion Model}
+
+
+%\subsection{Sensor Model}\label{sub:Sensor Model}
 
 
 

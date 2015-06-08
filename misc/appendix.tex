@@ -1,0 +1,265 @@
+\chapter{Test Data}\label{testdat}
+
+\section{CCSDS Reference Image set}
+
+The following \autoref{tab:refimgset} lists the image set specified by the \gls{CCSDS} to test the compression standard.
+\begin{table}[h]
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}cccc@{}}
+\toprule
+Image name                & Source- Copyright                 & Size (Width x Height) & Dynamic Range (bits/pixel) \\ \midrule
+coastal\_b1               & Landsat - NASA                    & $1024\times 1024$           & 8                          \\
+coastal\_b2               & Landsat - NASA                    & $1024\times 1024$           & 8                          \\
+coastal\_b3               & Landsat - NASA                    & $1024\times 1024$           & 8                          \\
+coastal\_b4               & Landsat - NASA                    & $1024\times 1024$           & 8                          \\
+coastal\_b5               & Landsat - NASA                    & $1024\times 1024$           & 8                          \\
+coastal\_b6l              & Landsat - NASA                    & $512\times 512$             & 8                          \\
+coastal\_b6h              & Landsat - NASA                    & $512\times 512$             & 8                          \\
+coastal\_b7               & Landsat - NASA                    & $1024\times 1024$           & 8                          \\
+coastal\_b8               & Landsat - NASA                    & $1024\times 1024$           & 8                          \\
+europa3                   & Galileo Image from Europa - NASA  & $557\times 600$             & 8                          \\
+marstest                  & Mars Pathfinder - NASA            & $512\times 512$             & 8                          \\
+lunar                     & Galileo - NASA                    & $512\times 512$             & 8                          \\
+spot-la\_b3               & SPOT 3 Imaging - CNES             & $500\times 500$             & 8                          \\
+spot-la\_panchr           & SPOT 3 Imaging - CNES             & $1000\times 1000$           & 8                          \\
+ice\_2kb1                 & NOAA Polar Orbiter (AVHRR) -NOAA  & $2048\times 2048$           & 10                         \\
+ice\_2kb4                 & NOAA Polar Orbiter (AVHRR) -NOAA  & $2048\times 2048$           & 10                         \\
+india\_2kb1               & NOAA Polar Orbiter (AVHRR) -NOAA  & $2048\times 2048$           & 10                         \\
+india\_2kb4               & NOAA Polar Orbiter (AVHRR) -NOAA  & $2048\times 2048$           & 10                         \\
+ocean\_2kb1               & NOAA Polar Orbiter (AVHRR) -NOAA  & $2048\times 2048$           & 10                         \\
+ocean\_2kb4               & NOAA Polar Orbiter (AVHRR) -NOAA  & $2048\times 2048$           & 10                         \\
+landesV\_G7\_10b          & SPOT 5 Imaging - CNES             & $454\times 2381$            & 10                         \\
+marseille\_G6\_10b        & SPOT 5 Imaging - CNES             & $528\times 1856$            & 10                         \\
+pleiades\_portdebouc\_b3  & Simulated PLEIADES - CNES         & $1376\times 320$            & 12                         \\
+pleiades\_portdebouc\_pan & Simulated PLEIADES - CNES         & $1400\times 5504$           & 12                         \\
+solar                     & Big Bear Solar Observatory - NASA & $1024\times 1024$           & 12                         \\
+sun\_spot                 & Big Bear Solar Observatory - NASA & $512\times 512$             & 12                         \\
+wfpc                      & Hubble Space Telescope- NASA      & $800\times 800$             & 12                         \\
+foc                       & Hubble Space Telescope - NASA     & $1024\times 512$            & 12                         \\
+sar\_16bit                & ERS-1 - ESA                       & $512\times 512$             & 16                         \\
+P\_160\_B\_F              & Picard Imager (IAS) - CNRS        & $2048\times 2048$           & 16                         \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\caption{CCSDS Reference Image Set}
+\label{tab:refimgset}
+\end{table}
+
+\section{CCSDS Reference Image set Visualization}
+
+The following \autoref{img:refimageset} depicts the images listed in \autoref{tab:refimgset}.
+\begin{figure}[tb]
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b1}
+    \caption{coastal\_b1}
+    \label{fig:coastal_b1}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b2}
+    \caption{coastal\_b2}
+    \label{fig:coastal_b2}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b3}
+    \caption{coastal\_b3}
+    \label{fig:coastal_b3}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b4}
+    \caption{coastal\_b4}
+    \label{fig:coastal_b4}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b5}
+    \caption{coastal\_b5}
+    \label{fig:coastal_b5}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b6l}
+    \caption{coastal\_b6l}
+    \label{fig:coastal_b6l}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b6h}
+    \caption{coastal\_b6h}
+    \label{fig:coastal_b6h}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b7}
+    \caption{coastal\_b7}
+    \label{fig:coastal_b7}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{vis_coastal_b8}
+    \caption{coastal\_b8}
+    \label{fig:coastal_b8}
+  \end{subfigure}
+\caption{Visualization of coastal reference image set}
+\label{img:refimgcoastal}
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[width=0.6\textwidth]{vis_europa3}
+    \caption{europa3}
+    \label{fig:europa3}
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[width=0.6\textwidth]{vis_marstest}
+    \caption{marstest}
+    \label{fig:marstest}
+\end{figure}
+
+\begin{figure}[h]
+    \includegraphics[width=0.6\textwidth]{vis_lunar}
+    \caption{lunar}
+    \label{fig:lunar}
+\end{figure}
+
+\begin{figure}[tb]
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{vis_spot-la_b3}
+    \caption{spot-la\_b3}
+    \label{fig:spot-la_b3}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{vis_spot-la_panchr}
+    \caption{spot-la\_panchr}
+    \label{fig:spot-la_panchr}
+  \end{subfigure}
+\caption{Visualization of SPOT3 Imaging - \gls{CNES} image set}
+\label{img:refimgcoastal}
+\end{figure}
+
+\begin{figure}[tb]
+\begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{vis_ice_2kb1}
+    \caption{ice\_2kb1}
+    \label{fig:ice_2kb1}
+  \end{subfigure}
+  \quad
+  \quad
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{vis_ice_2kb4}
+    \caption{ice\_2kb4}
+    \label{fig:ice_2kb4}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{vis_india_2kb1}
+    \caption{india\_2kb1}
+    \label{fig:india_2kb1}
+  \end{subfigure}
+  \quad
+  \quad
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{vis_india_2kb4}
+    \caption{india\_2kb4}
+    \label{fig:india_2kb4}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{vis_ocean_2kb1}
+    \caption{ocean\_2kb1}
+    \label{fig:ocean_2kb1}
+  \end{subfigure}
+  \quad
+  \quad
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{vis_ocean_2kb4}
+    \caption{ocean\_2kb4}
+    \label{fig:ocean_2kb4}
+  \end{subfigure}
+\caption{Visualization of NOAA Polar Orbiter image set}
+\label{img:refimgpolar}
+\end{figure}
+
+\begin{figure}[tb]
+  \begin{subfigure}[b]{0.25\textwidth}
+    \includegraphics[width=\textwidth]{vis_landesV_G7_10b}
+    \caption{landesV\_G7\_10b}
+    \label{fig:landesV_G7_10b}
+  \end{subfigure}
+  \quad
+  \quad
+  \quad
+  \quad
+  \quad
+  \quad
+  \begin{subfigure}[b]{0.25\textwidth}
+    \includegraphics[width=\textwidth]{vis_marseille_G6_10b}
+    \caption{marseille\_G6\_10b}
+    \label{fig:marseille_G6_10b}
+  \end{subfigure}
+\caption{Visualization of SPOT5 imaging - \gls{CNES} image set}
+\label{img:refimgspot5}
+\end{figure}
+
+\begin{figure}[tb]
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{vis_pleiades_portdebouc_b3}
+    \caption{pleiades\_portdebouc\_b3}
+    \label{fig:pleiades_portdebouc_b3}
+  \end{subfigure}
+  \quad
+  \quad
+  \quad
+  \quad
+  \begin{subfigure}[b]{0.28\textwidth}
+    \includegraphics[width=\textwidth]{vis_pleiades_portdebouc_pan}
+    \caption{pleiades\_portdebouc\_pan}
+    \label{fig:pleiades_portdebouc_pan}
+  \end{subfigure}
+\caption{Visualization of Simulated PLEIADES - \gls{CNES} image set}
+\label{img:refimgpleiades}
+\end{figure}
+
+\begin{figure}[tb]
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{vis_solar}
+    \caption{solar}
+    \label{fig:solar}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{vis_sun_spot}
+    \caption{sun\_spot}
+    \label{fig:sun_spot}
+  \end{subfigure}
+\caption{Visualization of Big bear Solar Observatory - \gls{NASA} image set}
+\label{img:refimgbigbear}
+\end{figure}
+
+\begin{figure}[tb]
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{vis_wfpc}
+    \caption{wfpc}
+    \label{fig:wfpc}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.5\textwidth}
+    \includegraphics[width=\textwidth]{vis_foc}
+    \caption{foc}
+    \label{fig:foc}
+  \end{subfigure}
+\caption{Visualization of Hubble Space Telescope - \gls{NASA} image set}
+\label{img:refimghubble}
+\end{figure}
+
+\begin{figure}[tb]
+    \includegraphics[width=0.6\textwidth]{vis_sar16bit}
+    \caption{sar}
+    \label{fig:sar}
+\end{figure}
+
+\begin{figure}[tb]
+    \includegraphics[width=0.6\textwidth]{vis_p160_b_f}
+    \caption{p160\_b\_f}
+    \label{fig:p160_b_f}
+\end{figure}
+
+
