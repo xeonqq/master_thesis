@@ -17,7 +17,7 @@ The time-critical components for motion, and vision are implemented in \cpp{}. T
 \subsection{Vision Perception}\label{sub:vision}
 As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent module. In reality, localization is running as a separate thread at \unit[30]{Hz}. Localization module will be able to get odometry information from motion module and vision perception result from vision module. As the vision module process the raw image from the cameras, it extracts features such as field lines, field border, orange balls, yellow goals as shown in \autoref{fig:perception}. The localization module concerns only with the features from the vision result instead of the raw image.
 
-\begin{figure}[h]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=.7\textwidth]{vision.png}
   \caption{The vision perception result of the robot in the field}
@@ -29,7 +29,7 @@ Before we dig into the implementation of localization, there is still one thing 
 
 The approach adopted in this paper is SSL-Vision \cite{zickler2010ssl}, the vision system used in RoboCup Small Size League to obtain the position of the robots. SSL-Vision requires a camera mounted on the ceiling, and a marker with specific pattern on top of the robot. By detecting the pattern through the ceiling camera, the ground truth can be obtained. For NAO robot, since its head could be scanning left and right, the marker can not be directly attached on its head, otherwise the robot's orientation obtained is not correct. To counter this, a plastic support is printed using 3D printer. As illustrated by \autoref{fig:collage}, the support is worn by the robot from the back, and the marker is attached on the top of the support.
 
-\begin{figure}[h]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=.7\textwidth]{sslvision-collage.png}
   \caption{The 3D printed support and the pattern marker}
@@ -38,7 +38,7 @@ The approach adopted in this paper is SSL-Vision \cite{zickler2010ssl}, the visi
 
 In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robot height, camera height and the corners of the field to calibrate the camera, so a point in the image plane can be mapped to the coordinate of the global frame. Then the colors in the field and the colors from the marker needed also to be calibrated. Shown in \autoref{fig:calibration} is the visualization result after calibration. When the marker is detected by SSL-Vision, the coordinate of the robot position in global frame will be broadcasted via network. The detected robot position is drawn in the field GUI in \autoref{fig:position}.\\
 
-\begin{figure}
+\begin{figure}[h!]
         \centering
         \begin{subfigure}[h]{0.59\textwidth}
                 \includegraphics[width=\textwidth]{gt2.png}
@@ -52,7 +52,7 @@ In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robo
                 \caption{position in field}
                 \label{fig:position}
         \end{subfigure}%
-	\caption{SSL-Vision color and camera calibration result(a), robot position result (b)}
+	\caption{SSL-Vision color and camera calibration result (a), robot position result (b)}
 	\label{fig:sslVision result}
 \end{figure}
 
@@ -66,14 +66,87 @@ In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robo
 
 \subsection{Logging Perception and Ground Truth}
 \label{sub:Logging Perception and Ground Truth}
+For the purpose of debugging, the robot can stores the perception as log for future replay. The log contains the necessary data needed to re-run the localization algorithm on another computer. Within the log, it includes vision results, odometry, \gls{IMU}, sonar data, time stamp, robot posture, etc. In order to benchmark the quality of the localization algorithm result, the ground truth data needed to be stored as well, and when the log is replayed, the ground truth data should be synchronized with the perception log. The solution for this is to store the broadcasted ground truth from SSL-Vision at the same of recording the perception, and the ground truth become part of the perception log. The replayed perception log with ground truth is illustrated in \autoref{fig:logagent}.
 
-%\section{Motion Model and Sensor Model}\label{sec:3.3}
-%The choice of motion model and sensor model is fundamental for both Kalman filter's prediction and measurement step. The more precise and comprehensive the model describes the system, the more accurate the outcome will be. 
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=.7\textwidth]{logagent.png}
+  \caption{perception log replayed with ground truth using particle filter localization (ground truth (red), calculated position (cyan), mirrored calculated position (pink))}
+  \label{fig:logagent}
+\end{figure}
 
-%\subsection{Motion Model}\label{sub:Motion Model}
+\section{Robot Motion and Measurement}\label{sec:3.3}
+As stated in \autoref{sub:kalman}, Kalman filter works by combining prediction step and measurement update to give an optimal estimate of the current state variable. In this paper, odometry information from motion module is used to perform the prediction step. From odometry, the information of how much distance the robot moved relative to the pose of last time stamp is provided, thus an estimate of the current position can be established. Likewise, an estimate from the measurement update is performed based on what the robot has observed, or simply put, the vision results from the cameras. In the end, Kalman filter update the state variable by a weighted average of the estimates.
 
+The choice of motion model and observation model is fundamental for both Kalman filter's prediction step and measurement update. The more precise and comprehensive the model describes the system, the more accurate the estimate of the state will be. 
 
-%\subsection{Sensor Model}\label{sub:Sensor Model}
+\subsection{Motion Model}\label{sub:Motion Model}
+In general, motion models can be categorized by two kinds: velocity motion model and odometry motion model. Practical experience suggests that odometry, while still erroneous, is usually more accurate than velocity. Both suffer from drift and slippage, but velocity additionally suffers from the mismatch between the actual motion controllers and its mathematical model \cite{thrun2005probabilistic}. It is especially true for humanoid robot like NAO, whose moving velocity is difficult to model. 
+
+Since the transformation between the coordinate used internally by the odometry measurement and the physical world coordinate is unknown, the internal odometry measurement in this motion model is relative. 
+To be specific, in the time interval $(t-1, t]$, the robot moves from a positon $x_{t-1}$ to postion $x_t$, and meanwhile the odometry reports us a related movement from $\bar{x}_{t-1} = (\bar{x}, \bar{y}, \bar{\theta})$ to $\bar{x}_{t} = (\bar{x}', \bar{y}', \bar{\theta}')$. The bar here indicates that these are odometry measurements. We use the relative difference of $\bar{x}_{t-1}$ and $\bar{x}_{t}$ as an estimation of the difference between the true position $x_{t-1}$ and $x_t$. 
+
+\begin{algorithm}                      
+  \caption{odometry\_motion\_update ($u_t$, $x_{t-1}$)}         % give the algorithm a caption
+\label{alg:motion_update}                           
+\begin{algorithmic}[1]                    
+  %\State $\delta_{x}, \delta_{y}, \theta_{r} \gets \Call{sub_pose}{\bar{x}_{t-1}, \bar{x}_{t}}$
+  \State $(\delta_{x}, \delta_{y}, \delta_{rot}) = substract\_poses (\bar{x}_{t-1}, \bar{x}_{t})$
+  \State $
+\begin{bmatrix}
+  x'\\ 
+  y'\\ 
+\end{bmatrix}
+= 
+\begin{bmatrix}
+  \cos\theta  & -\sin\theta \\ 
+  \sin\theta &  \cos\theta  
+\end{bmatrix}\cdot 
+\begin{bmatrix}
+  \delta_{x}\\ 
+  \delta_{y} 
+\end{bmatrix} +
+\begin{bmatrix}
+  x\\ 
+  y 
+\end{bmatrix}\
+$
+\State $\theta' = \theta + \theta_{rot}$ 
+  %\State $\textit{stringlen} \gets \text{length of }\textit{string}$
+\end{algorithmic}
+\end{algorithm}
+
+first translate, second rotation
+
+\begin{figure}[htb]
+  \centering
+  \includegraphics[width=.5\textwidth]{motion_modela.png}
+  \caption{odometry change}
+  \label{fig:motion_model}
+\end{figure}
+
+$$
+\begin{bmatrix}
+  \hat{x_r}\\ 
+  \hat{y_r}\\ 
+\end{bmatrix}
+= 
+\begin{bmatrix}
+  \cos\theta_{r}  & -\sin\theta_{r} \\ 
+  \sin\theta_{r} &  \cos\theta_{r}  
+\end{bmatrix}\cdot 
+\begin{bmatrix}
+  x_r\\ 
+  y_r\\ 
+\end{bmatrix} +
+\begin{bmatrix}
+  \delta_{x}\\ 
+ \delta_{y} 
+\end{bmatrix}\
+$$
+
+$$\hat{\theta_r} = \theta_r +  \delta_{rot}$$
+\subsection{Observation Model}\label{sub:Sensor Model}
 
 
 
