@@ -84,7 +84,46 @@ The choice of motion model and observation model is fundamental for both Kalman 
 In general, motion models can be categorized by two kinds: velocity motion model and odometry motion model. Practical experience suggests that odometry, while still erroneous, is usually more accurate than velocity. Both suffer from drift and slippage, but velocity additionally suffers from the mismatch between the actual motion controllers and its mathematical model \cite{thrun2005probabilistic}. It is especially true for humanoid robot like NAO, whose moving velocity is difficult to model. 
 
 Since the transformation between the coordinate used internally by the odometry measurement and the physical world coordinate is unknown, the internal odometry measurement in this motion model is relative. 
-To be specific, in the time interval $(t-1, t]$, the robot moves from a positon $x_{t-1}$ to postion $x_t$, and meanwhile the odometry reports us a related movement from $\bar{x}_{t-1} = (\bar{x}, \bar{y}, \bar{\theta})$ to $\bar{x}_{t} = (\bar{x}', \bar{y}', \bar{\theta}')$. The bar here indicates that these are odometry measurements. We use the relative difference of $\bar{x}_{t-1}$ and $\bar{x}_{t}$ as an estimation of the difference between the true position $x_{t-1}$ and $x_t$. 
+To be specific, in the time interval $(t-1, t]$, the robot moves from a positon $x_{t-1}$ to postion $x_t$, and meanwhile the odometry reports us a related movement from $\bar{x}_{t-1} = (\bar{x}, \bar{y}, \bar{\theta})$ to $\bar{x}_{t} = (\bar{x}', \bar{y}', \bar{\theta}')$. The bar here indicates that these are odometry measurements. We use the relative difference of $\bar{x}_{t-1}$ and $\bar{x}_{t}$ as an estimation of the difference between the true position $x_{t-1} = (x, y, \theta)$ and $x_t = (x', y', \theta')$. Therefore, the odometry information $u_t$ can be given by the pair:
+$$u_t = \begin{pmatrix}
+\bar{x}_{t-1}\\ 
+\bar{x}_{t}
+\end{pmatrix}$$
+
+In our motion model, to obtain the relative odometry change, $u_t$ can be treated as a translation and then followed by a rotation. \autoref{fig:motion_model} demonstrates the decomposition of the odometry measurement. $\delta_{trans}$ is the translation and $\delta_{rot}$ is the rotation after translation. Both the translation and the rotation are considered under the coorindate $O$, which is relative to $\bar{x}_{t-1}$. The relative translation and rotation is calculated using \autoref{alg:substract poses}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=.5\textwidth]{motion_modela.png}
+  \caption{Relative odometry change. Translation $\delta_{trans}$, rotation $\delta_{rot}$ are considered in coordinate system $O$}
+  \label{fig:motion_model}
+\end{figure}
+
+\begin{algorithm}                      
+  \caption{substract\_poses ($\bar{x}_{t-1}, \bar{x}_{t}$)}         % give the algorithm a caption
+\label{alg:substract poses}                           
+\begin{algorithmic}[1]  
+\State $\begin{bmatrix}
+\delta_{x}\\ 
+\delta_{y}
+\end{bmatrix}
+=
+\begin{bmatrix}
+\cos{\bar{\theta}} & \sin{\bar{\theta}}\\ 
+-\sin{\bar{\theta}} & \cos{\bar{\theta}}
+\end{bmatrix}\cdot 
+\begin{bmatrix}
+\bar{x}' - \bar{x}\\ 
+\bar{y}' - \bar{y}
+\end{bmatrix}$
+
+\State $\delta_{rot} = \bar{\theta}' - \bar{\theta}$
+\State $return (\delta_{x}, \delta_{y}, \delta_{rot})$
+
+\end{algorithmic}
+\end{algorithm}
+
+Once the estimated translation $\delta_{trans}$ and rotation $\delta_{rot}$ relative to pose $x_{t-1}$ is obtained, it can be applied to update the robot position in the physical world coodinate. The full motion update using odometry measurement is shown in \autoref{alg:motion_update}.
 
 \begin{algorithm}                      
   \caption{odometry\_motion\_update ($u_t$, $x_{t-1}$)}         % give the algorithm a caption
@@ -113,39 +152,11 @@ To be specific, in the time interval $(t-1, t]$, the robot moves from a positon 
 $
 \State $\theta' = \theta + \theta_{rot}$ 
   %\State $\textit{stringlen} \gets \text{length of }\textit{string}$
+\State $return (x', y', \theta')$
 \end{algorithmic}
 \end{algorithm}
 
-first translate, second rotation
 
-\begin{figure}[htb]
-  \centering
-  \includegraphics[width=.5\textwidth]{motion_modela.png}
-  \caption{odometry change}
-  \label{fig:motion_model}
-\end{figure}
-
-$$
-\begin{bmatrix}
-  \hat{x_r}\\ 
-  \hat{y_r}\\ 
-\end{bmatrix}
-= 
-\begin{bmatrix}
-  \cos\theta_{r}  & -\sin\theta_{r} \\ 
-  \sin\theta_{r} &  \cos\theta_{r}  
-\end{bmatrix}\cdot 
-\begin{bmatrix}
-  x_r\\ 
-  y_r\\ 
-\end{bmatrix} +
-\begin{bmatrix}
-  \delta_{x}\\ 
- \delta_{y} 
-\end{bmatrix}\
-$$
-
-$$\hat{\theta_r} = \theta_r +  \delta_{rot}$$
 \subsection{Observation Model}\label{sub:Sensor Model}
 
 
