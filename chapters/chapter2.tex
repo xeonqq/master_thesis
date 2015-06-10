@@ -50,38 +50,38 @@ $$f(x,\mu,\sigma) = \frac{1}{{\sigma \sqrt {2\pi } }}e^{{{ - \left( {x - \mu } \
 The parameter $\mu$ in this definition is the mean or expectation of the distribution. The parameter $\sigma$ is its standard deviation; its variance is therefore $\sigma ^2$ .The larger the variance is, the wider the distribution will spread. However, in the problem domain of the robot localization, the state of the robot is a vector with three variables 2D coordinate and orientation. To represent a multivariate Gaussian distribution, the following definition is used:
 $$f_{x}(x_1,\ldots, x_k) = \frac{1}{\sigma \sqrt {(2\pi)^k|P|}}exp(-\frac{1}{2}(x-\mu)^TP^{-1}(x-\mu))$$
 
-It mimics the form of its one dimensional counterpart. $x$ represent the state vector, $\mu$ is the expectation of the distribution, $P$ represents a covariance matrix which is positive-semidefinite and symmetric. If the state is of three variables, then $P$ is a $3\times3$ matrix.
+It mimics the form of its one dimensional counterpart. $x$ represent the state vector, $k$ is the dimention of the state, $\mu$ is the expectation of the distribution, $P$ represents a covariance matrix which is positive-semidefinite and symmetric. If the state is of three variables, then $P$ is a $3\times3$ matrix.
 
-The Kalman filter model assumes the true state at time k is evolved from the state at $(k-1)$ according to
-$$x_k = F_kx_{k-1}+B_k\mu_k+w_k$$
+The Kalman filter model assumes the true state at time t is evolved from the state at $(t-1)$ according to
+$$x_t = F_tx_{t-1}+B_t\mu_t+w_t$$
 
 where
 \begin{itemize}
-  \item $F_k$ is the state transition model which is applied to the previous state $x_{k-1}$;  
-  \item $B_k$ is the control-input model which is applied to the control vector $u_k$;
-  \item $w_k$ is the process noise which is assumed to be drawn from a zero mean multivariate normal distribution with covariance $Q_k$.
+  \item $F_t$ is the state transition model which is applied to the previous state $x_{t-1}$;
+  \item $B_t$ is the control-input model which is applied to the control vector $u_t$;
+  \item $w_t$ is the process noise which is assumed to be drawn from a zero mean multivariate normal distribution with covariance $Q_t$.
 \end{itemize}
-$$w_k \sim N(0,Q_k)$$
-At time $k$ an observation (or measurement) $z_k$ of the true state $x_k$ is made according to
-$$z_k = H_kx_k + v_k$$
-Where $H_k$ is the observation model which maps the true state space into the observed space and $v_k$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_k$.
-$$v_k \sim N(0,R_k)$$
-Since Kalman filter is a variant implementing the Bayes filters, it follows the prediction-correction routine defined in Bayes filters. The detailed Kalman filter algorithm is shown is \autoref{tab:kf}. \\
+$$w_t \sim N(0,Q_t)$$
+At time $t$ an observation (or measurement) $z_t$ of the true state $x_t$ is made according to
+$$z_t = H_tx_t + v_t$$
+Where $H_t$ is the observation model which maps the true state space into the observed space and $v_t$ is the observation noise which is assumed to be zero mean Gaussian white noise with covariance $R_t$.
+$$v_t \sim N(0,R_t)$$
+Since Kalman filter is a variant implementing the Bayes filters, it follows the prediction-correction routine defined in Bayes filters. The detailed Kalman filter algorithm is shown is \autoref{tab:tf}. \\
 
 \begin{table}[h]
 \begin{adjustbox}{max width=\textwidth}
   \centering
   \begin{tabular}{ll}
  \textit{Prediction} & \\
-Predicted (a priori) state estimate & $\hat{x}_{k\mid k-1} = F_{k}\hat{x}_{k-1\mid k-1} + B_{k} u_{k}$ \\
-Predicted (a priori) covariance estimate & $P_{k\mid k-1} =  F_{k} P_{k-1\mid k-1} F_{k}^{\text{T}} + Q_{k}$\\
+Predicted (a priori) state estimate & $\hat{x}_{t\mid t-1} = F_{t}\hat{x}_{t-1\mid t-1} + B_{t} u_{t}$ \\
+Predicted (a priori) covariance estimate & $P_{t\mid t-1} =  F_{t} P_{t-1\mid t-1} F_{t}^{\text{T}} + Q_{t}$\\
 &\\
 \textit{Measurement Update} & \\
-Innovation or measurement residual & $\tilde{y}_k = z_k - H_k\hat{x}_{k\mid k-1}$ \\
-Innovation (or residual) covariance & $S_k = H_k P_{k\mid k-1} H_k^\text{T} + R_k$ \\
-Optimal Kalman gain & $K_k = P_{k\mid k-1}H_k^\text{T}S_k^{-1}$ \\
-Updated (a posteriori) state estimate & $\hat{x}_{k\mid k} = \hat{x}_{k\mid k-1} + K_k\tilde{y}_k$ \\
-Updated (a posteriori) covariance estimate & $P_{k|k} = (I - K_k H_k) P_{k|k-1}$ \\
+Innovation or measurement residual & $\tilde{y}_t = z_t - H_t\hat{x}_{t\mid t-1}$ \\
+Innovation (or residual) covariance & $S_t = H_t P_{t\mid t-1} H_t^\text{T} + R_t$ \\
+Optimal Kalman gain & $K_t = P_{t\mid t-1}H_t^\text{T}S_t^{-1}$ \\
+Updated (a posteriori) state estimate & $\hat{x}_{t\mid t} = \hat{x}_{t\mid t-1} + K_t\tilde{y}_t$ \\
+Updated (a posteriori) covariance estimate & $P_{t|t} = (I - K_t H_t) P_{t|t-1}$ \\
   \end{tabular}
   \end{adjustbox}
   \caption{Kalman Filter Algorithm}
@@ -104,8 +104,8 @@ Updated (a posteriori) covariance estimate & $P_{k|k} = (I - K_k H_k) P_{k|k-1}$
 In the realm of robot system, the sensor model and motion model for robot localization are hardly linear, thus the Kalman filter is not able to tackle. In order to deal with nonlinearity, Kalman fitler variants like \gls{EKF} and \gls{UKF} are formulated. \gls{EKF} adapted the technique from Talyor expansion to linearize the model at the point of its prior mean, and can captures the posterior mean and covariance accurately to the 1rd order from the nonlinearity. On the other hand, \gls{UKF} approximates a guassian distribution by generating $2L+1$ number of sigma points ($L$ is the dimention of the state). By applying transformation on each sigma points and calculate the mean and covariance based the sigma points, it is said by \cite{Wan2000} that a higher estimation accuracy than \gls{EKF} can be obtained. In this paper, considering the efficiency in calculation using \gls{EKF}, localization algorithm based on \gls{EKF} will be developed. Hence, the exposition of \gls{UKF} will be omitted.
 
 \gls{EKF} requries the state transition and observation models need not be linear functions of the state but instead differentiable. So the state transition and observation can be expressed as follows: 
-$$x_{k} = f(x_{k-1}, u_{k}) + w_{k}$$ 
-$$z_{k} = h(x_{k}) + v_{k}$$ 
+$$x_{t} = f(x_{t-1}, u_{t}) + w_{t}$$ 
+$$z_{t} = h(x_{t}) + v_{t}$$ 
 
 The full \gls{EKF} algorithm is described in \autoref{tab:ekf}.
 \begin{table}[h]
@@ -113,15 +113,15 @@ The full \gls{EKF} algorithm is described in \autoref{tab:ekf}.
   \centering
   \begin{tabular}{ll}
  \textit{Prediction} & \\
-Predicted state estimate & $\hat{x}_{k|k-1} = f(\hat{x}_{k-1|k-1}, u_{k})$ \\
-Predicted covariance estimate & $P_{k|k-1} =  {{F_{k}}} P_{k-1|k-1}{ {F_{k}^\top}} + Q_{k}$ \\
+Predicted state estimate & $\hat{x}_{t|t-1} = f(\hat{x}_{t-1|t-1}, u_{t})$ \\
+Predicted covariance estimate & $P_{t|t-1} =  {{F_{t}}} P_{t-1|t-1}{ {F_{t}^\top}} + Q_{t}$ \\
 &\\
 \textit{Measurement Update} & \\
-Innovation or measurement residual & $\tilde{y}_{k} = z_{k} - h(\hat{x}_{k|k-1})$ \\
-Innovation (or residual) covariance & $S_{k} = {{H_{k}}}P_{k|k-1}{{H_{k}^\top}} + R_{k}$ \\
-Near-optimal Kalman gain & $K_{k} = P_{k|k-1}{{H_{k}^\top}}S_{k}^{-1}$ \\
-Updated state estimate & $\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_{k}\tilde{y}_{k}$ \\
-Updated covariance estimate & $P_{k|k} = (I - K_{k} {{H_{k}}}) P_{k|k-1}$ \\
+Innovation or measurement residual & $\tilde{y}_{t} = z_{t} - h(\hat{x}_{t|t-1})$ \\
+Innovation (or residual) covariance & $S_{t} = {{H_{t}}}P_{t|t-1}{{H_{t}^\top}} + R_{t}$ \\
+Near-optimal Kalman gain & $K_{t} = P_{t|t-1}{{H_{t}^\top}}S_{t}^{-1}$ \\
+Updated state estimate & $\hat{x}_{t|t} = \hat{x}_{t|t-1} + K_{t}\tilde{y}_{t}$ \\
+Updated covariance estimate & $P_{t|t} = (I - K_{t} {{H_{t}}}) P_{t|t-1}$ \\
    
   \end{tabular}
   \end{adjustbox}
@@ -130,8 +130,8 @@ Updated covariance estimate & $P_{k|k} = (I - K_{k} {{H_{k}}}) P_{k|k-1}$ \\
 \end{table}
 
 The prediction-correction step implementation for \gls{EKF} is basicly the same as Kalman Filter, except the transition matrix $F_{k}$ and observation matrix $H_{k}$ become the Jacobian Matrices defined as: \\
-$${{F_{k-1}}} = \left . \frac{\partial f}{\partial x } \right \vert _{\hat{x}_{k-1|k-1},u_{k-1}}$$
-$${{H_{k}}} = \left . \frac{\partial h}{\partial x } \right \vert _{\hat{x}_{k|k-1}}$$
+$${{F_{t}}} = \left . \frac{\partial f}{\partial x } \right \vert _{\hat{x}_{t-1|t-1},u_{t-1}}$$
+$${{H_{t}}} = \left . \frac{\partial h}{\partial x } \right \vert _{\hat{x}_{t|t-1}}$$
 
 
 \subsection{Multi-Model Kalman Filter}

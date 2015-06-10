@@ -84,13 +84,16 @@ The choice of motion model and observation model is fundamental for both Kalman 
 In general, motion models can be categorized by two kinds: velocity motion model and odometry motion model. Practical experience suggests that odometry, while still erroneous, is usually more accurate than velocity. Both suffer from drift and slippage, but velocity additionally suffers from the mismatch between the actual motion controllers and its mathematical model \cite{thrun2005probabilistic}. It is especially true for humanoid robot like NAO, whose moving velocity is difficult to model. 
 
 Since the transformation between the coordinate used internally by the odometry measurement and the physical world coordinate is unknown, the internal odometry measurement in this motion model is relative. 
-To be specific, in the time interval $(t-1, t]$, the robot moves from a positon $x_{t-1}$ to postion $x_t$, and meanwhile the odometry reports us a related movement from $\bar{x}_{t-1} = (\bar{x}, \bar{y}, \bar{\theta})$ to $\bar{x}_{t} = (\bar{x}', \bar{y}', \bar{\theta}')$. The bar here indicates that these are odometry measurements. We use the relative difference of $\bar{x}_{t-1}$ and $\bar{x}_{t}$ as an estimation of the difference between the true position $x_{t-1} = (x, y, \theta)$ and $x_t = (x', y', \theta')$. Therefore, the odometry information $u_t$ can be given by the pair:
-$$u_t = \begin{pmatrix}
+To be specific, in the time interval $(t-1, t]$, the robot moves from a position $x_{t-1}$ to position $x_t$, and meanwhile the odometry reports us a related movement from $\bar{x}_{t-1} = (\bar{x}, \bar{y}, \bar{\theta})$ to $\bar{x}_{t} = (\bar{x}', \bar{y}', \bar{\theta}')$. The bar here indicates that these are odometry measurements. We use the relative difference of $\bar{x}_{t-1}$ and $\bar{x}_{t}$ as an estimation of the difference between the true position $x_{t-1} = (x, y, \theta)$ and $x_t = (x', y', \theta')$. Therefore, the odometry information $u_t$ can be given by the pair:
+
+\begin{equation}\label{eq:ut}
+u_t = \begin{pmatrix}
 \bar{x}_{t-1}\\ 
 \bar{x}_{t}
-\end{pmatrix}$$
+\end{pmatrix}
+\end{equation}
 
-In our motion model, to obtain the relative odometry change, $u_t$ can be treated as a translation and then followed by a rotation. \autoref{fig:motion_model} demonstrates the decomposition of the odometry measurement. $\delta_{trans}$ is the translation and $\delta_{rot}$ is the rotation after translation. Both the translation and the rotation are considered under the coorindate $O$, which is relative to $\bar{x}_{t-1}$. The relative translation and rotation is calculated using \autoref{alg:substract poses}.
+In our motion model, to obtain the relative odometry change, $u_t$ can be treated as a translation and then followed by a rotation. \autoref{fig:motion_model} demonstrates the decomposition of the odometry measurement. $\delta_{trans}$ is the translation and $\delta_{rot}$ is the rotation after translation. Both the translation and the rotation are considered under the coordinate $O$, which is relative to $\bar{x}_{t-1}$. The relative translation and rotation is calculated using \autoref{alg:substract poses}.
 
 \begin{figure}[h!]
   \centering
@@ -123,10 +126,12 @@ In our motion model, to obtain the relative odometry change, $u_t$ can be treate
 \end{algorithmic}
 \end{algorithm}
 
-Once the estimated translation $\delta_{trans}$ and rotation $\delta_{rot}$ relative to pose $x_{t-1}$ is obtained, it can be applied to update the robot position in the physical world coodinate. The full motion update using odometry measurement is shown in \autoref{alg:motion_update}.
+Once the estimated translation $\delta_{trans}$ and rotation $\delta_{rot}$ relative to pose $x_{t-1}$ is obtained, it can be applied to update the robot position in the physical world coordinate. The full motion update using odometry measurement is shown in \autoref{alg:motion_update}.
+
+\newcommand{\transfunc}{odometry\_motion\_update}
 
 \begin{algorithm}                      
-  \caption{odometry\_motion\_update ($u_t$, $x_{t-1}$)}         % give the algorithm a caption
+  \caption{\transfunc ($x_{t-1}$, $u_t$)}         % give the algorithm a caption
 \label{alg:motion_update}                           
 \begin{algorithmic}[1]                    
   %\State $\delta_{x}, \delta_{y}, \theta_{r} \gets \Call{sub_pose}{\bar{x}_{t-1}, \bar{x}_{t}}$
@@ -152,9 +157,50 @@ Once the estimated translation $\delta_{trans}$ and rotation $\delta_{rot}$ rela
 $
 \State $\theta' = \theta + \theta_{rot}$ 
   %\State $\textit{stringlen} \gets \text{length of }\textit{string}$
-\State $return (x', y', \theta')$
+\State $return [x', y', \theta']^\top$
 \end{algorithmic}
 \end{algorithm}
+
+The function \textit{\transfunc} in \autoref{alg:motion_update} corresponds to the transition function $f(x_{k-1}, u_{k})$ described in \gls{EKF} algorithm in \autoref{tab:ekf}. Then the related Jacobian Matrix $F_t$ can be calculated by \autoref{eq:jacobianF}.
+\begin{equation}\label{eq:jacobianF} 
+F_t = 
+\begin{bmatrix}
+1 & 0 & -sin(\theta)\cdot \delta_x - cos(\theta)\cdot\delta_y\\ 
+0 &  1& cos(\theta)\cdot \delta_x  - sin(\theta)\cdot\delta_y\\ 
+0 & 0 & 1
+\end{bmatrix} 
+\end{equation}
+
+The process noise covariance matrix $Q_t$ is modeled to be positive proportional to the absolute change of odometry $(|\delta_{x}|, |\delta_{y}|, |\theta_{r}|)$. Since the more the robot moves in a time interval, the more it suffers from unpredictable noises like slippage and drift. \autoref{eq:Qt} is proposed to calculate process noise covariance matrix.
+\begin{equation}\label{eq:Qt} 
+Q_t = 
+\begin{bmatrix}
+|\delta_x| & 0 & 0\\ 
+0 &  |\delta_y|& 0\\ 
+0 & 0 & |\delta_{rot}|
+\end{bmatrix} 
+\cdot
+Sc^2 
+\cdot
+\begin{bmatrix}
+|\delta_x| & 0 & 0\\ 
+0 &  |\delta_y|& 0\\ 
+0 & 0 & |\delta_{rot}|
+\end{bmatrix}^\top
+\end{equation}
+
+\begin{equation}\label{eq:Sc} 
+Sc = \begin{bmatrix}
+0.8 & 0.2 & 0.2\\ 
+0.2 &  0.8 & 0.2\\ 
+0.2 & 0.2 & 0.8
+\end{bmatrix}
+\end{equation}
+
+$Sc$ is a scaling matrix and $Sc^2$ is square elementwise. It intuitively means, when robot walk \SI{1}{\meter} in x or y direction, it may have an error range in $\pm$ \SI{0.8}{\meter}. When it rotates \SI{1}{\radian}, it may have an error of $\pm$ \SI{0.8}{\radian} in orientation. The value of $Sc$ depends on the accuracy of odometry measurement from the motion module, and a better tuning of the values can be argued.
+
+With all the essential elements for motion model ready, we plug in the formula from \autoref{tab:ekf} and perform the \gls{EKF} prediction step for the localization algorithm. The only thing we haven't touched yet is the initial value of $x_{t-1}$ and $P_{t-1}$, it will be discussed in ?(to be determined).  
+
 
 
 \subsection{Observation Model}\label{sub:Sensor Model}
