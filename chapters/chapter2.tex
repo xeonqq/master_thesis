@@ -71,14 +71,14 @@ Since Kalman filter is a variant implementing the Bayes filters, it follows the 
 \\
 \noindent\textit{Prediction}\\
 Predicted (a priori) state estimate $\hat{x}_{k\mid k-1} = F_{k}\hat{x}_{k-1\mid k-1} + B_{k} u_{k}$ \\
-Predicted (a priori) estimate covariance $P_{k\mid k-1} =  F_{k} P_{k-1\mid k-1} F_{k}^{\text{T}} + Q_{k}$\\
+Predicted (a priori) covariance estimate $P_{k\mid k-1} =  F_{k} P_{k-1\mid k-1} F_{k}^{\text{T}} + Q_{k}$\\
 \\
 \noindent\textit{Measurement Update}\\
 Innovation or measurement residual $\tilde{y}_k = z_k - H_k\hat{x}_{k\mid k-1}$ \\
 Innovation (or residual) covariance $S_k = H_k P_{k\mid k-1} H_k^\text{T} + R_k$ \\
 Optimal Kalman gain $K_k = P_{k\mid k-1}H_k^\text{T}S_k^{-1}$ \\
 Updated (a posteriori) state estimate $\hat{x}_{k\mid k} = \hat{x}_{k\mid k-1} + K_k\tilde{y}_k$ \\
-Updated (a posteriori) estimate covariance $P_{k|k} = (I - K_k H_k) P_{k|k-1}$ \\
+Updated (a posteriori) covariance estimate $P_{k|k} = (I - K_k H_k) P_{k|k-1}$ \\
 
 \noindent\textbf{Advantages}
 \begin{itemize}
@@ -92,9 +92,39 @@ Updated (a posteriori) estimate covariance $P_{k|k} = (I - K_k H_k) P_{k|k-1}$ \
   \item  Kalman filter works with uni-modal probability distribution, in other words, uni-modal means there is only a single highest value in the probability distribution under consideration. However, due to the ambiguity of the vision data input, there could be multiple locations which are the potential candidates. In this case, the probability distribution is multi-modal.
 \end{itemize}
 
+\subsection{Kalman Filter Variants}
+In the realm of robot system, the sensor model and motion model for robot localization are hardly linear, thus the Kalman filter is not able to tackle. In order to deal with nonlinearity, Kalman fitler variants like \gls{EKF} and \gls{UKF} are formulated. \gls{EKF} adapted the technique from Talyor expansion to linearize the model at the point of its prior mean, and can captures the posterior mean and covariance accurately to the 1rd order from the nonlinearity. On the other hand, \gls{UKF} approximates a guassian distribution by generating $2L+1$ number of sigma points ($L$ is the dimention of the state). By applying transformation on each sigma points and calculate the mean and covariance based the sigma points, it is said by \cite{Wan2000} that a higher estimation accuracy than \gls{EKF} can be obtained. In this paper, considering the efficiency in calculation using \gls{EKF}, localization algorithm based on \gls{EKF} will be developed. Hence, the exposition of \gls{UKF} will be omitted.
+
+\gls{EKF} requries the state transition and observation models need not be linear functions of the state but instead differentiable. So the state transition and observation can be expressed as follows: \\
+$$x_{k} = f(x_{k-1}, u_{k}) + w_{k}$$ 
+$$z_{k} = h(x_{k}) + v_{k}$$ 
+
+\noindent The \gls{EKF} algorithm:  \\
+\noindent\textit{Prediction}\\
+Predicted state estimate
+$\hat{x}_{k|k-1} = f(\hat{x}_{k-1|k-1}, u_{k})$ \\
+Predicted covariance estimate
+$P_{k|k-1} =  {{F_{k}}} P_{k-1|k-1}{ {F_{k}^\top}} + Q_{k}$ \\
+
+\noindent\textit{Measurement Update}\\
+Innovation or measurement residual
+$\tilde{y}_{k} = z_{k} - h(\hat{x}_{k|k-1})$ \\
+Innovation (or residual) covariance
+$S_{k} = {{H_{k}}}P_{k|k-1}{{H_{k}^\top}} + R_{k}$ \\
+Near-optimal Kalman gain
+$K_{k} = P_{k|k-1}{{H_{k}^\top}}S_{k}^{-1}$ \\
+Updated state estimate
+$\hat{x}_{k|k} = \hat{x}_{k|k-1} + K_{k}\tilde{y}_{k}$ \\
+Updated covariance estimate
+$P_{k|k} = (I - K_{k} {{H_{k}}}) P_{k|k-1}$ \\
+
+The prediction-correction step implementation for \gls{EKF} is basicly the same as Kalman Filter, except the transition matrix $F_{k}$ and observation matrix $H_{k}$ become the Jacobian Matrices defined as: \\
+$${{F_{k-1}}} = \left . \frac{\partial f}{\partial x } \right \vert _{\hat{x}_{k-1|k-1},u_{k-1}}$$
+$${{H_{k}}} = \left . \frac{\partial h}{\partial x } \right \vert _{\hat{x}_{k|k-1}}$$
+
 
 \subsection{Multi-Model Kalman Filter}
-While in the realm of robot system, the sensor model and motion model for robot localization are hardly linear, many other theories like \gls{EKF} has been proposed which approximate the system to be linear so that the equations from Kalman filer can be utilized. However since \gls{EKF} assume the posterior probability is still Gaussian distribution, it performs rather like a maximum likelihood estimator than as a minimum variance estimator~\cite{alspach1972nonlinear}. As a result, it greatly reduces the amount of information which is in the true density distribution which might be multi-modal. To overcome the shortcoming of Kalman filter and its ramifications which perform poorly in multi-modal probability distribution, Multi-Model Kalman Filter was proposed in~\cite{alspach1972nonlinear}. Multi-Model Kalman Filter represent the probability distribution using the weighted sum of multiple Gaussian distribution models, and each Gaussian distribution model $i$ has its weight $\alpha_i$, for $\alpha_i \in $[0, 1].
+The Kalman filters whether \gls{EKF} or \gls{UKF} assume the posterior probability is still Gaussian distribution, it performs rather like a maximum likelihood estimator than as a minimum variance estimator~\cite{alspach1972nonlinear}. As a result, it greatly reduces the amount of information which is in the true density distribution which might be multi-modal. To overcome the shortcoming of Kalman filter and its ramifications which perform poorly in multi-modal probability distribution, Multi-Model Kalman Filter was proposed in~\cite{alspach1972nonlinear}. Multi-Model Kalman Filter represent the probability distribution using the weighted sum of multiple Gaussian distribution models, and each Gaussian distribution model $i$ has its weight $\alpha_i$, for $\alpha_i \in $[0, 1].
 
 For each model, the multivariate normal probability distribution function(pdf) is given by:
 
