@@ -101,7 +101,14 @@ $x(t) =
   \theta(t) 
  \end{bmatrix} $ \\
 \end{center}
-where ($x_{r}(t)$, $x_{r}(t)$) denote the Cartesian coordinates and $\theta(t)$ is the orientation of the robot at time $t$. As stated in \autoref{sec:moti}, the environment the robot reside in is inherently unpredictable, sensors are limited in what they can perceive, the joint motors are also to some extent unpredictable. Hence, a probabilistic representation is used to describe the uncertainty of the robot location, the probability distribution over the state $x(t)$ is called belief, written as $Bel(x_{t})$.
+where ($x_{r}(t)$, $x_{r}(t)$) denote the Cartesian coordinates and $\theta(t)$ is the orientation of the robot at time $t$.
+For robot in \gls{SPL}, the aim of localization can be categorized as the following tasks:
+\begin{itemize}
+  \item Global Localization: it happens at the beginning of the game, where the robot has to localize itself without the knowledge of its initial position.
+  \item Position Tracking: it assumes the initial position of the robot is known, and the position tracking can be achieved by accommodating the noise from motion and measurements.
+  \item Kidnapped robot: the robot can be kidnapped and teleported to another position in the game. The problem is similar to global localization, except that the robot still have the old belief of the position which is wrong.
+\end{itemize}
+As stated in \autoref{sec:moti}, the environment the robot reside in is inherently unpredictable, sensors are limited in what they can perceive, the joint motors are also to some extent unpredictable. Hence, a probabilistic representation is used to describe the uncertainty of the robot location, the probability distribution over the state $x(t)$ is called belief, written as $Bel(x_{t})$.
  
 In order to estimate the state $x(t)$ and the belief $Bel(x_{t})$, localization algorithm takes the detected objects from vision in the field as one of the inputs for the localization algorithm. The DAInamite's vision module can detect yellow goal post, center circle, penalty area, lines in the field and boundary of the field, and by projecting the landmarks from the image frame to the robot's local frame, distances to the robot can be estimated. Furthermore, the odometry information is also fed to the localization algorithm. The odometry of the robot is obtained from the motion module by calculating the body kinematics, given that the robot has at least one foot fixed on the ground. 
 

@@ -5,7 +5,7 @@ As stated in \autoref{sub:kalman}, Kalman filter works by combining prediction s
 
 The choice of motion model and observation model is fundamental for both Kalman filter's prediction step and measurement update. The more precise and comprehensive the model describes the system, the more accurate the estimate of the state will be. 
 
-\section{Motion Model}\label{sec:Motion Model}
+\section{Motion Update}\label{sec:Motion Update}
 In general, motion models can be categorized by two kinds: velocity motion model and odometry motion model. Practical experience suggests that odometry, while still erroneous, is usually more accurate than velocity. Both suffer from drift and slippage, but velocity additionally suffers from the mismatch between the actual motion controllers and its mathematical model \cite{thrun2005probabilistic}. It is especially true for humanoid robot like NAO, whose moving velocity is difficult to model. 
 
 Since the transformation between the coordinate used internally by the odometry measurement and the physical world coordinate is unknown, the internal odometry measurement in this motion model is relative. 
@@ -128,8 +128,14 @@ With all the essential elements for motion model ready, we plug in the formula f
 
 
 
-\section{Observation Model}\label{sec:Observation Model}
-The robot can also measure its postion by making measurement to the surrounding environment. In the case of NAO robot, the measurement is made by observing the environment from its two cameras. 
+\section{Sensor Update}\label{sec:sensor update}
+The robot can also measure its postion by sensing the surrounding environment. In the case of NAO robot, the measurement is made by observing the environment from its two cameras. The images from the camera is preprocessed by the DAInamite's vision module to extract the landmarks as shown in \autoref{fig:perception}. During the work of this thesis, two sensor update models are proposed to accomplish the localization task. One is based on an optimization approach and another is based on features. We will discuss both model in this section.
+
+\subsection{Optimzation Based Model}\label{sec:optimization update} 
+In the early phase of the thesis, the only unqiue landmark can be detected by vision module is the yellow goal posts, however, from 2015 the yellow goal post will be replaced by white goal post according to the rule \cite{Committee2013}. Then the only landmark available is the white line in the field. Field lines are of high ambiguity, in the case of feature based Kalman filter localization, a wrong matching of the landmarks could lead to the divergence of the tracking which can hardly be recovered. Thus, a robust and accurate algorithm for sensor update is implemented taking the reference from Lauer \cite{Lauer2006}. The algorithm is based on Rprop \cite{Riedmiller1993} optimization method,  which uses only the line points from the detected lines, to find the robot postion which match the field map best. 
+
+
+\subsubsection{Image Frame to Robot Frame}
 
 \begin{figure}[h!]
   \centering
@@ -137,3 +143,7 @@ The robot can also measure its postion by making measurement to the surrounding 
   \caption{coordinate of the bottom camera and the robot local coordinate}
   \label{fig:motion_model}
 \end{figure}
+
+
+\subsection{Feature Based Model}\label{sec:feature update} 
+Altough the optimization method based localizaiton outperforms the particle filter in terms of accuracy, it is not computational efficient. During the preparation of German Open 2015, DAInamite team developed more feature detections like center circle detection, penalty area detection and L corner detection. The richness of features motivates me to develop feature based sensor update for localization.  
