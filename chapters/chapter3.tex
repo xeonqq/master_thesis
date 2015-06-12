@@ -24,6 +24,8 @@ As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent
   \label{fig:perception}
 \end{figure}
 
+The detected line concerning both sides of the white field line, and each detected line is a vector with direction, where the right side follows the direction is white.
+
 \subsection{Ground Truth}\label{sub:ground truth}
 Before we dig into the implementation of localization, there is still one thing missing. Because in the end, the quality of the localization algorithm should be assessed. Thus, the true position of the robot needed to be obtained in order to do the comparisons and benchmarks. The true position of the robot or the so called \textit{ground truth} can not be obtained from the robot itself, since it does not have built in \gls{GPS} or other position tracking sensors. Moreover, the accuracy within centimeters is required for this purpose. 
 

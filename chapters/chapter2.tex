@@ -104,8 +104,8 @@ Updated (a posteriori) covariance estimate & $P_{t|t} = (I - K_t H_t) P_{t|t-1}$
 In the realm of robot system, the sensor model and motion model for robot localization are hardly linear, thus the Kalman filter is not able to tackle. In order to deal with nonlinearity, Kalman fitler variants like \gls{EKF} and \gls{UKF} are formulated. \gls{EKF} adapted the technique from Talyor expansion to linearize the model at the point of its prior mean, and can captures the posterior mean and covariance accurately to the 1rd order from the nonlinearity. On the other hand, \gls{UKF} approximates a guassian distribution by generating $2L+1$ number of sigma points ($L$ is the dimention of the state). By applying transformation on each sigma points and calculate the mean and covariance based the sigma points, it is said by \cite{Wan2000} that a higher estimation accuracy than \gls{EKF} can be obtained. In this paper, considering the efficiency in calculation using \gls{EKF}, localization algorithm based on \gls{EKF} will be developed. Hence, the exposition of \gls{UKF} will be omitted.
 
 \gls{EKF} requries the state transition and observation models need not be linear functions of the state but instead differentiable. So the state transition and observation can be expressed as follows: 
-$$x_{t} = f(x_{t-1}, u_{t}) + w_{t}$$ 
-$$z_{t} = h(x_{t}) + v_{t}$$ 
+$$\hat{x}_{t|t-1} = f(\hat{x}_{t-1|t-1}, u_{t}) + w_{t}$$ 
+$$z_{t} = h(\hat{x}_{t|t-1}) + v_{t}$$ 
 
 The full \gls{EKF} algorithm is described in \autoref{tab:ekf}.
 \begin{table}[h]

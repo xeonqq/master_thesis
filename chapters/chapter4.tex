@@ -18,6 +18,14 @@ u_t = \begin{pmatrix}
 \end{pmatrix}
 \end{equation}
 
+In the following, let \autoref{eq:rot} denote the rotation matrix with angle $\alpha$.
+\begin{equation}\label{eq:rot}
+\Omega(\alpha) = \begin{bmatrix}
+\cos{\alpha} &  -\sin{\alpha} \\
+\sin{\alpha} &  \cos{\alpha}
+\end{bmatrix}
+\end{equation}
+
 In our motion model, to obtain the relative odometry change, $u_t$ can be treated as a translation and then followed by a rotation. \autoref{fig:motion_model} demonstrates the decomposition of the odometry measurement. $\delta_{trans}$ is the translation and $\delta_{rot}$ is the rotation after translation. Both the translation and the rotation are considered under the coordinate $O$, which is relative to $\bar{x}_{t-1}$. The relative translation and rotation is calculated using \autoref{alg:substract poses}.
 
 \begin{figure}[h!]
@@ -28,7 +36,7 @@ In our motion model, to obtain the relative odometry change, $u_t$ can be treate
 \end{figure}
 
 \begin{algorithm}                      
-  \caption{substract\_poses ($\bar{x}_{t-1}, \bar{x}_{t}$)}         % give the algorithm a caption
+  \caption{subtract\_poses ($\bar{x}_{t-1}, \bar{x}_{t}$)}         % give the algorithm a caption
 \label{alg:substract poses}                           
 \begin{algorithmic}[1]  
 \State $\begin{bmatrix}
@@ -36,10 +44,11 @@ In our motion model, to obtain the relative odometry change, $u_t$ can be treate
 \delta_{y}
 \end{bmatrix}
 =
-\begin{bmatrix}
-\cos{\bar{\theta}} & \sin{\bar{\theta}}\\ 
--\sin{\bar{\theta}} & \cos{\bar{\theta}}
-\end{bmatrix}\cdot 
+\Omega(-\bar{\theta})
+%\begin{bmatrix}
+%\cos{\bar{\theta}} & \sin{\bar{\theta}}\\ 
+%-\sin{\bar{\theta}} & \cos{\bar{\theta}}
+%\end{bmatrix}\cdot 
 \begin{bmatrix}
 \bar{x}' - \bar{x}\\ 
 \bar{y}' - \bar{y}
@@ -67,10 +76,12 @@ Once the estimated translation $\delta_{trans}$ and rotation $\delta_{rot}$ rela
   y'\\ 
 \end{bmatrix}
 = 
-\begin{bmatrix}
-  \cos\theta  & -\sin\theta \\ 
-  \sin\theta &  \cos\theta  
-\end{bmatrix}\cdot 
+\Omega(\theta)
+% \begin{bmatrix}
+%   \cos\theta  & -\sin\theta \\ 
+%   \sin\theta &  \cos\theta  
+% \end{bmatrix}
+\cdot 
 \begin{bmatrix}
   \delta_{x}\\ 
   \delta_{y} 
@@ -129,21 +140,177 @@ With all the essential elements for motion model ready, we plug in the formula f
 
 
 \section{Sensor Update}\label{sec:sensor update}
-The robot can also measure its postion by sensing the surrounding environment. In the case of NAO robot, the measurement is made by observing the environment from its two cameras. The images from the camera is preprocessed by the DAInamite's vision module to extract the landmarks as shown in \autoref{fig:perception}. During the work of this thesis, two sensor update models are proposed to accomplish the localization task. One is based on an optimization approach and another is based on features. We will discuss both model in this section.
+The robot can also measure its position by sensing the surrounding environment. In the case of NAO robot, the measurement is made by observing the environment from its two cameras. The images from the cameras are preprocessed by the DAInamite's vision module to extract the landmarks as shown in \autoref{fig:perception}. During the work of this thesis, two sensor update models are proposed to accomplish the localization task. One is based on an optimization approach and another is based on features. We will discuss both models in this section.
 
-\subsection{Optimzation Based Model}\label{sec:optimization update} 
-In the early phase of the thesis, the only unqiue landmark can be detected by vision module is the yellow goal posts, however, from 2015 the yellow goal post will be replaced by white goal post according to the rule \cite{Committee2013}. Then the only landmark available is the white line in the field. Field lines are of high ambiguity, in the case of feature based Kalman filter localization, a wrong matching of the landmarks could lead to the divergence of the tracking which can hardly be recovered. Thus, a robust and accurate algorithm for sensor update is implemented taking the reference from Lauer \cite{Lauer2006}. The algorithm is based on Rprop \cite{Riedmiller1993} optimization method,  which uses only the line points from the detected lines, to find the robot postion which match the field map best. 
+\subsection{Optimization Based Model}\label{sec:optimization update} 
+In the early phase of the thesis, the only unique landmark can be detected by vision module is the yellow goal posts, however, from 2015 the yellow goal post will be replaced by white goal post according to the rule \cite{Committee2013}. Then the only landmark available is the white line in the field. Field lines are of high ambiguity, in the case of feature based Kalman filter localization, a wrong matching of the landmarks could lead to the divergence of the tracking which can hardly be recovered. Thus, a robust and accurate algorithm for sensor update is implemented taking the reference from Lauer \cite{Lauer2006}. The algorithm is based on Rprop \cite{Riedmiller1993} optimization method, which uses only the line points from the detected lines, to find the robot position which matches the field map best. 
 
 
-\subsubsection{Image Frame to Robot Frame}
 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=.8\textwidth]{camera-matrix.png}
-  \caption{coordinate of the bottom camera and the robot local coordinate}
-  \label{fig:motion_model}
-\end{figure}
+% \subsubsection{Image Frame to Robot Frame}
+% 
+% \begin{figure}[h!]
+%   \centering
+%   \includegraphics[width=.8\textwidth]{camera-matrix.png}
+%   \caption{coordinate of the bottom camera and the robot local coordinate}
+%   \label{fig:motion_model}
+% \end{figure}
 
 
 \subsection{Feature Based Model}\label{sec:feature update} 
-Altough the optimization method based localizaiton outperforms the particle filter in terms of accuracy, it is not computational efficient. During the preparation of German Open 2015, DAInamite team developed more feature detections like center circle detection, penalty area detection and L corner detection. The richness of features motivates me to develop feature based sensor update for localization.  
+Although the optimization method based localization outperforms the particle filter in terms of accuracy, it is not computational efficient to run on the robot. During the preparation of German Open 2015, DAInamite team developed more feature detections like center circle detection, penalty area detection and ``L'' junction detection. Provided the richness of features, the development of feature based sensor update for localization is motivated.  
+
+\subsubsection{``T'' and ``X'' Junction Detection}
+In the \gls{SPL} soccer field, there are 36 ``L'' junctions, 14 ``T'' junctions, 2 ``X'' junctions \footnote{The detection of ``L'' consider both side of the field line as well as the line direction, ``T''and ``X'' junctions do not consider line side and direction. The counting includes ``L'', ``T'', ``X'' junctions at center circle}. Compared to ``L'' junction, ``T'' and ``X'' junctions are much stronger landmarks. Especially the ``T'' junction at the penalty area, it can significantly help the robot localize itself in front of the goal.
+Both the ``T'' and ``X'' junctions are detected in the robot frame instead of the image plane, since in the image plane the perpendicularity of the lines can not be easily observed. When the detected lines are projected to the robot frame, every two lines are compared according to their angles. If the differences of the angles are close to \SI{90}{\degree}, then the intersection point of the two lines are computed assuming the lines have infinite length. After the intersection is calculated, it should be satisfied that the intersection lies on at least one of the line segments. The distance from line end points to the intersections are further checked if they satisfy the threshold according to T or X geometry. The pseudocode of the TX junction detection is illustrated in \autoref{alg:txdetection}.
+
+\begin{algorithm}                      
+  \caption{TX\_junction\_detection ()}         % give the algorithm a caption
+\label{alg:txdetection}                           
+\begin{algorithmic}[1]                    
+  \For{each $Line(i)$}
+  	\For{each $Line(j)$}
+		\If {\Call{AngleDifference}{$Line(i)$, $Line(j)$} $\approx$ \SI{90}{\degree}}
+		\State $intersection \gets$ \Call{Intersection}{$Line(i)$, $Line(j)$}
+		    \If {$intersection$ lies on both $LineSegment(i)$ and $LineSegment(j)$}
+			\If {\Call {CheckDistance}{$LineEndPoints(i)$, $LineEndPoints(j)$, $intersection$} within ThresholdX}
+				\State $LineSegment(i)$ and $LineSegment(j)$ is a X junction
+			\EndIf
+		    \ElsIf{$intersection$ lies on either $LineSegment(i)$ or  $LineSegment(j)$}
+			\If {\Call {CheckDistance}{$LineEndPoints(i)$, $LineEndPoints(j)$, $intersection$} within ThresholdT}
+				\State $LineSegment(i)$ and $LineSegment(j)$ is a T junction
+			\EndIf
+		    \EndIf
+		\EndIf
+	\EndFor
+  \EndFor
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Measurement Model Choice}\label{subsub:sensorModelChoice}
+Given the various kinds of features, different sensor model can be distinguished for different features. In general, they can be divided into point Landmarks and line Landmarks. Assume the robot position $x_t = (p_x, p_y, p_{\theta})$. The objective is to describe the expected measurement $\bar{z}$ by the observation function $h(x_t)$ and derive the Jacobian matrix.
+\paragraph{Point Landmark without orientation}\label{par:pointLandmark}
+Under the Cartesian coordinate system in robot frame. The expected point landmark can be described as $\bar{z} = (z_x, z_y)^\top$  and its corresponding landmark in physical world frame $l = (l_x, l_y)^\top$. The observation function $h(x_t)$ can be described in \autoref{eq:hx} and the Jacobian matrix $H$ in \autoref{eq:jH}.
+\begin{equation}\label{eq:hx}
+  \bar{z} = \begin{pmatrix}
+\bar{z}_{x}\\ 
+\bar{z}_{y}
+\end{pmatrix}
+= 
+h(x, l)
+=
+\Omega(-p_{\theta})
+\cdot
+\begin{bmatrix}
+ \begin{pmatrix}
+l_{x}\\ 
+l_{y}
+\end{pmatrix}
+-
+\begin{pmatrix}
+p_{x}\\ 
+p_{y}
+\end{pmatrix}
+\end{bmatrix}
+\end{equation}
+
+\begin{equation}\label{eq:jH}
+H =
+\frac{\partial h(x_t,l))}{\partial x_t}
+=
+\begin{bmatrix}
+  -\cos{p_{\theta}} & -\sin{p_{\theta}} & -(l_x-p_x)\sin{p_{\theta}} + (l_y-p_y)\cos{p_{\theta}} \\ 
+  \sin{p_{\theta}} & -\cos{p_{\theta}} & -(l_x-p_x)\cos{p_{\theta}} - (l_y-p_y)\sin{p_{\theta}} 
+\end{bmatrix}
+\end{equation}
+The feature which follow this model is center circle without the center line being detected.
+
+\paragraph{Point Landmark with Orientation}\label{par:pointLandmark}
+When the point landmark has not only position but also orientation, it can be described as $l = (l_x, l_y, l_{\theta})^\top$ in the physical world frame, and the expected point landmark can be described as $\bar{z} = (z_x, z_y, z_{\theta})^\top$.  With addition of orientation, the observation function $h(x_t)$ can be described in \autoref{eq:hx2} and the Jacobian matrix $H$ in \autoref{eq:jH2}.
+
+\begin{equation}\label{eq:hx2}
+  \bar{z} = \begin{pmatrix}
+\bar{z}_{x}\\ 
+\bar{z}_{y} \\
+\bar{z}_{\theta} 
+\end{pmatrix}
+= 
+h(x, l)
+=
+\begin{pmatrix}
+
+\Omega(-p_{\theta})
+\cdot
+\begin{bmatrix}
+ \begin{pmatrix}
+l_{x}\\ 
+l_{y}
+\end{pmatrix}
+-
+\begin{pmatrix}
+p_{x}\\ 
+p_{y}
+\end{pmatrix}
+\end{bmatrix} \\
+l_{\theta} - p_{\theta}
+\end{pmatrix}
+\end{equation}
+
+\begin{equation}\label{eq:jH2}
+H =
+\frac{\partial h(x_t,l))}{\partial x_t}
+=
+\begin{bmatrix}
+  -\cos{p_{\theta}} & -\sin{p_{\theta}} & -(l_x-p_x)\sin{p_{\theta}} + (l_y-p_y)\cos{p_{\theta}} \\ 
+  \sin{p_{\theta}} & -\cos{p_{\theta}} & -(l_x-p_x)\cos{p_{\theta}} - (l_y-p_y)\sin{p_{\theta}}  \\
+  0 & 0 & -1
+\end{bmatrix}
+\end{equation}
+The landmarks which comply with is measurement model are ``L'',``T'',``X'' junctions, center circle with center line detected.
+
+\paragraph{Line Landmark}\label{par:lineLandmark}
+Line is a special landmark, it needs two points to describe it in Cartesian space. However, with only two end points of the line, it is very hard to find the corresponding points in the field map. For example, a short line can be matched to any segment within a long line. Therefore, for lines, the representation from Hough transform is used where a line can be represented as ($\rho$, $\theta$)
+\begin{figure}[h!]
+  \centering
+ \begin{tikzpicture}[
+     scale=5,
+     axis/.style={very thick, ->, >=stealth'},
+     important line/.style={thick},
+     dashed line/.style={dashed, thin},
+     pile/.style={thick, ->, >=stealth', shorten <=2pt, shorten
+     >=2pt},
+     every node/.style={color=black}
+     ]
+     % axis
+     \draw[axis] (0,0) coordinate (O) -- (1.1,0) coordinate(x) node(xline)[right]
+         {$x$};
+     \draw[axis] (0,0) -- (0,1.1) coordinate(y) node(yline)[left] {$y$};
+     % Lines
+ 
+     \draw[important line] (0.1,0.942) coordinate (A) -- (0.832,0.519) coordinate (B) node[right, text width=5em] {$\mathit{Line}$};
+ 
+     \draw[dashed] (O) -- (0.433, 0.75) coordinate(C);
+     \draw (0.216, 0.5) node() {$\rho$};	
+     \draw pic[ draw=orange, <->, angle eccentricity=1.2, angle radius=1cm]
+     {angle=x--O--C};
+
+     \draw (0.2,0.1) node()[right] {$\theta$};
+     \def\ralen{.5ex}  % length of the short segment
+     \foreach \inter/\first/\last in {C/O/B}
+     {
+       \draw let \p1 = ($(\inter)!\ralen!(\first)$), % point along first path
+       \p2 = ($(\inter)!\ralen!(\last)$),  % point along second path
+       \p3 = ($(\p1)+(\p2)-(\inter)$)      % corner point
+       in
+       (\p1) -- (\p3) -- (\p2) ;              % path
+       %($(\inter)!.5!(\p3)$) node [dot] {};  % center dot
+     }
+   \end{tikzpicture}
+
+
+
+   \caption{Line represented in Hough space}
+   \label{fig:hough}
+ \end{figure}
+ \subsubsection{Update by Center Circle}
+ The center circle is a unique landmark in the \gls{SPL} field.
