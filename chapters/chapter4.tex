@@ -6,6 +6,7 @@ As stated in \autoref{sub:kalman}, Kalman filter works by combining prediction s
 The choice of motion model and observation model is fundamental for both Kalman filter's prediction step and measurement update. The more precise and comprehensive the model describes the system, the more accurate the estimate of the state will be. 
 
 \section{Motion Update}\label{sec:Motion Update}
+\subsection{Motion Model}\label{sub:Motion Model}
 In general, motion models can be categorized by two kinds: velocity motion model and odometry motion model. Practical experience suggests that odometry, while still erroneous, is usually more accurate than velocity. Both suffer from drift and slippage, but velocity additionally suffers from the mismatch between the actual motion controllers and its mathematical model \cite{thrun2005probabilistic}. It is especially true for humanoid robot like NAO, whose moving velocity is difficult to model. 
 
 Since the transformation between the coordinate used internally by the odometry measurement and the physical world coordinate is unknown, the internal odometry measurement in this motion model is relative. 
@@ -107,6 +108,9 @@ F_t =
 \end{bmatrix} 
 \end{equation}
 
+\subsection{Process Noise Model}
+\label{sub:Process Noise Model}
+
 The process noise covariance matrix $Q_t$ is modeled to be positive proportional to the absolute change of odometry $(|\delta_{x}|, |\delta_{y}|, |\theta_{r}|)$. Since the more the robot moves in a time interval, the more it suffers from unpredictable noises like slippage and drift. \autoref{eq:Qt} is proposed to calculate process noise covariance matrix.
 \begin{equation}\label{eq:Qt} 
 Q_t = 
@@ -188,9 +192,17 @@ Both the ``T'' and ``X'' junctions are detected in the robot frame instead of th
 \end{algorithm}
 
 \subsubsection{Measurement Model Choice}\label{subsub:sensorModelChoice}
-Given the various kinds of features, different sensor model can be distinguished for different features. In general, they can be divided into point Landmarks and line Landmarks. Assume the robot position $x_t = (p_x, p_y, p_{\theta})$. The objective is to describe the expected measurement $\bar{z}$ by the observation function $h(x_t)$ and derive the Jacobian matrix.
+Given the various kinds of features, different sensor model can be distinguished for different features. In general, they can be divided into point Landmarks and line Landmarks. Assume the robot position $x_t = (p_x, p_y, p_{\theta})$, and the landmark represented as $l$. The objective is to describe the expected measurement $\bar{z}$ by the observation function $h(x_t)$ and derive the Jacobian matrix $H$.
 \paragraph{Point Landmark without orientation}\label{par:pointLandmark}
-Under the Cartesian coordinate system in robot frame. The expected point landmark can be described as $\bar{z} = (z_x, z_y)^\top$  and its corresponding landmark in physical world frame $l = (l_x, l_y)^\top$. The observation function $h(x_t)$ can be described in \autoref{eq:hx} and the Jacobian matrix $H$ in \autoref{eq:jH}.
+Under the Cartesian coordinate system in robot frame. The expected point landmark can be described as $\bar{z} = (z_x, z_y)^\top$ (illustrated in \autoref{fig:observation_euclidean}) and its corresponding landmark in physical world frame $l = (l_x, l_y)^\top$. The observation function $h(x_t)$ can be described in \autoref{eq:hx}, which transforms the landmark from physical world frame to the robot local frame. The Jacobian matrix $H$ is the partial derivative of $h(x_t)$ at $x_t$, as illustrated in \autoref{eq:jH}. 
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=.8\textwidth]{observation_euclidean.png}
+  \caption{Observation given in Cartesian coordinates \cite{Tasse2013}}
+  \label{fig:observation_euclidean}
+\end{figure}
+
 \begin{equation}\label{eq:hx}
   \bar{z} = \begin{pmatrix}
 \bar{z}_{x}\\ 
@@ -223,7 +235,7 @@ H =
   \sin{p_{\theta}} & -\cos{p_{\theta}} & -(l_x-p_x)\cos{p_{\theta}} - (l_y-p_y)\sin{p_{\theta}} 
 \end{bmatrix}
 \end{equation}
-The feature which follow this model is center circle without the center line being detected.
+The feature which follows this model is center circle without the center line being detected.
 
 \paragraph{Point Landmark with Orientation}\label{par:pointLandmark}
 When the point landmark has not only position but also orientation, it can be described as $l = (l_x, l_y, l_{\theta})^\top$ in the physical world frame, and the expected point landmark can be described as $\bar{z} = (z_x, z_y, z_{\theta})^\top$.  With addition of orientation, the observation function $h(x_t)$ can be described in \autoref{eq:hx2} and the Jacobian matrix $H$ in \autoref{eq:jH2}.
@@ -266,10 +278,10 @@ H =
   0 & 0 & -1
 \end{bmatrix}
 \end{equation}
-The landmarks which comply with is measurement model are ``L'',``T'',``X'' junctions, center circle with center line detected.
+The landmarks which comply with is measurement model are ``L'',``T'',``X'' junctions, and center circle with center line detected.
 
 \paragraph{Line Landmark}\label{par:lineLandmark}
-Line is a special landmark, it needs two points to describe it in Cartesian space. However, with only two end points of the line, it is very hard to find the corresponding points in the field map. For example, a short line can be matched to any segment within a long line. Therefore, for lines, the representation from Hough transform is used where a line can be represented as ($\rho$, $\theta$)
+Line is a special landmark, it needs two end points to describe it in Cartesian space. However, with only two end points of the line, it is very hard to find the corresponding points in the field map. For example, a short line can be matched to any segment within a long line. Therefore, to counter this ambiguity and extract the intrinsic property from lines, the representation from Hough transform is used where a line can be represented as ($\rho$, $\theta$), as shown in \autoref{fig:hough}. 
 \begin{figure}[h!]
   \centering
  \begin{tikzpicture}[
@@ -287,7 +299,7 @@ Line is a special landmark, it needs two points to describe it in Cartesian spac
      \draw[axis] (0,0) -- (0,1.1) coordinate(y) node(yline)[left] {$y$};
      % Lines
  
-     \draw[important line] (0.1,0.942) coordinate (A) -- (0.832,0.519) coordinate (B) node[right, text width=5em] {$\mathit{Line}$};
+     \draw[important line] (0.1,0.942) coordinate (A) -- (0.832,0.519) coordinate (B) node[right, text width=5em] {\textit{Line}};
  
      \draw[dashed] (O) -- (0.433, 0.75) coordinate(C);
      \draw (0.216, 0.5) node() {$\rho$};	
@@ -306,11 +318,101 @@ Line is a special landmark, it needs two points to describe it in Cartesian spac
        %($(\inter)!.5!(\p3)$) node [dot] {};  % center dot
      }
    \end{tikzpicture}
-
-
-
    \caption{Line represented in Hough space}
    \label{fig:hough}
  \end{figure}
- \subsubsection{Update by Center Circle}
- The center circle is a unique landmark in the \gls{SPL} field.
+While Hough representation discards the length information of the line, it keeps the direction and distance information from the line intact. It means, for example, when a vertical line is matched, the robot's orientation can be determined and it will also be sure about its position in $x$ axis, but keep uncertain about its position in $y$ axis until a horizontal line is matched.
+
+Using Hough representation, the expected line landmark can be described as $\bar{z} = (z_{\rho}, z_{\theta})^\top$, and depending on whether the corresponding line in the field map is vertical or horizontal, different measurement model should be adjusted. If knowing the matched line is horizontal, the line landmark in physical world frame can be describe using only $y$ axis value $l = l_{y}$. Then the observation function $h(x_t)$ can be described in \autoref{eq:hxhorizon} and the Jacobian matrix $H$ in \autoref{eq:jHhorizon}. \\
+\begin{equation}\label{eq:hxhorizon}
+  \bar{z} = \begin{pmatrix}
+\bar{z}_{\rho}\\ 
+\bar{z}_{\theta}
+\end{pmatrix}
+= 
+h(x, l)
+=
+\begin{pmatrix}
+|l_{y}-p_{y}| \\
+atan2(\cos{p_{\theta}\cdot (l_y-p_y)}, \sin{p_{\theta}}\cdot (l_y-p_y))
+\end{pmatrix}
+\end{equation}
+
+\begin{equation}\label{eq:jHhorizon}
+H =
+\frac{\partial h(x_t,l))}{\partial x_t}
+=
+\begin{bmatrix}
+  0 & \frac{l_{y}-p_{y}}{|l_{y}-p_{y}|} & 0 \\ 
+  0 & 0 & -1 
+\end{bmatrix}
+\end{equation}
+
+Similar for vertical lines, the line landmark in physical world frame can be describe using only $x$ axis value $l = l_{x}$. The observation function $h(x_t)$ can be described in \autoref{eq:hxvertical} and the Jacobian matrix $H$ in \autoref{eq:jHvertical}. \\
+\begin{equation}\label{eq:hxvertical}
+  \bar{z} = \begin{pmatrix}
+\bar{z}_{\rho}\\ 
+\bar{z}_{\theta}
+\end{pmatrix}
+= 
+h(x, l)
+=
+\begin{pmatrix}
+|l_{x}-p_{x}| \\
+atan2(\cos{p_{\theta}\cdot (l_x-p_x)}, -\sin{p_{\theta}}\cdot (l_x-p_x))
+\end{pmatrix}
+\end{equation}
+
+\begin{equation}\label{eq:jHvertical}
+H =
+\frac{\partial h(x_t,l))}{\partial x_t}
+=
+\begin{bmatrix}
+  \frac{l_{x}-p_{x}}{|l_{x}-p_{x}|} & 0 & 0\\ 
+  0 & 0 & -1 
+\end{bmatrix}
+\end{equation}
+
+The features fall into this measurement model is the detected lines as well as the penalty area. Because the penalty area detection basically is just the detection of two parallel lines which satisfies certain criteria. The penalty area detection result is given in the form of Hough representation, thus it is also treated as a line.
+
+\subsubsection{Measurement Noise Model}
+\label{sub:Measurement Noise Model}
+The measurement noise indicates how accurate the measurement made for each feature is, and by assuming the noise distribution is Gaussian, the measurement noise covariance is represent by the term $R_{t}$ in \autoref{tab:ekf}. The Measurement noise in case of NAO robot in \gls{SPL} game can mainly come from:
+\begin{itemize}
+  \item inaccuracy of the camera matrix
+  \item blur of the image due to motion
+\end{itemize}
+Since all the landmarks are measured in robot frame, the further the landmarks from the robot (the origin of robot frame coordinate), the larger the measurement noise will be. Because the error introduced by the camera matrix will be magnified when the detected landmarks are projected from image plane to robot frame. This phenomenon is demonstrated in \autoref{fig:landmarkImagePlane} and \autoref{fig:landmarkRobotFrame}. For example, the line (both sides) which being detected from the penalty area in \autoref{fig:landmarkImagePlane} become two lines with big gap (shown in \autoref{fig:landmarkRobotFrame}) when projected to the robot frame. Both lines suffered significant error in distance and angle.\\
+
+\begin{figure}[h!]
+  \centering
+\begin{tikzpicture}
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=0.8\textwidth]{measure_camera.png}};
+    \begin{scope}[x={(image.south east)},y={(image.north west)}]
+        \draw[red,ultra thick, dashed, rounded corners] (0.179,0.59) rectangle (0.459,0.53);
+    \end{scope}
+\end{tikzpicture}
+  \caption{Landmarks in image plane. (The red box indicates the lines which detected from the front line of the penalty area)}
+  \label{fig:landmarkImagePlane}
+\end{figure}
+
+
+\begin{figure}[h!]
+  \centering
+\begin{tikzpicture}
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=\textwidth]{measure_err.png}};
+    \begin{scope}[x={(image.south east)},y={(image.north west)}]
+        \draw[red,ultra thick, dashed, rounded corners] (0.841,0.62) rectangle (0.918,0.284);
+    \end{scope}
+\end{tikzpicture}
+  \caption{Landmarks in robot frame. (Grey lines indicate the detected lines after projection, the red box indicates the lines which detected from the front line of the penalty area)}
+  \label{fig:landmarkRobotFrame}
+\end{figure}
+
+A straight forward way to describe this phenomenon is to model the noise proportional to the distance of the landmark in robot frame. However, the problem with this model is that it is hard to choose a physically meaningful coefficient for the linear function. Therefore, another similar but more suitable noise model which is used by team B-Human is adopted \cite{Bhuman}. (figure needed to describe)
+
+
+\subsubsection{Landmark Correspondence}
+Due to the high ambiguity of the features in \gls{SPL}, one of the difficulties of using Kalman filter for localization is to find the correspondence between the observations and the landmarks. In other word, it is to find the corresponding $z_t$ (in \autoref{eq:observ}), when a landmark $l$ is detected. The only unique landmark currently detected are the center circle and the penalty area. However, these unique features can not provide the information of the field side, so the robot could be in either one position or its mirrored one. 
+
+
