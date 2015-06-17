@@ -430,7 +430,7 @@ On the other hand, when the center circle is detected without the middle line, t
 %The same problem applies to the penalty area. Even though it is a unique landmark in half field, as said in \autoref{subsub:sensorModelChoice}, it is only treated as a line. So the robot position can be any where parallel along the line. To find a correspondence of the penalty area, we assume there is a virtual line 
 
 \paragraph{Junctions}
-For junction features which include ``L'',``T'',``X'' junctions, they are ambiguous features and can be represented as point landmark with orientation $z_t = (x,y,\theta)$. Within the junctions, ``L'' junctions are the most ambiguous ones, with 36 appearances in the field (illustrated in \autoref{fig:ljunctions}). It means one detected ``L'' junction can possibly be matched to 36 ``L'' junctions in the field . `T'', ``X'' junctions are less pervasive, with 14 and 2 appearances respectively. Given the ubiquitous distribution of the junctions in the field, it is hard to find the correspondence between the junctions seen and the junctions in the field. \\
+For junction features which include ``L'',``T'',``X'' junctions, they are ambiguous features and the detected junctions are represented as point landmark with orientation $l = (x,y,\theta)$. Within the junctions, ``L'' junctions are the most ambiguous ones, with 36 appearances in the field (illustrated in \autoref{fig:ljunctions}). It means one detected ``L'' junction can possibly be matched to 36 ``L'' junctions in the field . `T'', ``X'' junctions are less pervasive, with 14 and 2 appearances respectively. Given the ubiquitous distribution of the junctions in the field, it is hard to find the correspondence between the junctions seen and the junctions in the field. \\
 \begin{figure}[h!]
   \centering
   \includegraphics[width=\textwidth]{fieldLcorners.png}
@@ -445,7 +445,89 @@ Instead of looping through all the possible junctions, the k-d tree algorithm \c
 Once the associative junction is found by nearest distance, the difference in orientation is checked. If the distance to the associative junction is larger than a threshold, or the difference in orientation is too large, the associative junction is simply discarded and this landmark will not contribute to the robot position update. Because in this case, the assumption that current robot position is relatively accurate no longer holds, more than one possible correspondence can be chosen. In other word, \textit{nearest neighbor search with threshold} acts more like a local position optimization to track robot pose rather than global localization. In \autoref{sec:resample}, we will see the discarded landmarks can be utilized for global localization by using multi-hypotheses Kalman filter.
 
 \paragraph{Lines}
-Lines are the most ambiguous landmarks among all the landmarks in the field, because a single line can be matched to any field line in the field. Thus ,the lines also can not be used for global localization if features are not extracted from them. To find the line correspondence, a similar methodolgy as the nearest neighbor search is adopted. 
+Lines are the most ambiguous landmarks among all the landmarks in the field, because a single line can be matched to any field line in the field. Due to the high ambiguity, the lines also can not be used for global localization if features are not extracted from them. To find the line correspondence, a similar methodology as the nearest neighbor search is adopted. Each detected line is represented by a vector of two end points $l=(p_{start}, p_{end})$. If the nearest neighbor search is directly applied, the two end points could be matched to two different field lines, as illustrated in \autoref{fig:linematch}.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}
+  \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=0.6\textwidth]{linematch_crop.png}};
+    \begin{scope}[x={(image.south east)},y={(image.north west)}]
+      \coordinate (start) at (0.133, 0.878);
+      \coordinate (end) at  (0.765,0.1852);
+      \draw (start) node() [above]{$p_{start}$};	
+      \draw (end) node() [below]{$p_{end}$};	
+    \end{scope}
+  \end{tikzpicture}
+\caption{The end points of the detected line (grey) can possibly be matched to two different field lines}
+\label{fig:linematch}
+\end{figure}
+
+Inspired by the method used by B-Human \cite{Bhuman} to find line correspondence, a \textit{nearest line neighbor search} is implemented. Given a detected line, after projecting it to physical world frame, it is compared with each of the field lines to check if certain criteria are satisfied. Suppose we start with the outer side of the horizontal field line (indicated by red in
+\autoref{fig:find_line_correspondence}), the criteria are as follows:
+\begin{itemize}
+  \item Find the nearest distance from the end points of detected line to the field line, in this case, distance $p_{start}A$ and $p_{end}B$ are checked. They should below a threshold \footnote{The threshold is chosen to be half of the penalty area length defined in \autoref{tab:field}, since it is the largest distance that can distinguish the ambiguity between lines.} respectively, otherwise, this field line is not the correspondence.
+  \item Start from each end point of the detected line, make a perpendicular line pointing to the field line, \ie line $p_{start}C$ and $p_{end}D$. If both perpendicular lines have intersections with the field line, the distance of $p_{start}C$ and $p_{end}D$ are checked. Each of them should also below the threshold. Moreover, if either orthogonal line starting from the end point fails to have an intersection with the field line. This field line is regarded as not the correspondence. (For example, $p_{start}$ fails to have an orthogonal intersection with the vertical field line in \autoref{fig:find_line_correspondence}) 
+   \item When both of the criteria above are satisfied, the direction of the detected line is checked with the field line. They should have more or less the same direction. And this is done by dot multiplying the two vectors, the one with positive result satisfies.
+   \item Only the field line which satisfies all the criteria above is treated as the correspondence. If more than one field line happen to satisfy the criteria, then all of them are discarded due to the ambiguity.
+\end{itemize}
+
+\begin{figure}[h!]
+  \centering
+\begin{tikzpicture}
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=0.6\textwidth]{linematch_crop.png}};
+    \begin{scope}[x={(image.south east)},y={(image.north west)}]
+      \draw[thick, red] (0, 0.719) coordinate(x) -- (1,0.7197) coordinate(y); 
+      %projection
+      \draw[thick, dashed] (0.133, 0.878) coordinate(start) -- (0.133,0.7197) coordinate(proja); 
+      \draw[thick, dashed] (0.765,0.1852) coordinate(end)-- (0.765, 0.7197)  coordinate(projb); 
+      % intersection
+      \draw[blue, thick, dashed] (start) -- (0.068,0.7197) coordinate(intera); 
+      \draw[blue, thick, dashed] (end) -- (0.912,0.7197) coordinate(interb); 
+
+      \def\ralen{1ex}  % length of the short segment
+      \foreach \inter/\first/\last in {proja/start/y, projb/end/y, start/intera/end, end/interb/start}
+      {
+	\draw let \p1 = ($(\inter)!\ralen!(\first)$), % point along first path
+	\p2 = ($(\inter)!\ralen!(\last)$),  % point along second path
+	\p3 = ($(\p1)+(\p2)-(\inter)$)      % corner point
+	in
+	(\p1) -- (\p3) -- (\p2) ;              % path
+       %($(\inter)!.5!(\p3)$) node [dot] {};  % center dot
+      }
+
+      \draw ($(start)!0.5!(proja)$) node() [right]{$d1$};	
+      \draw (proja) node() [below]{$A$};	
+
+      \draw ($(end)!0.5!(projb)$) node() [left]{$d2$};	
+      \draw (projb) node() [above]{$B$};	
+
+      \draw ($(start)!0.5!(intera)$) node() [left]{$d3$};	
+      \draw (intera) node() [below]{$C$};	
+
+      \draw ($(end)!0.5!(interb)$) node() [right]{$d4$};	
+      \draw (interb) node() [above]{$D$};	
+
+      \draw (start) node() [above]{$p_{start}$};	
+      \draw (end) node() [below]{$p_{end}$};	
+
+     %\draw () node() {$\rho$};	
+     %\draw () node() {$\rho$};	
+     %\draw () node() {$\rho$};	
+    \end{scope}
+      %\draw[dashed] (0.414+0.1, 0.508) coordinate(yy) -- (0.178, 0.512) coordinate(Cy) node()[left] {$y_{r}$};
+  \end{tikzpicture}
+  \caption{The criteria of determining the line correspondence}
+  \label{fig:find_line_correspondence}
+\end{figure}
 
 
-%To cope with this, the same methodolgy from junction correspondence is taken, namely local position optimization. 
+Another important property of finding correspondence of line is that short lines can match to long lines and short lines, but long line can not match to short line. Thus, the long lines and short lines are distinguished, the lines with length exceeding the penalty area width (defined in \autoref{tab:field}) are treated as long lines, the rest are short lines. With this classification, long lines are limited to the four field lines on the border and one field line in the center. The benefit is discernible, not only the process of \textit{nearest line neighbor search} can be speeded up for long lines, but also the threshold in the matching criteria can be enlarged, since the ambiguity is reduced. 
+
+While each line detected from a vertical or horizontal field lines can have a correspondence, the lines detected from the center circle can hardly have. The center circle can be treated as consisting of infinite short lines, and each line can be of different length. The algorithm implemented checks if a short line is in the vicinity of the center circle, if so, the line is simply discarded. Therefore, in this case, localization depend more on center circle detection.
+
+
+%To cope with this, the same methodology from junction correspondence is taken, namely local position optimization. 
+
+
+\paragraph{Penalty Area}
+As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can be regarded as a line. We can assume on the field, there is a virtual line which is vertical and goes through the center of each penalty area box. Then the problem becomes the matching of the penalty area with the virtual lines. Unlike the \textit{nearest line neighbor search} for lines, the penalty area matching criterion is simpler. Since there are only two penalty area virtual lines in the field, the nearest distance from the center of the detected penalty area to both virtual lines are calculated. The virtual line with shorter distance becomes the correspondence.
