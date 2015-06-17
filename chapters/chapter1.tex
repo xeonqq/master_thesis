@@ -91,17 +91,44 @@ Almost every year the rule of the \gls{SPL} will be modified on the basis of old
   mm. Note that measurements on this diagram are made to the center of lines \cite{Committee2013}}.
 \label{tab:field}
 \end{table}
-\subsection{Problem Formulation}
-In the robotic localization problem, the algorithm is mainly concerned with estimating the ``state'' of the robot. The ``state'' in the context of the RoboCup \gls{SPL} refers to the location (2D Cartesian coordinate) and the orientation of the robot. In this case the state to be estimated can be written as a 3 dimensional vector $x(t)$
+\subsection{Problem Formulation}\label{sub:problem}
+In the robotic localization problem, the algorithm is mainly concerned with estimating the ``state'' of the robot. The ``state'' in the context of the RoboCup \gls{SPL} refers to the location (2D Cartesian coordinate) and the orientation of the robot in the physical world. In this case the state to be estimated can be written as a 3 dimensional vector $x(t)$
 \begin{center}
 $x(t) =
  \begin{bmatrix}
   x_{r}(t) \\
   y_{r}(t) \\
-  \theta(t) 
+  \theta_{r}(t) 
  \end{bmatrix} $ \\
 \end{center}
-where ($x_{r}(t)$, $x_{r}(t)$) denote the Cartesian coordinates and $\theta(t)$ is the orientation of the robot at time $t$.
+where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(t)$ is the orientation of the robot at time $t$. The coordinate system in physical world frame is illustrated in \autoref{fig:worldframe} with its origin located at the center of the field.
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[
+     axis/.style={very thick, ->, >=stealth'},
+    ]
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=0.8\textwidth]{globalcoordinates_crop.png}};
+    \begin{scope}[x={(image.south east)},y={(image.north west)}]
+           % axis
+      \draw[axis] (0.178,0.29) coordinate (O) -- (0.8,0.29) coordinate(x) node(xline)[right]
+      {$x$};
+      \draw[axis] (O) -- (0.178,0.8) coordinate(y) node(yline)[left] {$y$};
+       % \draw[red,ultra thick, dashed, rounded corners] (0.179,0.59) rectangle (0.459,0.53);
+      %\draw[dashed] (O) -- (0.414, 0.508) coordinate(C);
+      \draw[dashed] (0.414+0.1, 0.508) coordinate(yy) -- (0.178, 0.512) coordinate(Cy) node()[left] {$y_{r}$};
+      \draw[dashed] (0.414, 0.508+0.1) coordinate(xx) -- (0.414, 0.29) coordinate(Cx) node()[below] {$x_{r}$};
+
+      \draw[dashed] (0.414, 0.508) coordinate(C) -- (0.4968, 0.58) coordinate(Ctheta); 
+      \draw (C)+(0.1,0.04) node() {$\theta_{r}$};	
+      \draw pic[ draw=orange, <->, angle eccentricity=1.2, angle radius=0.8cm]
+      {angle=yy--C--Ctheta};
+
+    \end{scope}
+  \end{tikzpicture}
+  \caption{The coordinate system in physical world frame}
+  \label{fig:worldframe}
+\end{figure}
+
 For robot in \gls{SPL}, the aim of localization can be categorized as the following tasks:
 \begin{itemize}
   \item Global Localization: it happens at the beginning of the game, where the robot has to localize itself without the knowledge of its initial position.
@@ -109,7 +136,7 @@ For robot in \gls{SPL}, the aim of localization can be categorized as the follow
   \item Kidnapped robot: the robot can be kidnapped and teleported to another position in the game. The problem is similar to global localization, except that the robot still have the old belief of the position which is wrong.
 \end{itemize}
 As stated in \autoref{sec:moti}, the environment the robot reside in is inherently unpredictable, sensors are limited in what they can perceive, the joint motors are also to some extent unpredictable. Hence, a probabilistic representation is used to describe the uncertainty of the robot location, the probability distribution over the state $x(t)$ is called belief, written as $Bel(x_{t})$.
- 
+
 In order to estimate the state $x(t)$ and the belief $Bel(x_{t})$, localization algorithm takes the detected objects from vision in the field as one of the inputs for the localization algorithm. The DAInamite's vision module can detect yellow goal post, center circle, penalty area, lines in the field and boundary of the field, and by projecting the landmarks from the image frame to the robot's local frame, distances to the robot can be estimated. Furthermore, the odometry information is also fed to the localization algorithm. The odometry of the robot is obtained from the motion module by calculating the body kinematics, given that the robot has at least one foot fixed on the ground. 
 
 

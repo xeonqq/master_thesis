@@ -166,7 +166,7 @@ Although the optimization method based localization outperforms the particle fil
 
 \subsubsection{``T'' and ``X'' Junction Detection}
 In the \gls{SPL} soccer field, there are 36 ``L'' junctions, 14 ``T'' junctions, 2 ``X'' junctions \footnote{The detection of ``L'' consider both side of the field line as well as the line direction, ``T''and ``X'' junctions do not consider line side and direction. The counting includes ``L'', ``T'', ``X'' junctions at center circle}. Compared to ``L'' junction, ``T'' and ``X'' junctions are much stronger landmarks. Especially the ``T'' junction at the penalty area, it can significantly help the robot localize itself in front of the goal.
-Both the ``T'' and ``X'' junctions are detected in the robot frame instead of the image plane, since in the image plane the perpendicularity of the lines can not be easily observed. When the detected lines are projected to the robot frame, every two lines are compared according to their angles. If the differences of the angles are close to \SI{90}{\degree}, then the intersection point of the two lines are computed assuming the lines have infinite length. After the intersection is calculated, it should be satisfied that the intersection lies on at least one of the line segments. The distance from line end points to the intersections are further checked if they satisfy the threshold according to T or X geometry. The pseudocode of the TX junction detection is illustrated in \autoref{alg:txdetection}.
+Both the ``T'' and ``X'' junctions are detected in the robot frame instead of the image plane, since in the image plane the perpendicularity of the lines can not be easily observed. When the detected lines are projected to the robot frame, every two lines are compared according to their angles. If the differences of the angles are close to \SI{90}{\degree}, then the intersection point of the two lines are computed assuming the lines have infinite length. After the intersection is calculated, it should be satisfied that the intersection lies on at least one of the line segments. The distance from line end points to the intersections are further checked if they satisfy the threshold according to T or X geometry. The pseudocode of the TX junction detection is illustrated in \autoref{alg:txdetection}, and the detection result is shown in \autoref{fig:txcorner}.
 
 \begin{algorithm}                      
   \caption{TX\_junction\_detection ()}         % give the algorithm a caption
@@ -190,6 +190,13 @@ Both the ``T'' and ``X'' junctions are detected in the robot frame instead of th
   \EndFor
 \end{algorithmic}
 \end{algorithm}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.85\textwidth]{TXcorner_crop.jpg}
+  \caption{Detection of ``L''(Cyan), ``T''(Red) and ``X''(Yellow) junction in the field.}
+  \label{fig:txcorner}
+\end{figure}
 
 \subsubsection{Measurement Model Choice}\label{subsub:sensorModelChoice}
 Given the various kinds of features, different sensor model can be distinguished for different features. In general, they can be divided into point Landmarks and line Landmarks. Assume the robot position $x_t = (p_x, p_y, p_{\theta})$, and the landmark represented as $l$. The objective is to describe the expected measurement $\bar{z}$ by the observation function $h(x_t)$ and derive the Jacobian matrix $H$.
@@ -413,6 +420,32 @@ A straight forward way to describe this phenomenon is to model the noise proport
 
 
 \subsubsection{Landmark Correspondence}
-Due to the high ambiguity of the features in \gls{SPL}, one of the difficulties of using Kalman filter for localization is to find the correspondence between the observations and the landmarks. In other word, it is to find the corresponding $z_t$ (in \autoref{eq:observ}), when a landmark $l$ is detected. The only unique landmark currently detected are the center circle and the penalty area. However, these unique features can not provide the information of the field side, so the robot could be in either one position or its mirrored one. 
+Due to the high ambiguity of the features in \gls{SPL}, one of the difficulties of using Kalman filter for localization is to find the correspondence between the observations and the landmarks. In other word, it is to find the corresponding $z_t$ (in \autoref{eq:observ}), when a landmark $l$ is detected. 
+
+\paragraph{Center Circle}
+The only unique landmark currently can be used is the center circle with center line detected. Its correspondence is easily fixed to $z_t = (0,0,0)$, meaning position $(0,0)$ in physical world coordinate and \SI{0}{\degree} in orientation. However, because the center circle is symmetrical, it can not provide the information of the field side, so the robot could be in either one position or its mirrored one. In this case, the side of the current robot position is considered when using center circle to update robot position, then the robot position can be uniquely defined. With the help of unique landmark like center circle, the global localization problem stated in \autoref{sub:problem} can be solved.
+
+On the other hand, when the center circle is detected without the middle line, the robot position can still not be decided, since it can be at any position surrounding the center circle. So in this case, the center circle can only be treated as a point landmark without orientation $z_t = (0,0)$.
+
+%The same problem applies to the penalty area. Even though it is a unique landmark in half field, as said in \autoref{subsub:sensorModelChoice}, it is only treated as a line. So the robot position can be any where parallel along the line. To find a correspondence of the penalty area, we assume there is a virtual line 
+
+\paragraph{Junctions}
+For junction features which include ``L'',``T'',``X'' junctions, they are ambiguous features and can be represented as point landmark with orientation $z_t = (x,y,\theta)$. Within the junctions, ``L'' junctions are the most ambiguous ones, with 36 appearances in the field (illustrated in \autoref{fig:ljunctions}). It means one detected ``L'' junction can possibly be matched to 36 ``L'' junctions in the field . `T'', ``X'' junctions are less pervasive, with 14 and 2 appearances respectively. Given the ubiquitous distribution of the junctions in the field, it is hard to find the correspondence between the junctions seen and the junctions in the field. \\
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\textwidth]{fieldLcorners.png}
+  \caption{All L junctions in the field, the blue pointer indicates the position of the ``L'' junctions as well as their directions}
+  \label{fig:ljunctions}
+\end{figure}
+
+In this thesis work, a \textit{nearest neighbor search method with threshold} is used to find the junction correspondences. Assume the robot position is not of high inaccuracy, then the junctions in robot frame can be transformed into physical world frame. Given the junction in physical world frame, the associative correspondence is found by searching the nearest junction in the field. 
+
+Instead of looping through all the possible junctions, the k-d tree algorithm \cite{Bentley1975} is adopted to do the search efficiently. Two k-d trees are constructed, one for ``L'' junctions and one for ``T'' junctions. No k-d tree is needed for ``X'' junction, since the ``X'' junctions can be compared directly with the two in the field. The distance of measure between the junctions are Euclidean distance. 
+
+Once the associative junction is found by nearest distance, the difference in orientation is checked. If the distance to the associative junction is larger than a threshold, or the difference in orientation is too large, the associative junction is simply discarded and this landmark will not contribute to the robot position update. Because in this case, the assumption that current robot position is relatively accurate no longer holds, more than one possible correspondence can be chosen. In other word, \textit{nearest neighbor search with threshold} acts more like a local position optimization to track robot pose rather than global localization. In \autoref{sec:resample}, we will see the discarded landmarks can be utilized for global localization by using multi-hypotheses Kalman filter.
+
+\paragraph{Lines}
+Lines are the most ambiguous landmarks among all the landmarks in the field, because a single line can be matched to any field line in the field. Thus ,the lines also can not be used for global localization if features are not extracted from them. To find the line correspondence, a similar methodolgy as the nearest neighbor search is adopted. 
 
 
+%To cope with this, the same methodolgy from junction correspondence is taken, namely local position optimization. 
