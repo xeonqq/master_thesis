@@ -193,8 +193,8 @@ Both the ``T'' and ``X'' junctions are detected in the robot frame instead of th
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.85\textwidth]{TXcorner_crop.jpg}
-  \caption{Detection of ``L''(Cyan), ``T''(Red) and ``X''(Yellow) junction in the field.}
+  \includegraphics[width=0.85\textwidth]{TXLcorner_crop.png}
+  \caption{Detection of ``L''(Cyan), ``T''(Red) and ``X''(Yellow) junction in the field. The purple ellipse indicates the measurement covariance}
   \label{fig:txcorner}
 \end{figure}
 
@@ -442,7 +442,7 @@ In this thesis work, a \textit{nearest neighbor search method with threshold} is
 
 Instead of looping through all the possible junctions, the k-d tree algorithm \cite{Bentley1975} is adopted to do the search efficiently. Two k-d trees are constructed, one for ``L'' junctions and one for ``T'' junctions. No k-d tree is needed for ``X'' junction, since the ``X'' junctions can be compared directly with the two in the field. The distance of measure between the junctions are Euclidean distance. 
 
-Once the associative junction is found by nearest distance, the difference in orientation is checked. If the distance to the associative junction is larger than a threshold, or the difference in orientation is too large, the associative junction is simply discarded and this landmark will not contribute to the robot position update. Because in this case, the assumption that current robot position is relatively accurate no longer holds, more than one possible correspondence can be chosen. In other word, \textit{nearest neighbor search with threshold} acts more like a local position optimization to track robot pose rather than global localization. In \autoref{sec:resample}, we will see the discarded landmarks can be utilized for global localization by using multi-hypotheses Kalman filter.
+Once the associative junction is found by nearest distance, the difference in orientation is checked. If the distance to the associative junction is larger than a threshold, or the difference in orientation is too large, the associative junction is simply discarded and this landmark will not contribute to the robot position update. Because in this case, the assumption that current robot position is relatively accurate no longer holds, more than one possible correspondence can be chosen. In other word, \textit{nearest neighbor search with threshold} acts more like a local position optimization to track robot pose rather than global localization. In \autoref{sec:resample}, we will see the discarded landmarks can be utilized for global localization by using multi-hypotheses Kalman filter. The matching result is already shown before in \autoref{fig:txcorner}, in which the orange pointer indicates to which junction the detected junction is corresponding.
 
 \paragraph{Lines}
 Lines are the most ambiguous landmarks among all the landmarks in the field, because a single line can be matched to any field line in the field. Due to the high ambiguity, the lines also can not be used for global localization if features are not extracted from them. To find the line correspondence, a similar methodology as the nearest neighbor search is adopted. Each detected line is represented by a vector of two end points $l=(p_{start}, p_{end})$. If the nearest neighbor search is directly applied, the two end points could be matched to two different field lines, as illustrated in \autoref{fig:linematch}.
@@ -530,4 +530,13 @@ While each line detected from a vertical or horizontal field lines can have a co
 
 
 \paragraph{Penalty Area}
-As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can be regarded as a line. We can assume on the field, there is a virtual line which is vertical and goes through the center of each penalty area box. Then the problem becomes the matching of the penalty area with the virtual lines. Unlike the \textit{nearest line neighbor search} for lines, the penalty area matching criterion is simpler. Since there are only two penalty area virtual lines in the field, the nearest distance from the center of the detected penalty area to both virtual lines are calculated. The virtual line with shorter distance becomes the correspondence.
+As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can be regarded as a line. We can assume on the field, there is a virtual line which is vertical and goes through the center of each penalty area box. Then the problem becomes the matching of the penalty area with the virtual lines. Unlike the \textit{nearest line neighbor search} for lines, the penalty area matching criterion is simpler. Since there are only two penalty area virtual lines in the field, the nearest distance from the center of the detected penalty area to both virtual lines are calculated. The virtual line with shorter distance becomes the correspondence. The matching result for both detected lines and penalty area is illustrated in \autoref{fig:linematch}.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{line_penaltymatching_crop.png}
+\end{center}
+\caption{Matching result of line and penalty area. (The gray box indicates the detected penalty area. The line in blue indicate it is matched with the field line in red. The line in grey indicate it fails to find a correspondence.)}
+\label{fig:linematch}
+\end{figure}
+
