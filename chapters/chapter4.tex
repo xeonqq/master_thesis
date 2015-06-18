@@ -418,6 +418,31 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
 
 A straight forward way to describe this phenomenon is to model the noise proportional to the distance of the landmark in robot frame. However, the problem with this model is that it is hard to choose a physically meaningful coefficient for the linear function. Therefore, another similar but more suitable noise model which is used by team B-Human is adopted \cite{Bhuman}. (figure needed to describe)
 
+\begin{figure}[h!]
+\begin{center}
+  \begin{tikzpicture}[
+     axis/.style={very thick, ->, >=stealth'},
+    ]
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=0.75\textwidth]{simspark.png}};
+    \begin{scope}[x={(image.south east)},y={(image.north west)}]
+      %\draw[red,ultra thick, dashed, rounded corners] (0.841,0.62) rectangle (0.918,0.284);
+      \coordinate (L) at (0.731,0.3856);
+      \coordinate (C) at (0.25625, 0.7116);
+      \coordinate (L2) at ($(C)!1.14!3:(L)$);
+      \coordinate (L1) at ($(C)!0.89!-3:(L)$);
+      \draw[axis] (0.27,0.428) coordinate (O) -- ($(O)!1.4!(L)$) coordinate(x) node(xline)[below right] {$x$};
+      \draw[axis] (O) -- (0.475,0.56) coordinate(y) node(yline)[above] {$y$};
+      \draw[thick, dashed] (C) -- (L);
+      \draw[thick, dashed] (C) -- (L2);
+      \draw[thick, dashed] (C) -- (L1);
+    \end{scope}
+  \end{tikzpicture}
+\end{center}
+\caption{Measurement covariance of point landmark}
+\label{fig:measurecovar}
+\end{figure}
+
+
 
 \subsubsection{Landmark Correspondence}
 Due to the high ambiguity of the features in \gls{SPL}, one of the difficulties of using Kalman filter for localization is to find the correspondence between the observations and the landmarks. In other word, it is to find the corresponding $z_t$ (in \autoref{eq:observ}), when a landmark $l$ is detected. 
