@@ -416,7 +416,7 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
   \label{fig:landmarkRobotFrame}
 \end{figure}
 
-A straight forward way to describe this phenomenon is to model the noise proportional to the distance of the landmark in robot frame. However, the problem with this model is that it is hard to choose a physically meaningful coefficient for the linear function. Therefore, another similar but more suitable noise model which is used by team B-Human is adopted \cite{Bhuman}. (figure needed to describe)
+A straight forward way to describe this phenomenon is to model the noise proportional to the distance of the landmark in robot frame. However, the problem with this model is that it is hard to choose a physically meaningful coefficient for the linear function. Therefore, another similar but more suitable noise model which is used by team B-Human is adopted \cite{Bhuman}. The basic idea of their noise model is illustrated in \autoref{fig:measurecovar}. In \autoref{fig:measurecovar}, a point landmark without orientation is observed at location $L$ in robot frame $xOy$. In this model, it assumes the robot has certain angle noise deviation in projection from the camera to the landmark, namely $\theta_{x}$ and $\theta_{y}$ in $x$ direction and $y$ direction. By adding the angle noise deviations and re-projecting the landmark onto the ground, the measurement noise indicated by the purple line $LB$ and $LA$ can be calculated. 
 
 \begin{figure}[h!]
 \begin{center}
@@ -427,21 +427,36 @@ A straight forward way to describe this phenomenon is to model the noise proport
     \begin{scope}[x={(image.south east)},y={(image.north west)}]
       %\draw[red,ultra thick, dashed, rounded corners] (0.841,0.62) rectangle (0.918,0.284);
       \coordinate (L) at (0.731,0.3856);
-      \coordinate (C) at (0.25625, 0.7116);
-      \coordinate (L2) at ($(C)!1.14!3:(L)$);
-      \coordinate (L1) at ($(C)!0.89!-3:(L)$);
-      \draw[axis] (0.27,0.428) coordinate (O) -- ($(O)!1.4!(L)$) coordinate(x) node(xline)[below right] {$x$};
+      \coordinate (C) at (0.25625, 0.7116) ;
+      \coordinate (Lx) at ($(C)!1.14!3:(L)$) ;
+      %\coordinate (L1) at ($(C)!0.89!-3:(L)$);
+      \draw[axis] (0.27,0.428) coordinate (O) node()[below]{$O$} -- ($(O)!1.4!(L)$) coordinate(x) node(xline)[below right] {$x$};
       \draw[axis] (O) -- (0.475,0.56) coordinate(y) node(yline)[above] {$y$};
-      \draw[thick, dashed] (C) -- (L);
-      \draw[thick, dashed] (C) -- (L2);
-      \draw[thick, dashed] (C) -- (L1);
+      \draw[thick, dashed] (C) node()[above]{$C$}-- (L) node()[below]{$L$};
+      \draw[thick, dashed] (C) -- (Lx) node()[below]{$A$};
+      %\draw[thick, dashed] (C) -- (L1);
+      \draw pic[ draw=orange, <->, angle eccentricity=1.2, angle radius=4cm]
+      {angle=L--C--Lx};
+
+      \draw (0.59,0.485) node()[right, orange] {\scriptsize $\theta_{x}$};
+      \coordinate (Ly) at ($(L)!0.2!30:(O)$);
+      \draw[thick, dashed] (C) -- (Ly) node()[below]{$B$};
+
+      \draw pic[ draw=orange, <->, angle eccentricity=1.2, angle radius=3cm]
+      {angle=Ly--C--L};
+      \draw (0.493,0.49) node()[right, orange] {\scriptsize $\theta_{y}$};
+      \draw[thick, magenta] (L) -- (Ly);
+      \draw[thick, magenta] (L) -- (Lx);
     \end{scope}
   \end{tikzpicture}
 \end{center}
-\caption{Measurement covariance of point landmark}
+\caption{Measurement covariance of point landmark. ($\theta_{x}$ and $\theta_{y}$ are the measurement angle deviations in $x$, $y$ direction. $LA$ and $LB$ indicate the measurement noises.)}
 \label{fig:measurecovar}
 \end{figure}
 
+On the other hand, for line landmarks, according to its measurement model, it is represented as ($\rho$, $\theta$). Its corresponding measurement noise is calculated by taking the center point of the detected line landmark and use it as a point landmark to calculate the noise. The noise in $x$ direction is regarded as the measurement noise for $\rho$. Based on the assumption that the longer the detected line is, the more confidence the robot will have for line angle $\theta$, the measurement noise for $\theta$ is calculated by $atan(measurementNoise(\rho)/halfLineLength)$. 
+
+In the end, for point landmarks with orientation, the noise model of point landmark mentioned above is firstly applied. Then the measurement noise in orientation can be obtained by taking the line from the landmark which determines the landmark's orientation, and calculate its noise in angle using the noise model for line landmark.
 
 
 \subsubsection{Landmark Correspondence}
@@ -564,4 +579,20 @@ As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can
 \caption{Matching result of line and penalty area. (The gray box indicates the detected penalty area. The line in blue indicate it is matched with the field line in red. The line in grey indicate it fails to find a correspondence.)}
 \label{fig:linematch}
 \end{figure}
+
+
+
+
+
+\subsubsection{Multiple Simultaneous Measurements}
+In practical implementation of the Kalman filter, the routine of one motion update and one sensor update described in theory may not be followed. Instead, there can be multiple motion updates without sensor updates, if no result is obtained from observation. Or on other cases, several observations are made at once, since several landmarks are extracted in the same time step. Assume the landmarks extracted from the observations are all point landmarks without orientation. According to the measurement noise model discussed in \autoref{sub:Measurement Noise Model}. The measurement noise covariance can be represented as in \autoref{eq:cov}
+\begin{equation}
+  \label{eq:cov}
+  R = 
+  \begin{bmatrix}
+    r_x^2 & 0 \\ 
+    0 & r_y^2
+  \end{bmatrix}
+\end{equation}
+The stochastically correct sensor update for $n$ detected landmarks is to execute a $2n$-dimensional measurement update. However, when the landmarks are stochastically independent of each other, the off-diagonal inter-landmarks entries of the $2n \times 2n$ measurement covariance are zero. Then a single $2n$-dimensional measurement update is approximated well by $n$ $2$-dimensional updates \cite{Tasse2013}. Although, the assumption of the observed landmarks are independent of each other is not complete true in \gls{SPL} game, in this thesis work, the sensor update is performed independently for each observed landmark. As a result, it sacrifices the localization accuracy for the trade-off of increase of computation efficiency.
 
