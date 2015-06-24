@@ -140,26 +140,33 @@ $${{F_{t}}} = \left . \frac{\partial f}{\partial x } \right \vert _{\hat{x}_{t-1
 $${{H_{t}}} = \left . \frac{\partial h}{\partial x } \right \vert _{\hat{x}_{t|t-1}}$$
 
 
-\subsection{Multi-Model Kalman Filter}
+\subsection{Multi-Model Kalman Filter}\label{sub:mmkalman}
 The Kalman filters whether \gls{EKF} or \gls{UKF} assume the posterior probability is still Gaussian distribution, it performs rather like a maximum likelihood estimator than as a minimum variance estimator~\cite{alspach1972nonlinear}. As a result, it greatly reduces the amount of information which is in the true density distribution which might be multi-modal. To overcome the shortcoming of Kalman filter and its ramifications which perform poorly in multi-modal probability distribution, Multi-Model Kalman Filter was proposed in~\cite{alspach1972nonlinear}. Multi-Model Kalman Filter represent the probability distribution using the weighted sum of multiple Gaussian distribution models, and each Gaussian distribution model $i$ has its weight $\alpha_i$, for $\alpha_i \in $[0, 1].
 
-For each model, the multivariate normal probability distribution function(pdf) is given by:
+For each model, the multivariate normal \gls{PDF} is given by:
+\begin{equation}
+\label{eq:mmkalman}
+p_{i}(x) = \alpha_i\frac{1}{\sigma \sqrt {(2\pi)^k|P_i|}}exp(-\frac{1}{2}(x-\mu)^TP_i^{-1}(x-\mu))
+\end{equation}
 
-$$p_{i}(x) = \alpha_i\frac{1}{\sigma \sqrt {(2\pi)^k|P_i|}}exp(-\frac{1}{2}(x-\mu)^TP_i^{-1}(x-\mu))$$
-
-The overall mixture pdf is therefore:
-$$p(x) = \sum_{i=1}^{N}p_i(x)$$
+The overall mixture \gls{PDF} is therefore:
+\begin{equation}
+\label{eq:mmkalmansum}
+p(x) = \sum_{i=1}^{N}p_i(x)
+\end{equation}
 The mixture of Gaussian representations allows to construct a sensor model with one Gaussian term for each possible correspondence.
 
 During the measurement update, the weight $\alpha_i$ is updated using the method according to ~\cite{alspach1972nonlinear}:
-
-$$\alpha_{i}(x) = \nu\alpha_i'\frac{1}{\sigma \sqrt {(2\pi)^k|P_\eta|}}exp(-\frac{1}{2}\eta^{-1}P_\eta^{-1}\eta)$$
+\begin{equation}
+\label{eq:weightupdate}
+\alpha_{i}(x) = \nu\alpha_i'\frac{1}{\sigma \sqrt {(2\pi)^k|P_\eta|}}exp(-\frac{1}{2}\eta^{-1}P_\eta^{-1}\eta)
+\end{equation}
 
 Where $\eta = (z_t - z\widehat{}_i)$indicate the $m$-dimensional innovation vector between the measured observation $z_t$ and the expected observation $z\widehat{}_i$ for the fixed correspondence according the $i$'th model. $P_\eta$ is the sum of the measurement and the prediction covariance, and $\nu$ is a normalization factor.
 
 There exist two situations to be considered for measurement update for multi-model Kalman filter. One is when the observation is unambiguous, which means when goal post or unique land marks have been detected, so only one approximation of the robot state will be generated from the vision. In this case, the measurement update will be applied on each Gaussian term and result in the same number of terms as before. Another case is when the vision measurement is ambiguous, for example, it may generate $N$ approximations of the robot state from the vision input, because the landmark is not unique or cannot provide enough information. In this case, suppose initially the system has $M$ Gaussian models, after update the system will split into $M \times N$ Gaussian models. With ambiguous measurement update the terms of Gaussian are increasing multiplicatively. Methods needed to be applied to prune the growing number of Gaussian models. Model merge equations and decisions has been proposed in \cite{Quinlan2010}, in which several Gaussian models are merged into one if some metrics are met. In \cite{Jochmann2012}, for efficiency, the author only takes the Gaussian models with maximum likelihood, and compensates the information which is lost when models are pruned by introducing filter resetting technique to reproduce the missing models, which is an ingredient taken from particle filter theory.
 
 \section{Prior work of Localization for robot in RobotCup}\label{sec:2.2}
-Most localization algorithms applied in RoboCup \gls{SPL} falls into the class of either paricle filter or Kalman filter based localization. Quinlan and Middleton from Team RoboEireann use multiple model Kalman filters for robot localization \cite{Quinlan2010}. They split the gaussian model when ambiguous measurement happens to cover the multi-modal hypothesis distribution. The problem this strategy brings is the multiplicatively increasing number of Kalman models during model split, therefore a model merge step is proposed to combine the models. Team NaoDevil also baed their localization on a multi-hypothesis \gls{UKF}, in stead of model splitting they adopt sensor resetting technique which commonly used in particle filter \cite{Jochmann2012}. 
+Most localization algorithms applied in RoboCup \gls{SPL} falls into the class of either particle filter or Kalman filter based localization. Quinlan and Middleton from Team RoboEireann use multiple model Kalman filters for robot localization \cite{Quinlan2010}. They split the Gaussian model when ambiguous measurement happens to cover the multi-modal hypothesis distribution. The problem this strategy brings is the multiplicatively increasing number of Kalman models during model split, therefore a model merge step is proposed to combine the models. Team NaoDevil also based their localization on a multi-hypothesis \gls{UKF}, instead of model splitting they adopt sensor resetting technique which commonly used in particle filter \cite{Jochmann2012}. It argues that the  pruning technique in \cite{Quinlan2010} will delete temporarily low possibility Gaussian model which may become more probable in the long term.
 
-However paricle filter or Kalman filter is not the only solution for localization, team Berlin United also proposed a constraint based world modeling for localization \cite{Gohring2009} to overcome the reduction of landmarks such as beacons or colored goals in RoboCup. They build robot position constrains by using the geometry property of the lines in the field. In midsize league, a localizaiton method based on optimization approach \cite{Lauer2006} is proposed, it tries to calculate the perfect match of the vision with the field. Then the pose of the robot is also determined.
+However particle filter or Kalman filter is not the only solution for localization, team Berlin United also proposed a constraint based world modeling for localization \cite{Gohring2009} to overcome the reduction of landmarks such as beacons or colored goals in RoboCup. They build robot position constrains by using the geometry property of the lines in the field. In midsize league, a localization method based on optimization approach \cite{Lauer2006} is proposed, it tries to calculate the perfect match of the vision with the field. Then the pose of the robot is also determined.

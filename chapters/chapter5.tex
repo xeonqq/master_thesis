@@ -1,7 +1,21 @@
 \chapter{Multi-Hypotheses\label{cha:chapter5}}
+While Kalman filter can only deal with uni-modal probability distribution, it does not suffice to handle the ambiguous landmarks that occur in robot's observation, which requires a multi-modal distribution. Therefore, a multi-hypotheses Kalman filter is adapted to handle the ambiguous situations by describing the robot position in the field by a Gaussian sum distribution.
+The problem of multi-hypotheses Kalman filter lies mainly in the domain of when and where to add new hypothesis into the Gaussian sum distribution, as well as when to pruning or merge certain hypotheses to restrain the number of hypotheses within a limit, so it does not consume too much of the computation resource.
 
 
-\section{Resampling}\label{sec:resample}
+\section{Model Weight}
+As illustrated in \autoref{sub:mmkalman}, each normal probability distribution from the Gaussian sum distribution is represented as \autoref{eq:mmkalman}. In addition to uni-modal Gaussian distribution, the weight $\alpha_i$ has to be determined for each Gaussian distribution model $i$ in the Gaussian sum distribution. The weight, at the same time, illustrates the quality of the state hypothesis. Possible update method like \autoref{eq:weightupdate} has been proposed in ~\cite{alspach1972nonlinear}. However, this update method is only suitable for landmarks with known correspondence. If the correspondence is unknown or ambiguous, like in our case, the ``T'' junctions, the expected observation $z\widehat{}_i$ can not be determined. 
+
+In this thesis work, a voting buffer is used to measure the weight of each model. The voting buffer is constructed by a \gls{FIFO} circular buffer of size $60$. The basic idea is to vote $1$ to the buffer when the observed landmark is matched, and $0$ when not matched. The matching of landmark correspondence is using the nearest neighbor algorithm with threshold discussed in \autoref{subsub:landmarkco}. 
+The advantage of using a circular buffer is that, after $60$ observed landmarks, regardless matched or not, the old voting in the buffer will be flushed and will not be counted. In other words, it tries to approximate the current robot state by keeping the memory of the most recent history. The model weight is determined by the average value of the voting buffer. Therefore, the more matches with landmarks the Kalman model makes, the higher weight it will have. 
+
+However, as discussed in \autoref{subsub:landmarkco}, some landmarks are unique landmarks, \ie center circle, and some are ambiguous landmarks, \ie junctions and lines. To depict the quality of the robot localization state, the vote should depend on only the globally unique landmarks instead of ambiguous landmarks. Assume a scenario, in which the robot is not moving and constantly observing a ``T'' junction, and the ``T'' junction is perfectly matched with its nearest neighbor in the field. In this case, the state of the robot is local optimal. The weight of the model will keep increasing and reach 1, but the weight is not truly describing the quality of localization state in global.
+%summing up the values in the voting buffer and calculate the average.
+
+
+\section{Landmark Based Resampling}\label{sec:resample}
+
+Similar to the augmented particle filter's \cite{thrun2005probabilistic} sensor reseting step to recover the situation of robot gets kidnapped, multi-hypotheses Kalman filter based its sensor reseting on landmarks.
 A homogeneous transform matrix in our context is a $3 \times 3$ matrix. It is structured by a $2 \times 2$ rotation matrix $R_B^A$ and a $2 \times 1$ translation matrix  $P_B^A$ denoted in \autoref{eq:homomat}.
 \begin{equation}
 \label{eq:homomat}
@@ -23,4 +37,54 @@ T_R^G \cdot T_L^R=T_L^G
 	T_R^G=T_L^G\cdot (T_L^R)^{-1} 
 \end{equation}
 
-	
+\begin{equation}
+\label{eq:reverseTrans2}
+	T_R^G=
+\begin{bmatrix}
+R_L^G & P_L^G \\
+\bf{0}   & 1 
+\end{bmatrix} \cdot
+\begin{bmatrix}
+  (R_L^R)^\top & -(R_L^R)^{\top} P_L^R \\
+\bf{0}   & 1 
+\end{bmatrix}
+\end{equation}
+
+
+\begin{equation}
+\label{eq:reverseTrans3}
+	T_R^G=
+\begin{bmatrix}
+  R_L^G(R_L^R)^\top & -R_L^G(R_L^R)^{\top} P_L^R +  P_L^G\\
+\bf{0}   & 1 
+\end{bmatrix}
+\end{equation}
+
+By using the rotation matrix representation stated in \autoref(eq:rot)
+\begin{equation}
+\label{eq:reverseTrans4}
+	R_R^G=
+  \Omega(\theta_{G} - \theta_{L}) 
+\end{equation}
+
+\begin{equation}
+\label{eq:reverseTrans5}
+	P_R^G=
+   -\Omega(\theta_{G} - \theta_{L}) \cdot
+\begin{bmatrix}
+  x_R\\
+  y_R
+\end{bmatrix}
++
+\begin{bmatrix}
+  x_G\\
+  y_G
+\end{bmatrix}
+\end{equation}
+
+
+
+
+
+
+
