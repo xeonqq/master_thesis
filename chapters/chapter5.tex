@@ -1,4 +1,26 @@
 \chapter{Multi-Hypotheses\label{cha:chapter5}}
 
-\section{Resampling}\label{sec:resample}
 
+\section{Resampling}\label{sec:resample}
+A homogeneous transform matrix in our context is a $3 \times 3$ matrix. It is structured by a $2 \times 2$ rotation matrix $R_B^A$ and a $2 \times 1$ translation matrix  $P_B^A$ denoted in \autoref{eq:homomat}.
+\begin{equation}
+\label{eq:homomat}
+T_B^A =
+\begin{bmatrix}
+R_B^A & P_B^A \\
+\bf{0}   & 1 
+\end{bmatrix}
+\end{equation}
+
+According to \textit{Composition Rule for Homogeneous Transformations}
+\begin{equation}
+\label{eq:trans}
+T_R^G \cdot T_L^R=T_L^G
+\end{equation}
+
+\begin{equation}
+\label{eq:reverseTrans}
+	T_R^G=T_L^G\cdot (T_L^R)^{-1} 
+\end{equation}
+
+	

@@ -585,7 +585,7 @@ As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can
 
 
 \subsubsection{Multiple Simultaneous Measurements}
-In practical implementation of the Kalman filter, the routine of one motion update and one sensor update described in theory may not be followed. Instead, there can be multiple motion updates without sensor updates, if no result is obtained from observation. Or on other cases, several observations are made at once, since several landmarks are extracted in the same time step. Assume the landmarks extracted from the observations are all point landmarks without orientation. According to the measurement noise model discussed in \autoref{sub:Measurement Noise Model}. The measurement noise covariance can be represented as in \autoref{eq:cov}
+In practical implementation of the Kalman filter, the routine of one motion update and one sensor update described in theory may not be followed. Instead, there can be multiple motion updates without sensor updates, if no result is obtained from observation. Or on other cases, several observations are made at once, since several landmarks are extracted in the same time step. Assume the landmarks extracted from the observations are all point landmarks without orientation. According to the measurement noise model discussed in \autoref{sub:Measurement Noise Model}. The measurement noise covariance can be represented as a 2-dimensional matrix in \autoref{eq:cov}
 \begin{equation}
   \label{eq:cov}
   R = 
