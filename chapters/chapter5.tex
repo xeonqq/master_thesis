@@ -98,9 +98,9 @@ By using the rotation matrix representation stated in \autoref{eq:rot}, the rota
 \end{bmatrix}
 \end{equation}
 
-Therefore, given the correspondence of $l_R$ and $l_G$,  the robot x-y position is $P_R^G$ and orientation is $\theta_{G} - \theta_{L}$. The number of possible robot pose generated depends on the occurrence of the landmarks in the field. For example, a miss match of a ``T'' junction triggered resampling will generate 14 possible robot poses by ``T'' junction. The weight for the newly generated hypothesis model is 1 divided by the number of occurrence of the landmarks in the field. So in the case of resampling by ``T'', the weight for the new hypothesis model is $1/14 = 0.0714$.
+Therefore, given the correspondence of $l_R$ and $l_G$,  the robot x-y position is $P_R^G$ and orientation is $\theta_{G} - \theta_{L}$. The number of possible robot pose generated depends on the occurrence of the landmarks in the field. For example, a miss match of a ``T'' junction triggered resampling will generate 14 possible robot poses by ``T'' junction. The weight for the newly generated hypothesis model is 1 divided by the number of occurrence of the landmarks in the field. So in the case of resampling by ``T'', the weight for the new hypothesis model is $1/14 = 0.0714$. An exception is the model resampled by center circle, since only one model will be generated, the weight of it will be proportional to the detection confidence of the center circle.
 
-\section{Robot Pose}
+\section{Robot Position and Confidence}\label{sec:robotpose}
 In multi-hypothesis Kalman filter, there are multiple hypothesis models to form the possibility distribution. From the robot position probability distribution, one position $(x_{r}(t), y_{r}(t),\theta_{r}(t))$
 has to be determined as the end result of localization algorithm. In the algorithm designed, the position is chosen to be the mean of the ``best'' hypothesis model in the probability distribution. The  ``best'' hypothesis model should satisfy the following two criteria:
 \begin{itemize}
@@ -108,20 +108,56 @@ has to be determined as the end result of localization algorithm. In the algorit
    \item Secondly, when multiple models have the same weights, then the quality of local belief is compared which can be indicated by the covariance of the Gaussian model. The one with lowest covariance is believed to be the best.
 \end{itemize}
 
-Covariance describes the confidence of the belief of the current Gaussian model. To compare the covariance value between the models, it is restructured as $Cov$ in \autoref{eq:coveq}. $Cov$ is the sum of the diagonal elements of the covariance matrix. Since the error in orientation can cause more negative influence on robot position, \ie the larger the error in orientation, the further the projected observed landmark will be away from its global correspondence, thus harder to match. Therefore, the variance value for orientation is doubled to have a higher weight in comparison.
+Covariance describes the confidence of the belief of the current Gaussian model. To compare the covariance value between the models, it is re-structured as $Cov$ in \autoref{eq:coveq}. $Cov$ is the sum of the diagonal elements of the covariance matrix. Since the error in orientation can cause more negative influence on robot position, \ie the larger the error in orientation, the further the projected observed landmark will be away from its global correspondence, thus harder to match. Therefore, the variance value for orientation is doubled to have a higher weight in comparison.
 \begin{equation}
 \label{eq:coveq}
 Cov = Cov_x + Cov_y +2*Cov_{\theta}
 \end{equation}
+
+When the ``best'' model is chosen, its covariance is also set to be the covariance of the robot position, and the weight is set to be the confidence for the position.
 
 \section{Model Pruning}
 While the resampling step generates hypothesis models into the Gaussian sum distribution, pruning step is also necessary to remove the hypothesis models which are redundant or have little contribution to the whole distribution.
 
 \subsection{Pruning by Weight}
 \label{sub:Pruning by Weight}
+When the weight of hypothesis model is lower than a certain threshold, this model is considered to have little contribution of the distribution that it can be removed. Moreover, the maximum number of models is limited to a number $N$ set by the localization algorithm. Once the maximum number of models is exceeded, the models are sorted by weight from high to low in a list. Only first $N$ models in the list will remain, the others will be deleted.
 
-\subsection{Pruning by Mahalanobis Distance}
-\label{sub:Pruning by Mahalanobis Distance}
+\subsection{Pruning by Mahalanobis Distance \cite{de2000mahalanobis}}
+\label{sub:Prunning Mahalanobis Distance}
+When the hypothesis models are close enough to each other, in other word, they represent almost the same probability distribution, they could also be merged into one. One way is to apply Euclidean distance directly between the mean of the models to calculate the distance as shown in \autoref{eq:euclidean}. $\mu_1$ and $\mu_2$ represent the mean of two different Gaussian distributions. 
+\begin{equation}
+\label{eq:euclidean}
+D_{euclidean} = \sqrt{(\mu_1 - \mu_2)^T(\mu_1 - \mu_2)}= \sqrt{(x_{1}-x_{2})^2 + (y_{1}-y_{2})^2 + (\theta_{1}-\theta_{2})^2}
+\end{equation}
+However, the drawback of using Euclidean distance is that the covariance information of the distribution is not utilized. In this thesis work, 
+the method used to measure distance between two hypothesis models is an adapted version of Mahalanobis distance. Mahalanobis distance is defined as follows in \autoref{eq:mahalanobis} \cite{de2000mahalanobis}, which uses covariance as one factor to calculate the distance. In \autoref{eq:mahalanobis}, $x$ is the observation, $\mu$ is the mean of the distribution and $S$ is the covariance matrix.
+\begin{equation}
+\label{eq:mahalanobis}
+D_M(x) = \sqrt{(x - \mu)^T S^{-1} (x-\mu)}
+\end{equation}
+
+The modified Mahalanobis distance to measure distance between two Gaussian hypothesis models is defined in \autoref{eq:mahalanobismod}.
+\begin{equation}
+\label{eq:mahalanobismod}
+D_{mahalanobis} = \sqrt{((\mu_2 - \mu_1)^T S_1^{-1} (\mu_2-\mu_1) + (\mu_1 - \mu_2)^T S_2^{-1} (\mu_1-\mu_2)) \cdot 0.5}
+\end{equation}
+
+An example is illustrated in \autoref{fig:gaussians}, although the Euclidean distance between the mean of the two Gaussian distributions are close ($D_{euclidean}=0.5$), the Mahalanobis distance is relatively large ($D_{mahalanobis}=1.77$) due to the significant difference between their deviations. As a result, Mahalanobis distance is more suitable for describing the model distance than Euclidean distance.
+
+\begin{figure}[tbh]
+\begin{center}
+	\includegraphics[width=0.65\textwidth]{twogaussian.png}
+\end{center}
+\caption{Visualization of two Gaussian distributions}
+\label{fig:gaussians}
+\end{figure}
+
+To prune hypothesis models, the Mahalanobis distance is calculated between each pair of the models. If the Mahalanobis distance is under certain threshold, the two models are considered to be close to each other, and the one with lower weight will be removed. If both weights are the same, the model with higher covariance will be removed.
 
 
+\subsection{Pruning by Distance to Best Model}
+\label{sub:Pruning by Distance to Best Model}
+
+As we discussed in \autoref{sec:robotpose}, the model whichever is the ``best'' is chosen to represent the robot position. To further prune hypothesis models, the models which are very close to ``best'' model are also removed. This distance is measured simply by Euclidean distance and the threshold is set to be a small value \SI{2}{\cm}.
 
