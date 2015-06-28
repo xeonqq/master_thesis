@@ -23,7 +23,8 @@ For the observed line landmarks, they are currently not contributing to the voti
 
 Similar to the augmented particle filter's \cite{thrun2005probabilistic} sensor reseting step to recover the situation of robot gets kidnapped, multi-hypotheses Kalman filter based its sensor reseting on landmarks to recovery from position tracking failure. Assume uni-modal kalman filter for position tracking, the filter can lose track of the robot position when the robot is hit by another robot, which result in an error in robot's orientation, or the robot is kidnapped by a referee during manual replacement, etc. Augmented particle filter initiates the sensor resetting step to generate random particles when the fluctuation of the weights from the particles is high, multi-hypotheses Kalman filter designed in this thesis work will start resampling when an observed landmark fail to match the one on the field. Here, a correspondence match failure is regarded as a signal for potential lose of position tracking. 
 
-The resampling is achieved by calculating all the possible poses of the robot with respect to the observation of the landmark. The landmarks which can trigger resampling are the landmarks with orientation, \ie center circle with center line and all kinds of junctions. The landmarks without orientation like lines, center circle without center line and penalty area can generate infinite possible robot positions, therefore currently they are not used for resampling. The problem of calculating the possible poses can be formulated as follows:\\
+The resampling is achieved by calculating all the possible poses of the robot with respect to the observation of the landmark. The landmarks which can trigger resampling are the landmarks with orientation, \ie center circle with center line and all kinds of junctions. The landmarks without orientation like lines, center circle without center line and penalty area can generate infinite possible robot positions, therefore currently they are not used for resampling. The problem of calculating the possible poses can be formulated as follows:
+
 Given an observed landmark $l_R = (x_R, y_R, \theta_{R})$ in robot frame, and assume its correspondent landmark $l_G = (x_G, y_G, \theta_{G})$ in physical world frame, the corresponding robot pose in physical world frame is what needed to be calculated. The calculation concerns mainly with the coordinate frame transformation which can be described by homogeneous transform matrix. 
 
 A homogeneous transform matrix in our context is a $3 \times 3$ matrix. It is structured by a $2 \times 2$ rotation matrix $R_B^A$ and a $2 \times 1$ translation matrix  $P_B^A$ denoted in \autoref{eq:homomat}.
@@ -35,6 +36,7 @@ R_B^A & P_B^A \\
 \bf{0}   & 1 
 \end{bmatrix}
 \end{equation}
+
 The sub and super-script in $R_B^A$ indicate it is the rotation of frame $B$ relative to frame $A$. Translation matrix  $P_B^A$ denotes the translation of the origin of frame $B$ in frame $A$.
 In the following equations, we represent the robot pose in physical world frame in the form of  homogeneous transform matrix as $T_R^G$, landmark in robot frame as  $T_L^R$, landmark in physical world frame as $T_L^G$.
 According to \textit{Composition Rule for Homogeneous Transformations}, the transformation between $T_R^G$, $T_L^R$ and $T_L^G$ can be described in \autoref{eq:trans}.
@@ -100,6 +102,29 @@ By using the rotation matrix representation stated in \autoref{eq:rot}, the rota
 
 Therefore, given the correspondence of $l_R$ and $l_G$,  the robot x-y position is $P_R^G$ and orientation is $\theta_{G} - \theta_{L}$. The number of possible robot pose generated depends on the occurrence of the landmarks in the field. For example, a miss match of a ``T'' junction triggered resampling will generate 14 possible robot poses by ``T'' junction. The weight for the newly generated hypothesis model is 1 divided by the number of occurrence of the landmarks in the field. So in the case of resampling by ``T'', the weight for the new hypothesis model is $1/14 = 0.0714$. An exception is the model resampled by center circle, since only one model will be generated, the weight of it will be proportional to the detection confidence of the center circle.
 
+\subsection{``L'' Junction Look Up Table}
+\label{sub:Junction Look Up Table}
+A special case which worth discussing is the observation of the ``L'' junctions, as there are 36 occurrences of ``L'' junctions in the field, a match failure can resample as much as 36 possible robot position, the weight for the newly generated hypothesis model will be $1/36=0.027$ which is extremely low. Such low weight model can be easily pruned in the pruning step which we will discuss in \autoref{sec:pruning}. However, due to the high occurrence of ``L'' junction, the possibility of observing more than one ``L'' junctions at the same frame is also high. When more than one ``L'' junctions are observed in one frame, the number of possible positions can also be reduced. The implementation to generate possible positions by multiple ``L'' junction is shown in following steps:
+
+\begin{enumerate}
+  \item Take one observed ``L'' junction, use \autoref{eq:reverseTrans4} and \autoref{eq:reverseTrans5} to generate 36 possible robot positions based on all the ``L'' junctions in the field. 
+  \item Take another observed ``L'' junction, at each robot position generated in Step 1, project the ``L'' junction to the physical world frame.
+  \item Check if at the place where the observed ``L'' junction  is projected exists a  ``L'' junction in the field. If so, this generated robot position is valid, otherwise it is an invalid position.
+  \item If there are  remaining ``L'' junctions in observation, repeat from Step 2. Otherwise the possible robot positions which are valid are returned.
+\end{enumerate}
+
+To speed up the computation, Step 3 above is implemented using a pre-computed look up table. Given a pose $(x_l, y_l, \theta_l)$ of the ``L'' junction in physical world frame,  the look up table will return boolean value true or false, depend on whether in the range of $(x_l, y_l, \theta_l)$ exists a ``L'' junction. Although it is a 3-dimensional look up table, the resolution can be configured coarse, it will not consume to much memory. In return, the checking of 36 ``L'' junctions in physical world frame can be done together at once. An visualization example of the look up table is illustrated in \autoref{fig:lcornerLUT}. Since it is a 3-dimensional look up table, \autoref{fig:lcornerLUT} only shows the look up table when the angle dimension is at \SI{90}{\degree}. It means, if given a ``L'' junction in physical world frame with angle being \SI{90}{\degree}, only the ``L'' junctions which fall into the white area is valid. The correctness can be verified by checking in correspond with \autoref{fig:ljunctions}.
+
+\begin{figure}
+\begin{center}
+	\includegraphics[width=0.5\textwidth]{cornerLUT_fliped.png}
+\end{center}
+\caption{``L'' junction look up table with angle dimension at \SI{90}{\degree}. (White indicate true, black indicate false.)}
+\label{fig:lcornerLUT}
+\end{figure}
+
+To further reduce the number of sampled positions by ``L'' junction, we retain only the positions which are close enough to the last robot position. With the filtering of the positions generated by ``L'' junctions, the weight of the sampled position is set to be the same as the ones generated by ``T'' junctions.
+
 \section{Robot Position and Confidence}\label{sec:robotpose}
 In multi-hypothesis Kalman filter, there are multiple hypothesis models to form the possibility distribution. From the robot position probability distribution, one position $(x_{r}(t), y_{r}(t),\theta_{r}(t))$
 has to be determined as the end result of localization algorithm. In the algorithm designed, the position is chosen to be the mean of the ``best'' hypothesis model in the probability distribution. The  ``best'' hypothesis model should satisfy the following two criteria:
@@ -116,7 +141,7 @@ Cov = Cov_x + Cov_y +2*Cov_{\theta}
 
 When the ``best'' model is chosen, its covariance is also set to be the covariance of the robot position, and the weight is set to be the confidence for the position.
 
-\section{Model Pruning}
+\section{Model Pruning}\label{sec:pruning}
 While the resampling step generates hypothesis models into the Gaussian sum distribution, pruning step is also necessary to remove the hypothesis models which are redundant or have little contribution to the whole distribution.
 
 \subsection{Pruning by Weight}
@@ -125,7 +150,8 @@ When the weight of hypothesis model is lower than a certain threshold, this mode
 
 \subsection{Pruning by Mahalanobis Distance \cite{de2000mahalanobis}}
 \label{sub:Prunning Mahalanobis Distance}
-When the hypothesis models are close enough to each other, in other word, they represent almost the same probability distribution, they could also be merged into one. One way is to apply Euclidean distance directly between the mean of the models to calculate the distance as shown in \autoref{eq:euclidean}. $\mu_1$ and $\mu_2$ represent the mean of two different Gaussian distributions. 
+When the hypothesis models are close enough to each other, in other word, they represent almost the same probability distribution, they could also be merged into one. One way is to apply Euclidean distance directly between the mean of the models to calculate the distance as shown in \autoref{eq:euclidean}. $\mu_1$ and $\mu_2$ represent the mean of two different Gaussian distributions.
+
 \begin{equation}
 \label{eq:euclidean}
 D_{euclidean} = \sqrt{(\mu_1 - \mu_2)^T(\mu_1 - \mu_2)}= \sqrt{(x_{1}-x_{2})^2 + (y_{1}-y_{2})^2 + (\theta_{1}-\theta_{2})^2}

@@ -55,3 +55,113 @@ For the purpose of debugging and benchmark, the robot can stores the perception 
 
 
 
+\section{Benchmarks}
+\label{sec:Benchmark}
+To benchmark the quality of localization algorithms, we use the same perception log with ground truth as the input for the different algorithms. The log is recorded when the robot is initially placed at the side of the field and walks into the goalie position. In the end, the robot is kidnapped to a position near the center circle \footnote{The kidnap happens at around frame 3200 of the log, where a robot position ``jump'' is illustrated by the ground truth in \autoref{fig:benchmarkParticle}}. The quality of the localization algorithm is judged by the following criteria: 
+\begin{enumerate}
+  \item Initial global localization.
+  \item Accuracy of robot position tracking.
+  \item Recovery from tracking failure or kidnap.
+  \item Efficiency of algorithm.
+\end{enumerate}
+
+Three localization algorithms are compared, namely, particle filter, optimization based localization, multi-hypotheses Kalman filter localization.
+
+The results of the localization with different algorithms are illustrated in 
+\autoref{fig:benchmarkParticle}, \autoref{fig:benchmarkRprop} and \autoref{fig:benchmarkKalman}. In each figure, the first three sub-plots in the first row compare the localization result with the ground truth in $x$, $y$, $\theta$ dimension respectively. The forth sub-plot in the first row shows the moving trajectory of the robot for both calculated one and the ground truth. The second row of the sub-plots illustrate the error between the localization result and the ground truth.
+
+\begin{figure}[h!]
+\begin{center}
+	%\includegraphics[width=\textwidth]{benchmark_trytogoalie_particle.png}
+	\includegraphics[width=\textwidth]{benchmark_particle2.png}
+\end{center}
+\caption{Particle Filter localization result (blue) compared with ground truth (green)}
+\label{fig:benchmarkParticle}
+\end{figure}
+%[('', '$E(e)$', '$\\delta(e)$'), ('$x$', 0.27794279267269395, 0.3492095080558556), ('$y$', 0.30230040992251561, 0.30502241418287196), ('$\\theta$', 0.32650508700053837, 0.38371622182735776), ('$d$', 0.44545705278503417, 0.43033905427307967)]
+
+%paricle2
+%[('', '$E(e)$', '$\\delta(e)$'), ('$x$', 0.55183942584722578, 0.59131139906929575), ('$y$', 0.42219593496159497, 0.40303767773039317), ('$\\theta$', 0.43895938658740813, 0.53193942003138717), ('$d$', 0.73857044381197312, 0.67035691932318597)]
+
+\begin{figure}[h!]
+\begin{center}
+	\includegraphics[width=\textwidth]{benchmark_rprop.png}
+\end{center}
+\caption{Optimization based localization result (blue) compared with ground truth (green)}
+\label{fig:benchmarkRprop}
+\end{figure}
+%[('', '$E(e)$', '$\\delta(e)$'), ('$x$', 0.41285236480916204, 0.41123891005121205), ('$y$', 0.52180417053113137, 0.73911675845537628), ('$\\theta$', 0.52008518389747416, 0.70291834048810775), ('$d$', 0.7052172517778369, 0.81289994407479604)]
+
+\begin{figure}[h!]
+\begin{center}
+	\includegraphics[width=\textwidth]{benchmark_trytogoalie_kalman.png}
+\end{center}
+\caption{Multi-hypotheses Kalman Filter localization result (blue) compared with ground truth (green)}
+\label{fig:benchmarkKalman}
+\end{figure}
+
+%[('', '$E(e)$', '$\\delta(e)$'), ('$x$', 0.3114195849313835, 0.39319751044929591), ('$y$', 0.24561330872443066, 0.388151897485701), ('$\\theta$', 0.21089172180948793, 0.23866537659570336), ('$d$', 0.42042210261797613, 0.53462088312836409)]
+
+From the illustrations of the localization results, all of the three localization algorithms solve the initial global localization problem and tracks the robot position after global localization. 
+
+In terms of localization accuracy, the average error and error deviation for each localization algorithm is shown in \autoref{tab:statistics}. From \autoref{tab:statistics}, we can see that multi-hypotheses Kalman Filter out-performs the other localization algorithms in term of accuracy. By comparing \autoref{fig:benchmarkParticle} and \autoref{fig:benchmarkKalman}, another benefit of  Kalman filter based localization is that the trajectory of the position is more smooth than the one from particle filter.
+\begin{table}[h!]
+  \centering
+  \caption{Accuracy comparison between different localization algorithms}
+  \label{tab:statistics}
+  \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{l|l|l|l|l|l|l|l|l}
+      Average error  \& deviation & x (\SI{}{\meter})                   &  deviation     & y  (\SI{}{\meter})                   & deviation        & $\theta$  (\SI{}{\radian})            &deviation    & total error         &deviation           \\
+      &                     & x (\SI{}{\meter})&                     &  y (\SI{}{\meter})&                     &  $\theta$ (\SI{}{\radian}) &                     & total error\\ \hline
+      %Particle Filter                & 0.278 & 0.349 & 0.302 & 0.305 & 0.326 & 0.384 & 0.445 & 0.430   \\ \hline
+      Particle Filter                & 0.552& 0.591 & 0.422 & 0.403 & 0.439 & 0.532 & 0.739 & 0.670   \\ \hline
+      Optimization Based            & 0.413 & 0.411 & 0.522 & 0.739 & 0.520 & 0.703 & 0.705 & 0.813   \\ \hline
+      Multi-hypotheses Kalman Filter & 0.311 & 0.393 & 0.246 & 0.388 & 0.211 & 0.239 & 0.420 & 0.535  
+    \end{tabular}
+  \end{adjustbox}
+\end{table}
+
+Concerning the ability to recover from kidnapped situation, only multi-hypotheses Kalman filter localization recovered the robot position at the end of the log. That is because the robot observed an ``X'' junction near the center circle, and resampling is triggered to recover the robot position. However, ``X'', ``T'' junction detection and resampling is only used in multi-hypotheses Kalman filter localization algorithm, not in particle filter and optimization based localization, therefore the other algorithm can not recover in this case. Particle filter localization is also capable to do resampling when ``L'' junction, penalty area or center circle are seen.
+
+Last but not least, the computation time for executing the log is measured for each algorithm to compare the efficiency.  The log is not executed on the robot but on a normal laptop, since the aim is to compare the efficiency between the algorithms. And in addition we know particle filter can be run seamlessly on the robot together with other necessary \gls{SPL} modules. So the log execution time of particle filter can be regarded as a base line for other algorithms. \autoref{tab:timecomp} depicts the execution time of the log for each localization algorithm. Optimization based localization turns out to be 5 times slow than particle filter.
+
+% \begin{table}[h!]
+% \centering
+% \caption{Execution time comparison between different localization algorithms}
+% \label{tab:timecomp}
+%   \begin{adjustbox}{max width=\textwidth}
+% \begin{tabular}{l|l|l|l}
+%                                                 & Particle filter & Optimization Based & Multi-hypotheses Kalman filter \\ \hline
+% Localization execution time (second) & 1.989           & 9.952              & 1.436                         
+% \end{tabular}
+%   \end{adjustbox}
+% \end{table}
+
+
+\begin{table}[h!]
+\centering
+\caption{Execution time comparison between different localization algorithms}
+\label{tab:timecomp}
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    enlargelimits=0.15,
+    legend style={at={(0.5,-0.15)},
+      anchor=north,legend columns=-1},
+    ylabel=Execution Time (second),
+    symbolic x coords={Particle filter,Optimization based, Multi-hypotheses Kalman filter},
+    xtick=data,
+    bar width=1cm,
+    nodes near coords,
+    nodes near coords align={vertical},
+    nodes near coords={\pgfmathprintnumber[fixed zerofill, precision=3]{\pgfplotspointmeta}},
+    %x tick label style={rotate=-10,anchor=north},
+    x tick label style={text width=2.2cm,align=center},
+    ]
+\addplot coordinates {(Particle filter,1.989) (Optimization based,9.952) (Multi-hypotheses Kalman filter, 1.436)};
+%\legend{used,understood,not understood}
+\end{axis}
+\end{tikzpicture}
+\end{table}
+
+
