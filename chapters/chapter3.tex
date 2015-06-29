@@ -14,7 +14,7 @@ The time-critical components for motion, and vision are implemented in \cpp{}. T
 \end{figure}
 
 \section{Vision Perception}\label{sec:3.2}
-As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent module. In reality, localization is running as a separate thread at \unit[30]{Hz}. Localization module will be able to get odometry information from motion module and vision perception result from vision module. As the vision module process the raw image from the cameras, it extracts features such as field lines, field border, orange balls, yellow goals as shown in \autoref{fig:perception}. The localization module concerns only with the features from the vision result instead of the raw image.
+As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent module. In reality, localization is running as a separate thread at \unit[30]{Hz}. Localization module will be able to get odometry information from motion module and vision perception result from vision module. As the vision module processes the raw image from the cameras, it extracts features such as field lines, field border, orange balls, yellow goals as shown in \autoref{fig:perception}. The localization module concerns only with the features from the vision result instead of the raw image.
 
 \begin{figure}[h!]
   \centering
@@ -23,5 +23,5 @@ As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent
   \label{fig:perception}
 \end{figure}
 
-The detected line concerning both sides of the white field line, and each detected line is a vector with direction, where the right side follows the direction is white.
+The detected line concerning both sides of the white field line, and each detected line is a vector with direction, where the right side of the detected line follows the direction is white.
 

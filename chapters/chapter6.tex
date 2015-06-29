@@ -21,7 +21,7 @@ In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robo
                 \caption{calibration result}
                 \label{fig:calibration}
         \end{subfigure}%
-        ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc.
+        ~ %add desired spacing between images, e.g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[h]{0.41\textwidth}
                 \includegraphics[width=\textwidth]{gt1crop.png}
@@ -57,7 +57,7 @@ For the purpose of debugging and benchmark, the robot can stores the perception 
 
 \section{Benchmarks}
 \label{sec:Benchmark}
-To benchmark the quality of localization algorithms, we use the same perception log with ground truth as the input for the different algorithms. The log is recorded when the robot is initially placed at the side of the field and walks into the goalie position. In the end, the robot is kidnapped to a position near the center circle \footnote{The kidnap happens at around frame 3200 of the log, where a robot position ``jump'' is illustrated by the ground truth in \autoref{fig:benchmarkParticle}}. The quality of the localization algorithm is judged by the following criteria: 
+To benchmark the quality of localization algorithms, we use the same perception log with ground truth as the input for the different algorithms. The log is recorded when the robot is initially placed at the side of the field and walks into the goalie position. In the end, the robot is kidnapped to a position near the center circle \footnote{The kidnapping happens at around frame 3200 of the log, where a robot position ``jump'' is illustrated by the ground truth in \autoref{fig:benchmarkParticle}}. The quality of the localization algorithm is judged by the following criteria: 
 \begin{enumerate}
   \item Initial global localization.
   \item Accuracy of robot position tracking.
@@ -102,7 +102,7 @@ The results of the localization with different algorithms are illustrated in
 
 %[('', '$E(e)$', '$\\delta(e)$'), ('$x$', 0.3114195849313835, 0.39319751044929591), ('$y$', 0.24561330872443066, 0.388151897485701), ('$\\theta$', 0.21089172180948793, 0.23866537659570336), ('$d$', 0.42042210261797613, 0.53462088312836409)]
 
-From the illustrations of the localization results, all of the three localization algorithms solve the initial global localization problem and tracks the robot position after global localization. 
+From the illustrations of the localization results, all the three localization algorithms solve the initial global localization problem and tracks the robot position after global localization. 
 
 In terms of localization accuracy, the average error and error deviation for each localization algorithm is shown in \autoref{tab:statistics}. From \autoref{tab:statistics}, we can see that multi-hypotheses Kalman Filter out-performs the other localization algorithms in term of accuracy. By comparing \autoref{fig:benchmarkParticle} and \autoref{fig:benchmarkKalman}, another benefit of  Kalman filter based localization is that the trajectory of the position is more smooth than the one from particle filter.
 \begin{table}[h!]
@@ -123,7 +123,7 @@ In terms of localization accuracy, the average error and error deviation for eac
 
 Concerning the ability to recover from kidnapped situation, only multi-hypotheses Kalman filter localization recovered the robot position at the end of the log. That is because the robot observed an ``X'' junction near the center circle, and resampling is triggered to recover the robot position. However, ``X'', ``T'' junction detection and resampling is only used in multi-hypotheses Kalman filter localization algorithm, not in particle filter and optimization based localization, therefore the other algorithm can not recover in this case. Particle filter localization is also capable to do resampling when ``L'' junction, penalty area or center circle are seen.
 
-Last but not least, the computation time for executing the log is measured for each algorithm to compare the efficiency.  The log is not executed on the robot but on a normal laptop, since the aim is to compare the efficiency between the algorithms. And in addition we know particle filter can be run seamlessly on the robot together with other necessary \gls{SPL} modules. So the log execution time of particle filter can be regarded as a base line for other algorithms. \autoref{tab:timecomp} depicts the execution time of the log for each localization algorithm. Optimization based localization turns out to be 5 times slow than particle filter.
+Last but not least, the computation time for executing the log is measured for each algorithm to compare the efficiency.  The log is not executed on the robot but on a normal laptop, since the aim is to compare the efficiency between the algorithms. And in addition we know particle filter can be run seamlessly on the robot together with other necessary \gls{SPL} modules. So the log execution time of particle filter can be regarded as a base line for other algorithms. \autoref{tab:timecomp} depicts the execution time of the log for each localization algorithm\footnote{For detailed profiles of algorithm execution time, refer to \autoref{sec:profiles}}. 
 
 % \begin{table}[h!]
 % \centering
@@ -163,5 +163,5 @@ Last but not least, the computation time for executing the log is measured for e
 \end{axis}
 \end{tikzpicture}
 \end{table}
-
-
+%Multi-hypotheses Kalman filter
+%Optimization based localization turns out to be 5 times slower than particle filter.

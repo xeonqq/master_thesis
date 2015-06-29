@@ -1,6 +1,6 @@
 \chapter{Introduction\label{cha:chapter1}}
 
-Robot Soccer World Cup, known as RoboCup, is an annual international robotics competition conducted since 1997. It aims to foster research and development of robotics and \gls{AI}, by offering a public appealing but challenging competition. RoboCup consists five major competition domain, they are RoboCup Soccer, RoboCup Rescue, RoboCup@Home, RoboCup Logistics and RoboCup Junior. Currently the RoboCup Soccer includes several soccer leagues to cover difference research challenges. The main concern in this paper is the \gls{SPL} under the sub-category of RoboCup soccer, in which all the teams use identical humanoid robot NAO that manufactured by Aldebaran Robotics{\textregistered}. The robots should operate fully autonomously without external control. 
+Robot Soccer World Cup, known as RoboCup, is an annual international robotics competition conducted since 1997. It aims to foster research and development of robotics and \gls{AI}, by offering a public appealing but challenging competition. RoboCup consists five major competition domains, they are RoboCup Soccer, RoboCup Rescue, RoboCup@Home, RoboCup Logistics and RoboCup Junior. Currently the RoboCup Soccer includes several soccer leagues to cover difference research challenges. The main concern in this paper is the \gls{SPL} under the sub-category of RoboCup soccer, in which all the teams use identical humanoid robot NAO that manufactured by Aldebaran Robotics{\textregistered}. The robots should operate fully autonomously without external control. 
 The research regarding RoboCup \gls{SPL} has been actively conducted under various topics. DAInamite, a team from DAI-Labor, TU-Berlin, which is dedicated in advancing robot technology, they have continuous research on humanoid robot NAO and their first participation in the world championship in the \gls{SPL} was in RoboCup 2013 in Eindhoven, reaching the quarter finals. The code base from DAInamite consists of several modules including motion, vision, behavior, localization, etc, which makes the NAO robot fully functional and competitive in the RoboCup game.
 The implementation of the localization algorithm proposed in this paper will be based on the current software infrastructure of DAInamite,  
 %In addition to \cpp{}, Python is mainly used in the team's code.
@@ -18,7 +18,7 @@ Localization awareness is a central aspect for many pervasive computing applicat
 %  \label{fig:robot_perception}
 %\end{figure}
 
-In many other applications like self driving car, many sensors including the GPS, laser scanners, radar or high end 3D cameras are being used to help localizing the car. 
+In many other applications like self driving car, many sensors including the GPS, laser scanners, radar or high end 3D cameras are being used to help localize the car. 
 However, for the NAO robot, with limited number of sensors and restricted computational capability of the processing unit, the localization problem becomes particularly challenging. The robot is able to get odometry information from the body kinematics and \gls{IMU} to calculate the supposed walking distance, and using this to help predict its location. 
 Although the odometry information is the most direct measurement for the input of localization calculation, inherited systematic error like insymmetry of the installation of the joint motors will cause the robot to constantly produce offset in walking, or unpredicted enviroment factor like foot slipping on the ground, bump into obstacles. 
 The accumulated odometry error throughout a time period will result in unaccecptable localization result. 
@@ -45,7 +45,7 @@ The robot used in this paper for localization algorithm development is NAO V4 ro
   \label{fig:nao body construction}
 \end{figure}
 
-Which is not shown in \autoref{fig:nao body construction} is that the robot also has one 2 axis gyrometer and one 3 axis accelerometer inside the body, a \gls{FSR} on each foot bottom. 
+Which is not shown in \autoref{fig:nao body construction} is that the robot also has one 2-axis gyrometer and one 3-axis accelerometer inside the body, a \gls{FSR} on each foot bottom. 
 
 The two cameras are placed on the face, Each camera can output image of resolution $1280 \times 960$@30fps. %The opening angles of the camera are shown in \autoref{fig:nao cameras construction}.
 
@@ -64,7 +64,7 @@ The two cameras are placed on the face, Each camera can output image of resoluti
 %   \label{fig:nao cameras construction}
 % \end{figure}
 
-The robot runs a Gentoo version of Linux and the mother board reside in the head of the robot. The specification of the mother board is:
+The robot runs a Gentoo version of Linux and the mother board resides in the head of the robot. The specification of the mother board is:
 \begin{itemize}
   \item ATOM Z530 1.6 GHz CPU\footnote{It is a single core processor, but with hacking of the linux kernel, Interl{\textregistered} Hyper-Threading can be enabled}
   \item 1 GB RAM
@@ -135,27 +135,33 @@ For robot in \gls{SPL}, the aim of localization can be categorized as the follow
   \item Position Tracking: it assumes the initial position of the robot is known, and the position tracking can be achieved by accommodating the noise from motion and measurements.
   \item Kidnapped robot: the robot can be kidnapped and teleported to another position in the game. The problem is similar to global localization, except that the robot still have the old belief of the position which is wrong.
 \end{itemize}
-As stated in \autoref{sec:moti}, the environment the robot reside in is inherently unpredictable, sensors are limited in what they can perceive, the joint motors are also to some extent unpredictable. Hence, a probabilistic representation is used to describe the uncertainty of the robot location, the probability distribution over the state $x(t)$ is called belief, written as $Bel(x_{t})$.
+As stated in \autoref{sec:moti}, the environment the robot resides in is inherently unpredictable, sensors are limited in what they can perceive, the joint motors are also to some extent unpredictable. Hence, a probabilistic representation is used to describe the uncertainty of the robot location, the probability distribution over the state $x(t)$ is called belief, written as $Bel(x_{t})$.
 
-In order to estimate the state $x(t)$ and the belief $Bel(x_{t})$, localization algorithm takes the detected objects from vision in the field as one of the inputs for the localization algorithm. The DAInamite's vision module can detect yellow goal post, center circle, penalty area, lines in the field and boundary of the field, and by projecting the landmarks from the image frame to the robot's local frame, distances to the robot can be estimated. Furthermore, the odometry information is also fed to the localization algorithm. The odometry of the robot is obtained from the motion module by calculating the body kinematics, given that the robot has at least one foot fixed on the ground. 
+In order to estimate the state $x(t)$ and the belief $Bel(x_{t})$, localization algorithm takes the detected objects from vision in the field as one of the inputs for the localization algorithm. The DAInamite's vision module can detect yellow goal post, center circle, penalty area, lines in the field and boundary of the field, and by projecting the landmarks from the image frame to the robot's local frame, distances to the robot can be estimated. Furthermore, the odometry information is also fed into the localization algorithm. The odometry of the robot is obtained from the motion module by calculating the body kinematics, given that the robot has at least one foot fixed on the ground. 
 
 
 \section{Thesis Outline\label{sec:outline}}
 
-The rest of the thesis is structured as follows.
+The rest of the thesis is structured as follows:
+%\\
+%\\
+%\noindent This Master thesis is separated into 7 chapters.
 \\
 \\
-\noindent This Master thesis is separated into 6 chapters.
+\textbf{\autoref{cha:chapter2}} This chapter describes the `Background and Related Work' concerned to the fundamentals of Bayes theories and localization methods developed for robots in RoboCup. 
 \\
 \\
-\textbf{\autoref{cha:chapter2}} This chapter describes the `Background and Related Work' concerned to localization methods for robots in RoboCup. 
-\\
-\\
-\textbf{\autoref{cha:chapter3}} This chapter xxx  
+\textbf{\autoref{cha:chapter3}} This chapter briefly introduces the current software architecture from team DAInamite, to which the localization algorithm will be integrated.  
 \\
 \\
 %\textbf{\autoref{cha:chapter4}} This chapter describes the current DAInamite software architecture in NAO robot for RoboCup, and how localization is related to other modules like motion and vision. 
-\textbf{\autoref{cha:chapter5}} This chapter explains the motion model and sensor model chosen for Kalman Filter based localization 
+\textbf{\autoref{cha:chapter4}} This chapter explains the motion model and sensor model designed for \gls{EKF} based localization. It also illustrates the strategies to find landmark correspondence based on ambiguous observations. 
+\\
+\\
+\textbf{\autoref{cha:chapter5}} This chapter describes the design of multi-hypotheses Gaussian models which encapsulate a \gls{EKF} in each model. It explains the mechanism of resampling and pruning step to maintain a multi-modal probability distribution.
+\\
+\\
+\textbf{\autoref{cha:chapter6}} This chapter comprehensively analyses the functionality/accuracy/efficiency benchmarks of different localization algorithms.
 \\
 \\
 \textbf{\autoref{cha:chapter6}} This chapter summarizes the thesis, throws light on the challenges encountered and gives an outlook about the possible future work in this regard.
