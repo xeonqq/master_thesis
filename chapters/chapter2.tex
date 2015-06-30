@@ -28,13 +28,12 @@ By making a measurement from the sensor, the filter correct the prediction using
 \label{eq:measupdate}
 Bel(x_{t}) \leftarrow \alpha_{t}p(z_{t}|x_{t})Bel^{-}(x_{t})
 \end{equation}
-$p(z_{t}|x_{t})$ in \autoref{eq:measupdate} represents the probability of making observation $z_{t}$ given that the robot is at position $x_{t}$. It generally describes the perceptual model of the robot. Coefficient $\alpha_{t}$ is a normalization factor to make the Belief calculated add up to 1.
+$p(z_{t}|x_{t})$ in \autoref{eq:measupdate} represents the probability of making observation $z_{t}$ given that the robot is at position $x_{t}$. It generally describes the perceptual model of the robot. Coefficient $\alpha_{t}$ is a normalization factor to make the belief calculated add up to 1.
 
-Moreover, the update of the belief in Bayes filter is recursive, which means the belief at time $t$ is calculated from belief at time $t-1$. This process continues recursively. Bayes Filter provides the theoretical basis for the following filters to be discussed, namely particle filters and Kalman filters. 
+Moreover, the update of the belief in Bayes filter is recursive, which means the belief at time $t$ is calculated from belief at time $t-1$. This process continues recursively. Bayes filter provides the theoretical basis for the following filters to be discussed, namely particle filters and Kalman filters. 
 
 \subsection{Particle Filter}
-Particle Filter, also known as \gls{MCL}, is the localization algorithm that is currently under use for the \gls{SPL} robot in DAInamite. Particle filter represent a probability distribution by a set of samples or particles. Each particle represents a concrete state in the current system at time $t$, in our case it will be the one instantiation of coordinates and the orientation. Meanwhile, each particle is also associated with a weight which indicates how probable the state is in the system. In practice, the number of particles is huge in order to provide a close hypothesis for the true world, and normally 1000 particles are needed to approximate the \gls{SPL} soccer field. Following the principle of Bayes filters, the motion update will move the particles according to the motion model; measurement update will result in a resampling of the particles, in which the particles with higher weigh will survive, on the other hand, the ones with lower weight will die out, and in replacement particles close to the area of the surviving ones will be generated. In the DAInamite \gls{SPL} robot, due to limited computation power of NAO, only 60 particles are instantiated in the system, with such low number of particles, the system state can hardly being estimated. As an enhancement for this, the technique of Particle filter resetting is used to improve the performance of the localization algorithm with low number of particles. It produces particles with high weights for locations where unambiguous observations are made. The high weight particles help to provide relatively reliable base states which help to result in correct location interpretation in the later recursive processing. 
-Advantages
+Particle filter, also known as \gls{MCL}, is the localization algorithm that is currently under use for the \gls{SPL} robot in DAInamite. Particle filter represent a probability distribution by a set of samples or particles. Each particle represents a concrete state in the current system at time $t$, in our case it will be the one instantiation of coordinates and the orientation. Meanwhile, each particle is also associated with a weight which indicates how probable the state is in the system. In practice, the number of particles is huge in order to provide a close hypothesis for the true world, and normally 1000 particles are needed to approximate the \gls{SPL} soccer field. Following the principle of Bayes filters, the motion update will move the particles according to the motion model; measurement update will result in a resampling of the particles, in which the particles with higher weigh will survive, on the other hand, the ones with lower weight will die out, and in replacement particles close to the area of the surviving ones will be generated. In the DAInamite \gls{SPL} robot, due to limited computation power of NAO, only 60 particles are instantiated in the system, with such low number of particles, the system state can hardly being estimated. As an enhancement for this, the technique of Particle filter resetting is used to improve the performance of the localization algorithm with low number of particles. It produces particles with high weights for locations where unambiguous observations are made. The high weight particles help to provide relatively reliable base states which help to result in correct location interpretation in the later recursive processing. 
 
 \noindent\textbf{Advantages}
 \begin{itemize}
@@ -93,9 +92,9 @@ Where $H_t$ is the observation model which maps the true state space into the ob
 \label{eq:R}
 v_t \sim N(0,R_t)
 \end{equation}
-Since Kalman filter is a variant implementing the Bayes filters, it follows the prediction-correction routine defined in Bayes filters. The detailed Kalman filter algorithm is shown is \autoref{tab:tf}. \\
+Since Kalman filter is a variant implementing the Bayes filters, it follows the prediction-correction routine defined in Bayes filters. The detailed Kalman filter algorithm is shown in \autoref{tab:kf}. \\
 
-\begin{table}[h]
+\begin{table}[h!]
 \begin{adjustbox}{max width=\textwidth}
   \centering
   \begin{tabular}{ll}
@@ -174,7 +173,7 @@ The prediction-correction step implementation for \gls{EKF} is basicly the same 
 
 
 \subsection{Multi-Model Kalman Filter}\label{sub:mmkalman}
-The Kalman filters whether \gls{EKF} or \gls{UKF} assume the posterior probability is still Gaussian distribution, it performs rather like a maximum likelihood estimator than as a minimum variance estimator~\cite{alspach1972nonlinear}. As a result, it greatly reduces the amount of information which is in the true density distribution which might be multi-modal. To overcome the shortcoming of Kalman filter and its ramifications which perform poorly in multi-modal probability distribution, Multi-Model Kalman Filter was proposed in~\cite{alspach1972nonlinear}. Multi-Model Kalman Filter representS the probability distribution using the weighted sum of multiple Gaussian distribution models, and each Gaussian distribution model $i$ has its weight $\alpha_i$, for $\alpha_i \in $[0, 1].
+The Kalman filters whether \gls{EKF} or \gls{UKF} assume the posterior probability is still Gaussian distribution, it performs rather like a maximum likelihood estimator than as a minimum variance estimator~\cite{alspach1972nonlinear}. As a result, it greatly reduces the amount of information which is in the true density distribution which might be multi-modal. To overcome the shortcoming of Kalman filter and its ramifications which perform poorly in multi-modal probability distribution, Multi-model Kalman filter was proposed in~\cite{alspach1972nonlinear}. Multi-model Kalman filter represents the probability distribution using the weighted sum of multiple Gaussian distribution models, and each Gaussian distribution model $i$ has its weight $\alpha_i$, for $\alpha_i \in $[0, 1].
 
 For each model, the multivariate normal \gls{PDF} is given by:
 \begin{equation}
