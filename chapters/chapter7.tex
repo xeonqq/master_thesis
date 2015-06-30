@@ -1,11 +1,17 @@
-\chapter{Summary\label{cha:chapter7}}
-The final chapter summarizes the thesis. The first subsection outlines the main ideas behind Component X and recapitulates the work steps. Issues that remained unsolved are then described. Finally the potential of the proposed solution and future work is surveyed in an outlook.
+\chapter{Conclusion and Future Work\label{cha:chapter7}}
+%The final chapter summarizes the thesis. The first subsection outlines the main ideas behind Component X and recapitulates the work steps. Issues that remained unsolved are then described. Finally the potential of the proposed solution and future work is surveyed in an outlook.
 
 \section{Conclusion\label{sec:conclusion}}
-Tested in Night of Science Frankfurt
+In this paper, two localization methods are presented, one is optimization based localization and the other is feature based multi-hypotheses Kalman filter localization. While the most significant problem with optimization based localization is the high computation requirement which prohibit it from running on the robot, this paper focuses more on feature based multi-hypotheses Kalman filter localization. 
+
+For feature based multi-hypotheses Kalman filter localization, special characteristics of \gls{SPL} game have been considered for designing its motion model and sensor model. To overcome the ambiguity of landmarks, different strategies are adopted to find the correspondence between the observed landmark and the landmark in the field. By incorporating landmark based resampling, multi-modal probability distribution can be described, and the localization of the robot becomes more robust and is able to recover from tracking failure and kidnapped situations. In the end, both localizations are compared with DAInamite's particle filter localization, feature based  multi-hypotheses Kalman filter localization out-performs the other localization algorithms in terms of accuracy, efficiency and functionality. 
+
+The multi-hypotheses Kalman filter localization is tested in real game during Night of Science Frankfurt 2015 at Goethe University, and team DAInamite won one game out of three. During the game, the situation was more unpredictable and complex than the test environment, sometimes the robot could localize itself well, and sometimes not. Although the winning of a game depends on many factors, the localization has an significant influence on it. Therefore, the performance of the localization still have large space of improvement.  
 
 \section{Future Work\label{sec:future}}
+T
 Virtual junction detection and update
 
 Combine all types of junctions to resample, now only combination of ``L'' junction is used.
 
+collaborative localization using ball information
