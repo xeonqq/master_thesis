@@ -6,12 +6,12 @@ In this paper, two localization methods are presented, one is optimization based
 
 For feature based multi-hypotheses Kalman filter localization, special characteristics of \gls{SPL} game have been considered for designing its motion model and sensor model. To overcome the ambiguity of landmarks, different strategies are adopted to find the correspondence between the observed landmark and the landmark in the field. By incorporating landmark based resampling, multi-modal probability distribution can be described, and the localization of the robot becomes more robust and is able to recover from tracking failure and kidnapped situations. In the end, both localizations are compared with DAInamite's particle filter localization, feature based  multi-hypotheses Kalman filter localization out-performs the other localization algorithms in terms of accuracy, efficiency and functionality. 
 
-The multi-hypotheses Kalman filter localization is tested in real game during Night of Science Frankfurt 2015 at Goethe University, and team DAInamite won one game out of three. During the game, the situation was more unpredictable and complex than the test environment, sometimes the robot could localize itself well, and sometimes not. Although the winning of a game depends on many factors, the localization has an significant influence on it. Therefore, the performance of the localization still have large space of improvement.  
+The multi-hypotheses Kalman filter localization is tested in real game during Night of Science Frankfurt 2015 at Goethe University, and team DAInamite won one game out of three. During the game, the situation was more unpredictable and complex than the test environment, sometimes the robot could localize itself well, and sometimes not. Although the winning of a game depends on many factors, the localization has a significant influence on it. Therefore, the performance of the localization still have large space of improvement.  
 
 \section{Future Work\label{sec:future}}
-T
-Virtual junction detection and update
+Future work will focus on improving the robustness of the localization. This can be accomplished by incorporating more landmark features like goal posts or lines which are perpendicular to each other, the lines do not have to be ``L'', ``T'', ``X'' junctions, but have the potential to form one.  
 
-Combine all types of junctions to resample, now only combination of ``L'' junction is used.
+Moreover, resampling step could be smarter. Currently the resampling is done by a single landmark which results in multiple possible robot position. The resampling step can be improved by combining all types of junctions observed to generate robot positions, which can significantly reduce the number of possible positions.
+%Virtual junction detection and update
 
-collaborative localization using ball information
+Collaborative localization using ball information can also help enhance the result of localization. Since every robot who observes the ball has a belief of the ball's localization. By gathering the information of the ball, it can serve as a globally unique landmark which can help localization.

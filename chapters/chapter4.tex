@@ -32,7 +32,7 @@ In our motion model, to obtain the relative odometry change, $u_t$ can be treate
 \begin{figure}[h!]
   \centering
   \includegraphics[width=.6\textwidth]{motion_modela.png}
-  \caption{Relative odometry change. Translation $\delta_{trans}$, rotation $\delta_{rot}$ are considered in coordinate system $O$}
+  \caption[Relative odometry change]{Relative odometry change. Translation $\delta_{trans}$, rotation $\delta_{rot}$ are considered in coordinate system $O$}
   \label{fig:motion_model}
 \end{figure}
 
@@ -196,7 +196,7 @@ Both the ``T'' and ``X'' junctions are detected in the robot frame instead of th
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.85\textwidth]{TXLcorner_crop.png}
-  \caption{Detection of ``L''(Cyan), ``T''(Red) and ``X''(Yellow) junction in the field. The purple ellipse indicates the measurement covariance}
+  \caption[Detection of ``L'', ``T'' and ``X'' junction in the field]{Detection of ``L''(Cyan), ``T''(Red) and ``X''(Yellow) junction in the field. The purple ellipse indicates the measurement covariance}
   \label{fig:txcorner}
 \end{figure}
 
@@ -401,7 +401,7 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
         \draw[red,ultra thick, dashed, rounded corners] (0.179,0.59) rectangle (0.459,0.53);
     \end{scope}
 \end{tikzpicture}
-  \caption{Landmarks in image plane. (The red box indicates the lines which detected from the front line of the penalty area)}
+\caption[Landmarks in image plane]{Landmarks in image plane. (The red box indicates the lines which detected from the front line of the penalty area)}
   \label{fig:landmarkImagePlane}
 \end{figure}
 
@@ -414,7 +414,7 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
         \draw[red,ultra thick, dashed, rounded corners] (0.841,0.62) rectangle (0.918,0.284);
     \end{scope}
 \end{tikzpicture}
-  \caption{Landmarks in robot frame. (Grey lines indicate the detected lines after projection, the red box indicates the lines which detected from the front line of the penalty area)}
+\caption[Landmarks in robot frame]{Landmarks in robot frame. (Grey lines indicate the detected lines after projection, the red box indicates the lines which detected from the front line of the penalty area)}
   \label{fig:landmarkRobotFrame}
 \end{figure}
 
@@ -452,7 +452,7 @@ A straight forward way to describe this phenomenon is to model the noise proport
     \end{scope}
   \end{tikzpicture}
 \end{center}
-\caption{Measurement covariance of point landmark. ($\theta_{x}$ and $\theta_{y}$ are the measurement angle deviations in $x$, $y$ direction. $LA$ and $LB$ indicate the measurement noises.)}
+\caption[Measurement covariance of point landmark]{Measurement covariance of point landmark. ($\theta_{x}$ and $\theta_{y}$ are the measurement angle deviations in $x$, $y$ direction. $LA$ and $LB$ indicate the measurement noises)}
 \label{fig:measurecovar}
 \end{figure}
 
@@ -476,7 +476,7 @@ For junction features which include ``L'', ``T'', ``X'' junctions, they are ambi
 \begin{figure}[h!]
   \centering
   \includegraphics[width=\textwidth]{fieldLcorners.png}
-  \caption{All L junctions in the field, the blue pointer indicates the position of the ``L'' junctions as well as their directions}
+  \caption[All L junctions in the field]{All L junctions in the field, the blue pointer indicates the position of the ``L'' junctions as well as their directions}
   \label{fig:ljunctions}
 \end{figure}
 
@@ -502,7 +502,7 @@ Lines are the most ambiguous landmarks among all the landmarks in the field, bec
       \draw (end) node() [below]{$p_{end}$};	
     \end{scope}
   \end{tikzpicture}
-\caption{The end points of the detected line (grey) can be matched to two different field lines}
+  \caption[Matching of end points of the detected line]{The end points of the detected line (grey) can be matched to two different field lines}
 \label{fig:linematch}
 \end{figure}
 
@@ -580,7 +580,7 @@ As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can
 \begin{center}
   \includegraphics[width=0.7\textwidth]{line_penaltymatching_crop.png}
 \end{center}
-\caption{Matching result of line and penalty area. (The gray box indicates the detected penalty area. The line in blue indicate it is matched with the field line in red. The line in grey indicate it fails to find a correspondence.)}
+\caption[Matching result of line and penalty area]{Matching result of line and penalty area. (The gray box indicates the detected penalty area. The line in blue indicate it is matched with the field line in red. The line in grey indicate it fails to find a correspondence)}
 \label{fig:linematch}
 \end{figure}
 
