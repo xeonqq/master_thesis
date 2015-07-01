@@ -1,4 +1,4 @@
-\chapter{Localization Design\label{cha:chapter4}}
+\chapter{Self-localization Pipeline\label{cha:chapter4}}
 
 
 As stated in \autoref{sub:kalman}, Kalman filter works by combining prediction step and measurement update to give an optimal estimate of the current state variable. In this paper, odometry information from motion module is used to perform the prediction step. From odometry, the information of how much distance the robot moved relative to the pose of last time stamp is provided, thus an estimate of the current position can be established. Likewise, an estimate from the measurement update is performed based on what the robot has observed, or simply put, the vision results from the cameras. In the end, Kalman filter update the state variable by a weighted average of the estimates.
@@ -167,7 +167,15 @@ One of the challenges to design Kalman filter using optimization based model is 
 Although the optimization method based localization outperforms the particle filter in terms of accuracy, it is not computational efficient to run on the robot (comparison in \autoref{sec:Benchmark}). During the preparation of German Open 2015, DAInamite team developed more feature detections like center circle detection, penalty area detection and ``L'' junction detection. Provided the richness of features, the development of feature based sensor update for localization is motivated.  
 
 \subsubsection{``T'' and ``X'' Junction Detection}
-In the \gls{SPL} soccer field, there are 36 ``L'' junctions, 14 ``T'' junctions, 2 ``X'' junctions\footnote{The detection of ``L'' consider both sides of the field line as well as the line direction, ``T''and ``X'' junctions do not consider line side and direction. The counting includes ``L'', ``T'', ``X'' junctions at center circle.}. Compared to ``L'' junction, ``T'' and ``X'' junctions are much stronger landmarks. Especially the ``T'' junction at the penalty area, it can significantly help the robot localize itself in front of the goal.
+In the \gls{SPL} soccer field, there are 36 ``L'' junctions, 14 ``T'' junctions, 2 ``X'' junctions. As illustrated in \autoref{fig:ljunctions}, the detection of ``L'' considers both sides of the field line as well as the line direction, but ``T''and ``X'' junctions do not consider line side and direction. The counting includes ``L'', ``T'', ``X'' junctions at center circle. Compared to ``L'' junction, ``T'' and ``X'' junctions are much stronger landmarks. Especially the ``T'' junction at the penalty area, it can significantly help the robot localize itself in front of the goal.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fieldLcorners.png}
+  \caption[All L junctions in the field]{All L junctions in the field, the blue pointer indicates the position of the ``L'' junctions as well as their directions}
+  \label{fig:ljunctions}
+\end{figure}
+
 Both the ``T'' and ``X'' junctions are detected in the robot frame instead of the image plane, since in the image plane the perpendicularity of the lines can not be easily observed. When the detected lines are projected to the robot frame, every two lines are compared according to their angles. If the differences of the angles are close to \SI{90}{\degree}, then the intersection point of the two lines are computed assuming the lines have infinite length. After the intersection is calculated, it should be satisfied that the intersection lies on at least one of the line segments. The distance from line end points to the intersections are further checked if they satisfy the threshold according to T or X geometry. The pseudocode of the TX junction detection is illustrated in \autoref{alg:txdetection}, and the detection result is shown in \autoref{fig:txcorner}.
 
 \begin{algorithm}                      
@@ -194,11 +202,29 @@ Both the ``T'' and ``X'' junctions are detected in the robot frame instead of th
 \end{algorithm}
 
 \begin{figure}[h!]
-  \centering
-  \includegraphics[width=0.85\textwidth]{TXLcorner_crop.png}
-  \caption[Detection of ``L'', ``T'' and ``X'' junction in the field]{Detection of ``L''(Cyan), ``T''(Red) and ``X''(Yellow) junction in the field. The purple ellipse indicates the measurement covariance}
+  \hspace*{\fill}
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{LTcorner_clean_crop.png}
+    \caption{``L'', ``T'' junction detection.}
+    \label{fig:LT}
+  \end{subfigure}
+  \hspace*{\fill}
+  \begin{subfigure}[b]{0.381\textwidth}
+    \includegraphics[width=\textwidth]{Xcorner_clean_crop.png}
+    \caption{``X'' junction detection.}
+    \label{fig:X}
+  \end{subfigure}
+  \hspace*{\fill}
+ \caption[Detection of ``L'', ``T'' and ``X'' junction in the field.]{Detection of ``L''(Cyan), ``T''(Red) and ``X''(Yellow) junction in the field. The purple ellipse indicates the measurement covariance. The orange pointers indicates the correspondent junctions on the field.}
   \label{fig:txcorner}
 \end{figure}
+
+%\begin{figure}[h!]
+%  \centering
+%  \includegraphics[width=0.85\textwidth]{TXLcorner_crop.png}
+%  \caption[Detection of ``L'', ``T'' and ``X'' junction in the field]{Detection of ``L''(Cyan), ``T''(Red) and ``X''(Yellow) junction in the field. The purple ellipse indicates the measurement covariance}
+%  \label{fig:txcorner}
+%\end{figure}
 
 \subsubsection{Measurement Model Choice}\label{subsub:sensorModelChoice}
 Given the various kinds of features, different sensor model can be distinguished for different features. In general, they can be divided into point landmarks and line landmarks. Assume the robot position $x_t = (p_x, p_y, p_{\theta})$, and the landmark represented as $l$. The objective is to describe the expected measurement $\bar{z}$ by the observation function $h(x_t)$ and derive the Jacobian matrix $H$.
@@ -208,7 +234,7 @@ Under the Cartesian coordinate system in robot frame. The expected point landmar
 \begin{figure}[h!]
   \centering
   \includegraphics[width=.8\textwidth]{observation_euclidean.png}
-  \caption{Observation given in Cartesian coordinates \cite{Tasse2013}}
+  \caption[Observation given in Cartesian coordinates]{Observation given in Cartesian coordinates \cite{Tasse2013}}
   \label{fig:observation_euclidean}
 \end{figure}
 
@@ -409,7 +435,7 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
 \begin{figure}[h!]
   \centering
 \begin{tikzpicture}
-    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=\textwidth]{measure_err.png}};
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=\textwidth]{measure_err_clean.png}};
     \begin{scope}[x={(image.south east)},y={(image.north west)}]
         \draw[red,ultra thick, dashed, rounded corners] (0.841,0.62) rectangle (0.918,0.284);
     \end{scope}
@@ -473,12 +499,6 @@ On the other hand, when the center circle is detected without the middle line, t
 
 \paragraph{Junctions}
 For junction features which include ``L'', ``T'', ``X'' junctions, they are ambiguous features and the detected junctions are represented as point landmark with orientation $l = (x, y, \theta)$. Within the junctions, ``L'' junctions are the most ambiguous ones, with 36 appearances in the field (illustrated in \autoref{fig:ljunctions}). It means one detected ``L'' junction can be matched to 36 ``L'' junctions in the field. ``T'', ``X'' junctions are less pervasive, with 14 and 2 appearances respectively. Given the ubiquitous distribution of the junctions in the field, it is hard to find the correspondence between the junctions seen and the junctions in the field. 
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=\textwidth]{fieldLcorners.png}
-  \caption[All L junctions in the field]{All L junctions in the field, the blue pointer indicates the position of the ``L'' junctions as well as their directions}
-  \label{fig:ljunctions}
-\end{figure}
 
 In this thesis work, a \textit{nearest neighbor search method with threshold} is used to find the junction correspondences. Assume the robot position is not of high inaccuracy, then the junctions in robot frame can be transformed into physical world frame. Given the junction in physical world frame, the associative correspondence is found by searching the nearest junction in the field. 
 
@@ -578,7 +598,7 @@ As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=0.7\textwidth]{line_penaltymatching_crop.png}
+  \includegraphics[width=0.7\textwidth]{line_penaltymatching_clean_crop.png}
 \end{center}
 \caption[Matching result of line and penalty area]{Matching result of line and penalty area. (The gray box indicates the detected penalty area. The line in blue indicate it is matched with the field line in red. The line in grey indicate it fails to find a correspondence)}
 \label{fig:linematch}

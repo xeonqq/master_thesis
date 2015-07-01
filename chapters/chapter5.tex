@@ -1,9 +1,9 @@
-\chapter{Multi-Hypotheses\label{cha:chapter5}}
+\chapter{Multi-Hypotheses Kalman Filter Localization\label{cha:chapter5}}
 While Kalman filter can only deal with uni-modal probability distribution, it does not suffice to handle the ambiguous landmarks that occur in robot's observation, which requires a multi-modal distribution. Therefore, a multi-hypotheses Kalman filter is adapted to handle the ambiguous situations by describing the robot position in the field by a Gaussian sum distribution.
 The problem of multi-hypotheses Kalman filter lies mainly in the domain of when and where to add new hypothesis into the Gaussian sum distribution, as well as when to prune or merge certain hypotheses to restrain the number of hypotheses within a limit, so it does not consume too much of the computation resource.
 
 
-\section{Model Weight}
+\section{Hypothesis Model Weighting}
 As illustrated in \autoref{sub:mmkalman}, each normal probability distribution from the Gaussian sum distribution is represented as \autoref{eq:mmkalman}. In addition to uni-modal Gaussian distribution, the weight $\alpha_i$ has to be determined for each Gaussian distribution model $i$ in the Gaussian sum distribution. The weight, at the same time, illustrates the quality of the state hypothesis. Possible update method like \autoref{eq:weightupdate} has been proposed in \cite{alspach1972nonlinear}. However, this update method is only suitable for landmarks with known correspondence. If the correspondence is unknown or ambiguous, like in our case, the ``T'' junctions, the expected observation $z\widehat{}_i$ can not be determined. 
 
 In this thesis work, a voting buffer is used to measure the weight of each model. The voting buffer is constructed by a \gls{FIFO} circular buffer of size $60$. The basic idea is to vote $1$ to the buffer when the observed landmark is matched, and $0$ when not matched. The matching of landmark correspondence is using the nearest neighbor algorithm with threshold discussed in \autoref{subsub:landmarkco}. 
@@ -115,13 +115,13 @@ A special case which worth discussing is the observation of the ``L'' junctions,
   \item If there are  remaining ``L'' junctions in observation, repeat from Step 2. Otherwise, the possible robot positions which are valid are returned.
 \end{enumerate}
 
-To speed up the computation, Step 3 above is implemented using a pre-computed look up table. Given a pose $(x_l, y_l, \theta_l)$ of the ``L'' junction in physical world frame,  the look up table will return boolean value true or false, depend on whether in the range of $(x_l, y_l, \theta_l)$ exists an ``L'' junction. Although it is a 3-dimensional look up table, the resolution can be configured coarse, it will not consume too much memory. In return, the checking of 36 ``L'' junctions in physical world frame can be done together at once. A visualization example of the look up table is illustrated in \autoref{fig:lcornerLUT}. Since it is a 3-dimensional look up table, \autoref{fig:lcornerLUT} only shows the look up table when the angle dimension is at \SI{90}{\degree}. It means, if given an ``L'' junction in physical world frame with angle being \SI{90}{\degree}, only the ``L'' junctions which fall into the white area is valid. The correctness can be verified by checking in correspond with \autoref{fig:ljunctions}.
+To speed up the computation, Step 3 above is implemented using a pre-computed look up table. Given a pose $(x_l, y_l, \theta_l)$ of the ``L'' junction in physical world frame,  the look up table will return boolean value true or false, depend on whether in the range of $(x_l, y_l, \theta_l)$ exists an ``L'' junction. Although it is a 3-dimensional look up table, the resolution can be configured coarse, it will not consume too much memory. In return, the checking of 36 ``L'' junctions in physical world frame can be done together at once. A visualization example of the look up table is illustrated in \autoref{fig:lcornerLUT}. Since it is a 3-dimensional look up table, \autoref{fig:lcornerLUT} only shows the look up table when the angle dimension is at \SI{90}{\degree}. It means, if given an ``L'' junction in physical world frame with angle being \SI{90}{\degree}, only the ``L'' junctions which fall into the bright area is valid. %The correctness can be verified by checking in correspond with \autoref{fig:ljunctions}.
 
 \begin{figure}
 \begin{center}
-	\includegraphics[width=0.5\textwidth]{cornerLUT_fliped.png}
+	\includegraphics[width=0.7\textwidth]{fieldwithLcornerslut.png}
 \end{center}
-\caption[``L'' junction look up table]{``L'' junction look up table with angle dimension at \SI{90}{\degree}. (White indicate true, black indicate false)}
+\caption[``L'' junction look up table]{``L'' junction look up table with angle dimension at \SI{90}{\degree}. Bright parts indicate true, dark parts indicate false}
 \label{fig:lcornerLUT}
 \end{figure}
 
@@ -150,7 +150,7 @@ While the resampling step generates hypothesis models into the Gaussian sum dist
 \label{sub:Pruning by Weight}
 When the weight of hypothesis model is lower than a certain threshold, this model is considered to have little contribution of the distribution that it can be removed. Moreover, the maximum number of models is limited to a number $N$ set by the localization algorithm. Once the maximum number of models is exceeded, the models are sorted by weight from high to low in a list. Only first $N$ models in the list will remain, the others will be deleted.
 
-\subsection{Pruning by Mahalanobis Distance \cite{de2000mahalanobis}}
+\subsection[Pruning by Mahalanobis Distance]{Pruning by Mahalanobis Distance \cite{de2000mahalanobis}}
 \label{sub:Prunning Mahalanobis Distance}
 When the hypothesis models are close enough to each other, in other word, they represent almost the same probability distribution, they could also be merged into one. One way is to apply Euclidean distance directly between the mean of the models to calculate the distance as shown in \autoref{eq:euclidean}. $\mu_1$ and $\mu_2$ represent the mean of two different Gaussian distributions.
 

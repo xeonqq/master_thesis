@@ -1,27 +1,3 @@
-\chapter{Architecture\label{cha:chapter3}}
 
 
-
-\section{Software Architecture of DAInamite}\label{sec:3.1}
-DAInamite adopted modular programming pattern, so the tasks could be isolated in different modules. And more importantly, different people can focus on the development of its own module without interfering other modules. In addition to \cpp{}, Python is mainly used in the DAInamite team's code.
-The time-critical components for motion, and vision are implemented in \cpp{}. The remaining modules such as localization, behavior, and ball-tracking are implemented in Python. The modules concerning the control of the robot will be connected to Naoqi. Naoqi is the software framework from Aldebaran, through which to directly control the NAO robot. A brief illustration of the physical architecture of the software is shown in \autoref{fig:architecture}. 
-
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=.8\textwidth]{physical_architecture.png}
-  \caption{Physical Architecture of DAInamite Code Base}
-  \label{fig:architecture}
-\end{figure}
-
-\section{Vision Perception}\label{sec:3.2}
-As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent module. In reality, localization is running as a separate thread at \unit[30]{Hz}. Localization module will be able to get odometry information from motion module and vision perception result from vision module. As the vision module processes the raw image from the cameras, it extracts features such as field lines, field border, orange balls, yellow goals as shown in \autoref{fig:perception}. The localization module concerns only with the features from the vision result instead of the raw image.
-
-\begin{figure}[h!]
-  \centering
-  \includegraphics[width=.7\textwidth]{vision.png}
-  \caption{The vision perception result of the robot in the field}
-  \label{fig:perception}
-\end{figure}
-
-The detected line concerning both sides of the white field line, and each detected line is a vector with direction, where the right side of the detected line follows the direction is white.
 

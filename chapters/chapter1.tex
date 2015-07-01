@@ -1,6 +1,6 @@
 \chapter{Introduction\label{cha:chapter1}}
 
-Robot Soccer World Cup, known as RoboCup, is an annual international robotics competition conducted since 1997. It aims to foster research and development of robotics and \gls{AI}, by offering a public appealing but challenging competition. RoboCup consists five major competition domains, they are RoboCup Soccer, RoboCup Rescue, RoboCup@Home, RoboCup Logistics and RoboCup Junior. Currently the RoboCup Soccer includes several soccer leagues to cover difference research challenges. The main concern in this paper is the \gls{SPL} under the sub-category of RoboCup soccer, in which all the teams use identical humanoid robot NAO that manufactured by Aldebaran Robotics{\textregistered}. The robots should operate fully autonomously without external control. 
+Robot Soccer World Cup, known as RoboCup, is an annual international robotics competition conducted since 1997. It aims to foster research and development of robotics and \gls{AI}, by offering a public appealing but challenging competition. RoboCup consists five major competition domains, they are RoboCup Soccer, RoboCup Rescue, RoboCup@Home, RoboCup Logistics and RoboCup Junior. Currently the RoboCup Soccer includes several soccer leagues to cover difference research challenges. The main concern in this paper is the \gls{SPL} under the sub-category of RoboCup soccer, in which all the teams use identical humanoid robot NAO that manufactured by Aldebaran Robotics. The robots should operate fully autonomously without external control. 
 The research regarding RoboCup \gls{SPL} has been actively conducted under various topics. DAInamite, a team from DAI-Labor, TU-Berlin, which is dedicated in advancing robot technology, they have continuous research on humanoid robot NAO and their first participation in the world championship in the \gls{SPL} was in RoboCup 2013 in Eindhoven, reaching the quarter finals. The code base from DAInamite consists of several modules including motion, vision, behavior, localization, etc, which makes the NAO robot fully functional and competitive in the RoboCup game.
 The implementation of the localization algorithm proposed in this paper will be based on the current software infrastructure of DAInamite,  
 %In addition to \cpp{}, Python is mainly used in the team's code.
@@ -29,14 +29,14 @@ With image processing, landmarks or features can be extacted from the images as 
 
 
 Furthermore, the soccer field itself is symmetrically structured, which means the two halves of the field are the same. To counter this problem, normally features outside of the field needed to be considered to differentiate one side from the other.
-Not to mention,  NAO robot has limited computation power, which require the localization algorithm to be computational efficient and not to affect other critical modules like motion and vision which have higher execution priorities.
+Not to mention,  NAO robot has limited computation power, which require the localization algorithm to be computational efficient and not to affect other critical modules like motion which have higher execution priorities.
 
 
 
 
 \section{Problem Statement}
 \subsection{Robot Structure and Hardware}\label{sub:hardware}
-The robot used in this paper for localization algorithm development is NAO V4 robot from Aldebaran Robotics{\textregistered}. The robot is 573 mm in height, 275 mm in width. The body construction and the equipped sensors are illustrated in \autoref{fig:nao body construction}.
+The robot used in this paper for localization algorithm development is NAO V4 robot from Aldebaran Robotics. The robot is 573 mm in height, 275 mm in width. The body construction and the equipped sensors are illustrated in \autoref{fig:nao body construction}.
 
 \begin{figure}[h!]
   \centering
@@ -47,7 +47,7 @@ The robot used in this paper for localization algorithm development is NAO V4 ro
 
 Which is not shown in \autoref{fig:nao body construction} is that the robot also has one 2-axis gyrometer and one 3-axis accelerometer inside the body, a \gls{FSR} on each foot bottom. 
 
-The two cameras are placed on the face, Each camera can output image of resolution $1280 \times 960$@30fps. %The opening angles of the camera are shown in \autoref{fig:nao cameras construction}.
+The two cameras are placed on the face, each camera can output image of resolution $1280 \times 960$@30fps. %The opening angles of the camera are shown in \autoref{fig:nao cameras construction}.
 
 % \begin{figure}[h!]
 %   \begin{subfigure}[b]{0.5\textwidth}
@@ -66,13 +66,13 @@ The two cameras are placed on the face, Each camera can output image of resoluti
 
 The robot runs a Gentoo version of Linux and the mother board resides in the head of the robot. The specification of the mother board is:
 \begin{itemize}
-  \item ATOM Z530 1.6 GHz CPU\footnote{It is a single core processor, but with hacking of the linux kernel, Interl{\textregistered} Hyper-Threading can be enabled}
+  \item ATOM Z530 1.6 GHz CPU \footnote{It is a single core processor, with Intel Hyper-Threading technology}
   \item 1 GB RAM
   \item 2 GB Flash memory
 \item 8 GB Micro SDHC
 \end{itemize}
 
-\subsection{\gls{SPL} Field}
+\subsection[Standard Platform League Field]{\gls{SPL} Field}
 Almost every year the rule of the \gls{SPL} will be modified on the basis of old one to increase the difficulties of the game. Significant changes include the field size being enlarged from $6m \times 4m$ to $9m \times 6m$ since 2013, and in 2015 the color of goal posts become white instead of yellow. The schematic diagram of the soccer field and corresponding dimensions is depicted in \autoref{tab:field}
 
 \begin{table}[h]
@@ -101,7 +101,7 @@ $x(t) =
   \theta_{r}(t) 
  \end{bmatrix} $ \\
 \end{center}
-where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(t)$ is the orientation of the robot at time $t$. The coordinate system in physical world frame is illustrated in \autoref{fig:worldframe} with its origin located at the center of the field.
+where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(t)$ is the orientation of the robot at time $t$. The coordinate system of physical world frame is defined with its origin located at the center of the field as illustrated in \autoref{fig:worldframe}.
 \begin{figure}[h]
   \centering
   \begin{tikzpicture}[
@@ -122,10 +122,9 @@ where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(
       \draw (C)+(0.1,0.04) node() {$\theta_{r}$};	
       \draw pic[ draw=orange, <->, angle eccentricity=1.2, angle radius=0.8cm]
       {angle=yy--C--Ctheta};
-
     \end{scope}
   \end{tikzpicture}
-  \caption{The coordinate system in physical world frame}
+  \caption{The defined coordinate system of physical world frame}
   \label{fig:worldframe}
 \end{figure}
 
@@ -148,12 +147,12 @@ The rest of the thesis is structured as follows:
 %\noindent This Master thesis is separated into 7 chapters.
 \\
 \\
-\textbf{\autoref{cha:chapter2}} This chapter describes the `Background and Related Work' concerned to the fundamentals of Bayes theories and localization methods developed for robots in RoboCup. 
+\textbf{\autoref{cha:chapter2}} This chapter describes the `Background and Related Work' concerned to the fundamentals of Bayes theories and localization methods developed for robots in RoboCup, as well as the current software architecture from team DAInamite, to which the localization algorithm will be integrated. 
 \\
 \\
-\textbf{\autoref{cha:chapter3}} This chapter briefly introduces the current software architecture from team DAInamite, to which the localization algorithm will be integrated.  
-\\
-\\
+%\textbf{\autoref{cha:chapter3}} This chapter briefly introduces the current software architecture from team DAInamite, to which the localization algorithm will be integrated.  
+%\\
+%\\
 %\textbf{\autoref{cha:chapter4}} This chapter describes the current DAInamite software architecture in NAO robot for RoboCup, and how localization is related to other modules like motion and vision. 
 \textbf{\autoref{cha:chapter4}} This chapter explains the motion model and sensor model designed for \gls{EKF} based localization. It also illustrates the strategies to find landmark correspondence based on ambiguous observations. 
 \\
@@ -161,7 +160,7 @@ The rest of the thesis is structured as follows:
 \textbf{\autoref{cha:chapter5}} This chapter describes the design of multi-hypotheses Gaussian models which encapsulate a \gls{EKF} in each model. It explains the mechanism of resampling and pruning step to maintain a multi-modal probability distribution.
 \\
 \\
-\textbf{\autoref{cha:chapter6}} This chapter comprehensively analyses the functionality/accuracy/efficiency benchmarks of different localization algorithms.
+\textbf{\autoref{cha:chapter6}} This chapter comprehensively analyses the functionality, accuracy and efficiency benchmarks of different localization algorithms.
 \\
 \\
 \textbf{\autoref{cha:chapter7}} This chapter summarizes the thesis with a conclusion and gives an outlook about the possible future work in this regard.
