@@ -223,17 +223,17 @@ As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent
 \begin{figure}[h!]
   \centering
   \includegraphics[width=.7\textwidth]{vision.png}
-  \caption[The vision perception result of the robot in the field.]{The vision perception results of the robot in the field. Detected field lines are indicted by white vectors with starting point in cyan dot and end point in white dot. Field border is indicted by long green line. The two goal posts are indicted by yellow strips and the ball is indicted by a orange circle.}
+  \caption[The vision perception result of the robot in the field.]{The vision perception results of the robot in the field. Detected field lines are indicted by white vectors with starting point in cyan dot and end point in white dot. Field border is indicted by long green line. The two goal posts are indicted by yellow strips and the ball is indicted by an orange circle.}
   \label{fig:perception}
 \end{figure}
 
 The detected line concerning both sides of the white field line, and each detected line is a vector with direction, where the right side of the detected line follows the direction is white.
 
-
+Among most of the localization method used in \gls{SPL} game, the vision results are projected from the camera frame into the robot local frame in order to do further processing. In the team DAInamite, the camera frame and robot local frame are defined as illustrated in \autoref{fig:cameramatrix}, where the camera frame has its origin at the place of the camera, and the robot local frame has its origin between the robot's feet. Through calibration, the camera matrix can be obtained, it defines the location and orientation of the camera frame relative to robot local frame.
 \begin{figure}[h!]
   \centering
   \includegraphics[width=.7\textwidth]{camera-matrix.png}
-  \caption{Camera frame and robot local frame. In both frames, x, y, z axis are represented in red, green, blue respectively.}
+  \caption[Only camera frame for bottom camera is shown]{camera frame and robot local frame. In both frames, x, y, z axis are represented in red, green, blue respectively. (Only camera frame for bottom camera is shown.)}
   \label{fig:cameramatrix}
 \end{figure}
 

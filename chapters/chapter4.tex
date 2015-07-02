@@ -1,15 +1,70 @@
 \chapter{Self-localization Pipeline\label{cha:chapter4}}
 
 
-As stated in \autoref{sub:kalman}, Kalman filter works by combining prediction step and measurement update to give an optimal estimate of the current state variable. In this paper, odometry information from motion module is used to perform the prediction step. From odometry, the information of how much distance the robot moved relative to the pose of last time stamp is provided, thus an estimate of the current position can be established. Likewise, an estimate from the measurement update is performed based on what the robot has observed, or simply put, the vision results from the cameras. In the end, Kalman filter update the state variable by a weighted average of the estimates.
+As stated in \autoref{sub:kalman}, Kalman filter gives an optimal estimate of the current state variable by combining prediction step and measurement update. To be problem specific, in the following text, prediction step will be referred as motion update and measurement update as sensor update. In this thesis work, odometry information from motion module is used to perform the motion update. From odometry, the information of how much distance the robot moved relative to the pose of last time stamp is provided, thus an estimate of the current position can be established. Likewise, an estimate from the sensor update is performed based on what the robot has observed, or simply put, the vision results from the vision module. In the end, Kalman filter update the state variable by a weighted average of the estimates. The behavior module then decides the behavior of the robot by the given robot position. The illustration of the pipeline of the localization process is shown in \autoref{fig:pipeline}.
 
 The choice of motion model and observation model is fundamental and crucial for both Kalman filter's prediction step and measurement update. The more precise and comprehensive the model describes the system, the more accurate the estimate of the state will be. 
+
+\begin{figure}[h!]
+  \centering
+\begin{tikzpicture}[
+  font=\sffamily,
+  every matrix/.style={ampersand replacement=\&,column sep=2cm,row sep=2cm},
+  source/.style={draw,thick,rounded corners,fill=yellow!20,inner sep=.3cm},
+  process/.style={draw,thick,circle,fill=blue!30},
+  container/.style={draw,thick, dashed, rounded corners,draw = #1,fill=yellow!50, fill opacity=0.3, inner sep=5pt},
+  sink/.style={source,fill=green!20},
+  datastore/.style={draw,very thick,shape=datastore,inner sep=.3cm},
+  dots/.style={gray,scale=2},
+  to/.style={->,>=stealth',shorten >=1pt,semithick,font=\sffamily\footnotesize},
+  every node/.style={align=center}]
+
+  % Position the nodes using a matrix layout
+  \matrix {
+    \node[source] (motion) {Motion Module};
+      \& \node[source] (vision) {Vision Model};  \\
+    \node[process] (motionUpdate) {Motion\\ Update}; 
+    \&  \node[process] (sensorUpdate) {Sensor\\ Update}; \\
+      \& \node[sink] (behavior) {Behavior Module}; \\
+  };
+
+  % Draw the arrows between the nodes and label them.
+  
+  %\draw[to] (motion) -- node[midway,above] {raw events}
+  %    node[midway,below] {level 0} (daq);
+  \node[] at ($(sensorUpdate)!0.37!(behavior)$) (div) {};
+  \draw[to] (div) -| (motionUpdate);
+  \draw[to] (motion) -- node[midway,left] {Odometry}
+       (motionUpdate);
+  \draw[to] (vision) -- node[midway,right] {Vision Results}
+       (sensorUpdate);
+  \draw[to] (sensorUpdate) -- node[midway,right] {Robot Position}
+       (behavior);
+  \draw[to] (motionUpdate) -- node[midway,below] {Robot Position}
+       (sensorUpdate);
+   \draw node at (div) {\textbullet}; 
+   \node[container, fit={($(motionUpdate.north west)+(-15pt, 15pt)$) ($(sensorUpdate.south east)+(15pt, -22pt)$)}] (localization) {};
+   \node[above of=localization] {Localization Module};
+
+ % \draw[to] (daq) -- node[midway,right] {raw event data\\level 1} (buffer);
+ % \draw[to] (buffer) --
+ %     node[midway,right] {raw event data\\level 1} (monitor);
+ % \draw[to] (monitor) to[bend right=50] node[midway,above] {events}
+ %     node[midway,below] {level 1} (storage);
+ % \draw[to] (storage) to[bend right=50] node[midway,above] {events}
+ %     node[midway,below] {level 1} (monitor);
+ % \draw[to] (monitor) -- node[midway,above] {events}
+ %     node[midway,below] {level 1} (datastore);
+\end{tikzpicture}
+\caption{Self-localization pipeline.}
+\label{fig:pipeline}
+\end{figure}
 
 \section{Motion Update}\label{sec:Motion Update}
 \subsection{Motion Model}\label{sub:Motion Model}
 In general, motion models can be categorized by two kinds: velocity motion model and odometry motion model. Practical experience suggests that odometry, while still erroneous, is usually more accurate than velocity. Both suffer from drift and slippage, but velocity additionally suffers from the mismatch between the actual motion controllers and its mathematical model \cite{thrun2005probabilistic}. It is especially true for humanoid robot like NAO, whose moving velocity is difficult to model. 
 
-Since the transformation between the coordinate used internally by the odometry measurement and the physical world coordinate is unknown, the internal odometry measurement in this motion model is relative. 
+Since the transformation between the coordinates used internally by the odometry measurement and the physical world frame is unknown, the internal odometry measurement in this motion model is relative. 
 To be specific, in the time interval $(t-1, t]$, the robot moves from a position $x_{t-1}$ to position $x_t$, and meanwhile the odometry reports us a related movement from $\bar{x}_{t-1} = (\bar{x}, \bar{y}, \bar{\theta})$ to $\bar{x}_{t} = (\bar{x}', \bar{y}', \bar{\theta}')$. The bar here indicates that these are odometry measurements. We use the relative difference of $\bar{x}_{t-1}$ and $\bar{x}_{t}$ as an estimation of the difference between the true position $x_{t-1} = (x, y, \theta)$ and $x_t = (x', y', \theta')$. Therefore, the odometry information $u_t$ can be given by the pair:
 
 \begin{equation}\label{eq:ut}
@@ -98,7 +153,7 @@ $
 \end{algorithmic}
 \end{algorithm}
 
-The function \textit{\transfunc} in \autoref{alg:motion_update} corresponds to the transition function $f(x_{k-1}, u_{k})$ described in \gls{EKF} algorithm in \autoref{tab:ekf}. Then the related Jacobian matrix $F_t$ can be calculated by \autoref{eq:jacobianF}.
+The function \textit{\transfunc} in \autoref{alg:motion_update} corresponds to the transition function $f(x_{k-1}, u_{k})$ described in \gls{EKF} algorithm in \autoref{tab:ekf}. Then the related Jacobian matrix $F_t$ can be calculated by:
 \begin{equation}\label{eq:jacobianF} 
 F_t = 
 \begin{bmatrix}
@@ -414,10 +469,11 @@ The features fall into this measurement model is the detected lines as well as t
 \label{sub:Measurement Noise Model}
 The measurement noise indicates how accurate the measurement made for each feature is, and by assuming the noise distribution is Gaussian, the measurement noise covariance is represented by the term $R_{t}$ in \autoref{tab:ekf}. The Measurement noise in case of NAO robot in \gls{SPL} game can mainly come from:
 \begin{itemize}
-  \item inaccuracy of the camera matrix
+  \item noise of the camera matrix
   \item blur of the image due to motion
+  \item resolution limitation of image
 \end{itemize}
-Since all the landmarks are measured in robot frame, the further the landmarks from the robot (the origin of robot frame coordinate) are, the larger the measurement noise will be. Because the error introduced by the camera matrix will be magnified when the detected landmarks are projected from image plane to robot frame. This phenomenon is demonstrated in \autoref{fig:landmarkImagePlane} and \autoref{fig:landmarkRobotFrame}. For example, the line (both sides) which being detected from the penalty area in \autoref{fig:landmarkImagePlane} become two lines with big gap (shown in \autoref{fig:landmarkRobotFrame}) when projected to the robot frame. Both lines suffered significant error in distance and angle.\\
+Since all the landmarks are measured in robot frame, the further the landmarks from the robot (the origin of robot frame coordinate) are, the larger the measurement noise will be. Because the error introduced by the camera matrix will be magnified when the detected landmarks are projected from image plane to robot frame. This phenomenon is demonstrated in \autoref{fig:landmarkImagePlane} and \autoref{fig:landmarkRobotFrame}. For example, the line (both sides) which being detected from the penalty area in \autoref{fig:landmarkImagePlane} become two lines with big gap (shown in \autoref{fig:landmarkRobotFrame}) when projected to the robot frame. Both lines suffered significant error in distance.\\
 
 \begin{figure}[h!]
   \centering
@@ -427,7 +483,7 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
         \draw[red,ultra thick, dashed, rounded corners] (0.179,0.59) rectangle (0.459,0.53);
     \end{scope}
 \end{tikzpicture}
-\caption[Landmarks in image plane]{Landmarks in image plane. (The red box indicates the lines which detected from the front line of the penalty area)}
+\caption[Landmarks in image plane]{Landmarks in image plane. The red box indicates the lines which detected from the front line of the penalty area.}
   \label{fig:landmarkImagePlane}
 \end{figure}
 
@@ -440,7 +496,7 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
         \draw[red,ultra thick, dashed, rounded corners] (0.841,0.62) rectangle (0.918,0.284);
     \end{scope}
 \end{tikzpicture}
-\caption[Landmarks in robot frame]{Landmarks in robot frame. (Grey lines indicate the detected lines after projection, the red box indicates the lines which detected from the front line of the penalty area)}
+\caption[Landmarks in robot frame]{Landmarks in robot frame. Grey lines indicate the detected lines after projection, the red box indicates the lines which detected from the front line of the penalty area.}
   \label{fig:landmarkRobotFrame}
 \end{figure}
 
