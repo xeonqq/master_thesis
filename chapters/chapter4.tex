@@ -1,7 +1,7 @@
 \chapter{Self-localization Pipeline\label{cha:chapter4}}
 
 
-As stated in \autoref{sub:kalman}, Kalman filter gives an optimal estimate of the current state variable by combining prediction step and measurement update. To be problem specific, in the following text, prediction step will be referred as motion update and measurement update as sensor update. In this thesis work, odometry information from motion module is used to perform the motion update. From odometry, the information of how much distance the robot moved relative to the pose of last time stamp is provided, thus an estimate of the current position can be established. Likewise, an estimate from the sensor update is performed based on what the robot has observed, or simply put, the vision results from the vision module. In the end, Kalman filter update the state variable by a weighted average of the estimates. The behavior module then decides the behavior of the robot by the given robot position. The illustration of the pipeline of the localization process is shown in \autoref{fig:pipeline}.
+As stated in \autoref{sub:kalman}, Kalman filter gives an optimal estimate of the current state variable by combining prediction step and measurement update. To be more specific to the problem, in the following text, prediction step will be referred as motion update and measurement update as sensor update. In this thesis work, odometry information from motion module is used to perform the motion update. From odometry, the information of how much distance the robot moved relative to the pose of last time stamp is provided, thus an estimate of the current position can be established. Likewise, an estimate from the sensor update is performed based on what the robot has observed, or in a nutshell, the vision results from the vision module. In the end, Kalman filter updates the state variable by a weighted average of the estimates. The behavior module then decides the behavior of the robot by the given robot position. The illustration of the pipeline of the localization process is shown in \autoref{fig:pipeline}.
 
 The choice of motion model and observation model is fundamental and crucial for both Kalman filter's prediction step and measurement update. The more precise and comprehensive the model describes the system, the more accurate the estimate of the state will be. 
 
@@ -74,7 +74,7 @@ u_t = \begin{pmatrix}
 \end{pmatrix}
 \end{equation}
 
-In the following of the paper, let \autoref{eq:rot} denote the rotation matrix with angle $\alpha$.
+Let \autoref{eq:rot} denotes the rotation matrix with angle $\alpha$, which is the notation assumed in the rest of the thesis. 
 \begin{equation}\label{eq:rot}
 \Omega(\alpha) = \begin{bmatrix}
 \cos{\alpha} &  -\sin{\alpha} \\
@@ -116,7 +116,7 @@ In our motion model, to obtain the relative odometry change, $u_t$ can be treate
 \end{algorithmic}
 \end{algorithm}
 
-Once the estimated translation $\delta_{trans}$ and rotation $\delta_{rot}$ relative to pose $x_{t-1}$ is obtained, it can be applied to update the robot position in the physical world coordinate. The full motion update using odometry measurement is shown in \autoref{alg:motion_update}.
+Once the estimated translation $\delta_{trans}$ and rotation $\delta_{rot}$ relative to pose $x_{t-1}$ is obtained, it can be applied to update the robot position in the physical world frame. The full motion update using odometry measurement is shown in \autoref{alg:motion_update}.
 
 \newcommand{\transfunc}{odometry\_motion\_update}
 
@@ -166,7 +166,7 @@ F_t =
 \subsection{Process Noise Model}
 \label{sub:Process Noise Model}
 
-The process noise covariance matrix $Q_t$ is modeled to be positive proportional to the absolute change of odometry $(|\delta_{x}|, |\delta_{y}|, |\theta_{r}|)$. Since the more the robot moves in a time interval, the more it suffers from unpredictable noises like slippage and drift. \autoref{eq:Qt} is proposed to calculate process noise covariance matrix.
+The process noise covariance matrix $Q_t$ is modeled to be directly proportional to the absolute change of odometry $(|\delta_{x}|, |\delta_{y}|, |\theta_{r}|)$. Since the more the robot moves in a time interval, the more it suffers from unpredictable noises like slippage and drift. \autoref{eq:Qt} is proposed to calculate process noise covariance matrix.
 \begin{equation}\label{eq:Qt} 
 Q_t = 
 \begin{bmatrix}
@@ -192,7 +192,7 @@ Sc = \begin{bmatrix}
 \end{bmatrix}
 \end{equation}
 
-$Sc$ is a scaling matrix and $Sc^2$ is square elementwise. It intuitively means, when robot walk \SI{1}{\meter} in x or y direction, it may have an error range in $\pm$ \SI{0.8}{\meter}. When it rotates \SI{1}{\radian}, it may have an error of $\pm$ \SI{0.8}{\radian} in orientation. The value of $Sc$ depends on the accuracy of odometry measurement from the motion module, and a better tuning of the values can be argued.
+$Sc$ is a scaling matrix and $Sc^2$ is square elementwise. It intuitively means, when the robot walks \SI{1}{\meter} in x or y direction, it may have an error range of $\pm$ \SI{0.8}{\meter}. When it rotates \SI{1}{\radian}, it may have an error of $\pm$ \SI{0.8}{\radian} in orientation. The value of $Sc$ depends on the accuracy of odometry measurement from the motion module, and a better tuning of the values can be argued.
 
 With all the essential elements for motion model ready, we plug in the formula from \autoref{tab:ekf} and perform the \gls{EKF} prediction step for the localization algorithm. %The only thing we haven't touched yet is the initial value of $x_{t-1}$ and $P_{t-1}$, it will be discussed in ?(to be determined).  
 
@@ -219,7 +219,7 @@ One of the challenges to design Kalman filter using optimization based model is 
 
 
 \subsection{Feature Based Model}\label{sec:feature update} 
-Although the optimization method based localization outperforms the particle filter in terms of accuracy, it is not computational efficient to run on the robot (comparison in \autoref{sec:Benchmark}). During the preparation of German Open 2015, DAInamite team developed more feature detections like center circle detection, penalty area detection and ``L'' junction detection. Provided the richness of features, the development of feature based sensor update for localization is motivated.  
+Although the optimization method based localization outperforms the particle filter in terms of accuracy, it is not computationally efficient to run on the robot (comparison in \autoref{sec:Benchmark}). During the preparation of German Open 2015, DAInamite team developed more feature detections like center circle detection, penalty area detection and ``L'' junction detection. Provided the richness of features, the development of feature based sensor update for localization is motivated.  
 
 \subsubsection{``T'' and ``X'' Junction Detection}
 In the \gls{SPL} soccer field, there are 36 ``L'' junctions, 14 ``T'' junctions, 2 ``X'' junctions. As illustrated in \autoref{fig:ljunctions}, the detection of ``L'' considers both sides of the field line as well as the line direction, but ``T''and ``X'' junctions do not consider line side and direction. The counting includes ``L'', ``T'', ``X'' junctions at center circle. Compared to ``L'' junction, ``T'' and ``X'' junctions are much stronger landmarks. Especially the ``T'' junction at the penalty area, it can significantly help the robot localize itself in front of the goal.
@@ -282,7 +282,7 @@ Both the ``T'' and ``X'' junctions are detected in the robot frame instead of th
 %\end{figure}
 
 \subsubsection{Measurement Model Choice}\label{subsub:sensorModelChoice}
-Given the various kinds of features, different sensor model can be distinguished for different features. In general, they can be divided into point landmarks and line landmarks. Assume the robot position $x_t = (p_x, p_y, p_{\theta})$, and the landmark represented as $l$. The objective is to describe the expected measurement $\bar{z}$ by the observation function $h(x_t)$ and derive the Jacobian matrix $H$.
+Given the various kinds of features, different sensor models can be distinguished for different features. In general, they can be divided into point landmarks and line landmarks. Assume the robot position $x_t = (p_x, p_y, p_{\theta})$, and the landmark represented as $l$. The objective is to describe the expected measurement $\bar{z}$ by the observation function $h(x_t)$ and derive the Jacobian matrix $H$.
 \paragraph{Point Landmark without orientation}\label{par:pointLandmark}
 Under the Cartesian coordinate system in robot frame. The expected point landmark can be described as $\bar{z} = (z_x, z_y)^\top$ (illustrated in \autoref{fig:observation_euclidean}) and its corresponding landmark in physical world frame $l = (l_x, l_y)^\top$. The observation function $h(x_t)$ can be described in \autoref{eq:hx}, which transforms the landmark from physical world frame to the robot local frame. The Jacobian matrix $H$ is the partial derivative of $h(x_t)$ at $x_t$, as illustrated in \autoref{eq:jH}. 
 
@@ -368,7 +368,7 @@ H =
   0 & 0 & -1
 \end{bmatrix}
 \end{equation}
-The landmarks which comply with is measurement model are ``L'',``T'',``X'' junctions, and center circle with center line detected.
+The landmarks which comply with this measurement model are ``L'',``T'',``X'' junctions, and center circle with center line detected.
 
 \paragraph{Line Landmark}\label{par:lineLandmark}
 Line is a special landmark, it needs two end points to describe it in Cartesian space. However, with only two end points of the line, it is very hard to find the corresponding points in the field map. For example, a short line can be matched to any segment within a long line. Therefore, to counter this ambiguity and extract the intrinsic property from lines, the representation from Hough transform is used where a line can be represented as ($\rho$, $\theta$), as shown in \autoref{fig:hough}. 
@@ -413,7 +413,7 @@ Line is a special landmark, it needs two end points to describe it in Cartesian 
  \end{figure}
 While Hough representation discards the length information of the line, it keeps the direction and distance information from the line intact. It means, for example, when a vertical line is matched, the robot's orientation can be determined and it will also be sure about its position in $x$ axis, but keep uncertain about its position in $y$ axis until a horizontal line is matched.
 
-Using Hough representation, the expected line landmark can be described as $\bar{z} = (z_{\rho}, z_{\theta})^\top$, and depending on whether the corresponding line in the field map is vertical or horizontal, different measurement model should be adjusted. If knowing the matched line is horizontal, the line landmark in physical world frame can be describe using only $y$ axis value $l = l_{y}$. Then the observation function $h(x_t)$ can be described in \autoref{eq:hxhorizon} and the Jacobian matrix $H$ in \autoref{eq:jHhorizon}. \\
+Using Hough representation, the expected line landmark can be described as $\bar{z} = (z_{\rho}, z_{\theta})^\top$, and depending on whether the corresponding line in the field map is vertical or horizontal, different measurement models should be adjusted. If the matched line is horizontal, the line landmark in physical world frame could be described using only $y$ axis value $l = l_{y}$. Then the observation function $h(x_t)$ can be described in \autoref{eq:hxhorizon} and the Jacobian matrix $H$ in \autoref{eq:jHhorizon}. \\
 \begin{equation}\label{eq:hxhorizon}
   \bar{z} = \begin{pmatrix}
 \bar{z}_{\rho}\\ 
@@ -438,7 +438,7 @@ H =
 \end{bmatrix}
 \end{equation}
 
-Similar for vertical lines, the line landmark in physical world frame can be describe using only $x$ axis value $l = l_{x}$. The observation function $h(x_t)$ can be described in \autoref{eq:hxvertical} and the Jacobian matrix $H$ in \autoref{eq:jHvertical}. \\
+Similarly for vertical lines, the line landmark in physical world frame can be described using only $x$ axis value $l = l_{x}$. The observation function $h(x_t)$ can be described in \autoref{eq:hxvertical} and the Jacobian matrix $H$ in \autoref{eq:jHvertical}. \\
 \begin{equation}\label{eq:hxvertical}
   \bar{z} = \begin{pmatrix}
 \bar{z}_{\rho}\\ 
@@ -463,7 +463,7 @@ H =
 \end{bmatrix}
 \end{equation}
 
-The features fall into this measurement model is the detected lines as well as the penalty area. Because the penalty area detection basically is just the detection of two parallel lines which satisfies certain criteria. The penalty area detection result is given in the form of Hough representation, thus it is also treated as a line.
+The features that fall into this measurement model are the detected lines as well as the penalty area. Because the penalty area detection basically is just the detection of two parallel lines which satisfies certain criteria. The penalty area detection result is given in the form of Hough representation, thus it is also treated as a line.
 
 \subsubsection{Measurement Noise Model}
 \label{sub:Measurement Noise Model}
@@ -473,7 +473,7 @@ The measurement noise indicates how accurate the measurement made for each featu
   \item blur of the image due to motion
   \item resolution limitation of image
 \end{itemize}
-Since all the landmarks are measured in robot frame, the further the landmarks from the robot (the origin of robot frame coordinate) are, the larger the measurement noise will be. Because the error introduced by the camera matrix will be magnified when the detected landmarks are projected from image plane to robot frame. This phenomenon is demonstrated in \autoref{fig:landmarkImagePlane} and \autoref{fig:landmarkRobotFrame}. For example, the line (both sides) which being detected from the penalty area in \autoref{fig:landmarkImagePlane} become two lines with big gap (shown in \autoref{fig:landmarkRobotFrame}) when projected to the robot frame. Both lines suffered significant error in distance.\\
+Since all the landmarks are measured in robot frame, the further the landmarks from the robot (the origin of robot frame coordinate) are, the larger the measurement noise will be. Because, the error introduced by the camera matrix will be magnified when the detected landmarks are projected from image plane to robot frame. This phenomenon is demonstrated in \autoref{fig:landmarkImagePlane} and \autoref{fig:landmarkRobotFrame}. For example, the line (both sides) which is being detected from the penalty area in \autoref{fig:landmarkImagePlane} become two lines with big gap (shown in \autoref{fig:landmarkRobotFrame}) when projected to the robot frame. Both lines suffered significant error in distance.\\
 
 \begin{figure}[h!]
   \centering
@@ -534,7 +534,7 @@ A straight forward way to describe this phenomenon is to model the noise proport
     \end{scope}
   \end{tikzpicture}
 \end{center}
-\caption[Measurement covariance of point landmark]{Measurement covariance of point landmark. ($\theta_{x}$ and $\theta_{y}$ are the measurement angle deviations in $x$, $y$ direction. $LA$ and $LB$ indicate the measurement noises)}
+\caption[Measurement covariance of the point landmark]{Measurement covariance of the point landmark. $\theta_{x}$ and $\theta_{y}$ are the measurement angle deviations in $x$, $y$ direction. $LA$ and $LB$ indicate the measurement noises.}
 \label{fig:measurecovar}
 \end{figure}
 
@@ -544,10 +544,10 @@ In the end, for point landmarks with orientation, the noise model of point landm
 
 
 \subsubsection{Landmark Correspondence}\label{subsub:landmarkco}
-Due to the high ambiguity of the features in \gls{SPL}, one of the difficulties of using Kalman filter for localization is to find the correspondence between the observations and the landmarks. In other word, it is to find the corresponding $z_t$ (in \autoref{eq:observ}), when a landmark $l$ is detected. 
+Due to the high ambiguity of the features in \gls{SPL}, one of the difficulties of using Kalman filter for localization is to find the correspondence between the observations and the landmarks. In other words, it is to find the corresponding $z_t$ (in \autoref{eq:observ}), when a landmark $l$ is detected. 
 
 \paragraph{Center Circle}
-The only unique landmark currently can be used is the center circle with center line detected. Its correspondence is easily fixed to $z_t = (0,0,0)$, meaning position $(0,0)$ in physical world coordinate and \SI{0}{\degree} in orientation. However, because the center circle is symmetrical, it can not provide the information of the field side, so the robot could be in either one position or its mirrored one. In this case, the side of the current robot position is considered when using center circle to update robot position, then the robot position can be uniquely defined. With the help of unique landmark like center circle, the global localization problem stated in \autoref{sub:problem} can be solved.
+The only unique landmark that currently can be used is the center circle with center line detected. Its correspondence is easily fixed to $z_t = (0,0,0)$, meaning position $(0,0)$ in physical world coordinate and \SI{0}{\degree} in orientation. However, because the center circle is symmetrical, it can not provide the information of the field side, so the robot could be in either one position or its mirrored one. In this case, the side of the current robot position is considered when using center circle to update robot position, then the robot position can be uniquely defined. With the help of unique landmark like center circle, the global localization problem stated in \autoref{sub:problem} can be solved.
 
 On the other hand, when the center circle is detected without the middle line, the robot position can still not be decided, since it can be at any position surrounding the center circle. So in this case, the center circle can only be treated as a point landmark without orientation $z_t = (0,0)$.
 
@@ -558,11 +558,11 @@ For junction features which include ``L'', ``T'', ``X'' junctions, they are ambi
 
 In this thesis work, a \textit{nearest neighbor search method with threshold} is used to find the junction correspondences. Assume the robot position is not of high inaccuracy, then the junctions in robot frame can be transformed into physical world frame. Given the junction in physical world frame, the associative correspondence is found by searching the nearest junction in the field. 
 
-Instead of looping through all the possible junctions, the k-d tree algorithm \cite{Bentley1975} is adopted to do the search efficiently. Two k-d trees are constructed, one for ``L'' junctions and one for ``T'' junctions. No k-d tree is needed for ``X'' junction, since the ``X'' junctions can be compared directly with the two in the field. The distance of measure between the junctions are Euclidean distance. 
+Instead of looping through all the possible junctions, the k-d tree algorithm \cite{Bentley1975} is adopted to do the search efficiently. Two k-d trees are constructed, one for ``L'' junctions and one for ``T'' junctions. No k-d tree is needed for ``X'' junction, since the ``X'' junctions can be compared directly with the two in the field. The distance of measurements between the junctions is Euclidean distance. 
 
 Once the associative junction is found by nearest distance, the difference in orientation is checked. If the distance to the associative junction is larger than a threshold, or the difference in orientation is too large, the associative junction is simply discarded and this landmark will not contribute to the robot position update.
 %\footnote{The discarded landmarks will be reused in multi-hypotheses kalman filter resampling step. It will be discussed in \autoref{cha:chapter5}.}. 
-Because in this case, the assumption that current robot position is relatively accurate no longer holds, more than one possible correspondence can be chosen. In other word, \textit{nearest neighbor search with threshold} acts more like a local position optimization to track robot pose rather than global localization. In \autoref{sec:resample}, we will see the discarded landmarks can be utilized for global localization by using multi-hypotheses Kalman filter. The matching result is already shown before in \autoref{fig:txcorner}, in which the orange pointer indicates to which junction the detected junction is corresponding.
+Because in this case, the assumption that current robot position is relatively accurate no longer holds, more than one possible correspondences can be chosen. In other words, \textit{nearest neighbor search with threshold} acts more like a local position optimization to track the robot pose rather than global localization. In \autoref{sec:resample}, we will see the discarded landmarks can be utilized for global localization by using multi-hypotheses Kalman filter. The matching result is already shown before in \autoref{fig:txcorner}, in which the orange pointer indicates to which junction the detected junction is corresponding.
 
 \paragraph{Lines}
 Lines are the most ambiguous landmarks among all the landmarks in the field, because a single line can be matched to any field line in the field. Due to the high ambiguity, the lines also can not be used for global localization if features are not extracted from them. To find the line correspondence, a similar methodology as the nearest neighbor search is adopted. Each detected line is represented by a vector of two end points $l=(p_{start}, p_{end})$. If the nearest neighbor search is directly applied, the two end points could be matched to two different field lines, as illustrated in \autoref{fig:linematch}.
@@ -585,9 +585,9 @@ Lines are the most ambiguous landmarks among all the landmarks in the field, bec
 Inspired by the method used by B-Human \cite{Bhuman} to find line correspondence, a \textit{nearest line neighbor search} is implemented. Given a detected line, after projecting it to physical world frame, it is compared with each of the field lines to check if certain criteria are satisfied. Suppose we start with the outer side of the horizontal field line (indicated by red in
 \autoref{fig:find_line_correspondence}), the criteria are as follows:
 \begin{itemize}
-  \item Find the nearest distance from the end points of detected line to the field line, in this case, distance $p_{start}A$ and $p_{end}B$ are checked. They should below a threshold\footnote{The threshold is chosen to be half of the penalty area length defined in \autoref{tab:field}, since it is the largest distance that can distinguish the ambiguity between lines.} respectively, otherwise, this field line is not the correspondence.
-  \item Start from each end point of the detected line, make a perpendicular line pointing to the field line, \ie line $p_{start}C$ and $p_{end}D$. If both perpendicular lines have intersections with the field line, the distance of $p_{start}C$ and $p_{end}D$ are checked. Each of them should also below the threshold. Moreover, if either orthogonal line starting from the end point fails to have an intersection with the field line. This field line is regarded as not the correspondence. (For example, $p_{start}$ fails to have an orthogonal intersection with the vertical field line in \autoref{fig:find_line_correspondence}) 
-   \item When both of the criteria above are satisfied, the direction of the detected line is checked with the field line. They should have more or less the same direction. And this is done by dot multiplying the two vectors, the one with positive result satisfies.
+  \item Find the nearest distance from the end points of detected line to the field line, in this case, distance $p_{start}A$ and $p_{end}B$ are checked. They should be below a threshold\footnote{The threshold is chosen to be half of the penalty area length defined in \autoref{tab:field}, since it is the largest distance that can distinguish the ambiguity between lines.} respectively, otherwise, this field line is not the correspondence.
+  \item Start from each end point of the detected line, make a perpendicular line pointing to the field line, \ie{} line $p_{start}C$ and $p_{end}D$. If both perpendicular lines have intersections with the field line, the distance of $p_{start}C$ and $p_{end}D$ are checked. Each of them should also be below the threshold. Moreover, if either orthogonal line starting from the end point fails to have an intersection with the field line. This field line is regarded as not the correspondence. (For example, $p_{start}$ fails to have an orthogonal intersection with the vertical field line in \autoref{fig:find_line_correspondence}) 
+   \item When both of the criteria above are satisfied, the direction of the detected line is checked with the field line. They should have more or less the same direction. And this is done by dot multiplying the two vectors, the one with result larger than 0 satisfies.
    \item Only the field line which satisfies all the criteria above is treated as the correspondence. If more than one field line happen to satisfy the criteria, then all of them are discarded due to the ambiguity.
 \end{itemize}
 
@@ -641,9 +641,9 @@ Inspired by the method used by B-Human \cite{Bhuman} to find line correspondence
 \end{figure}
 
 
-Another important property of finding correspondence of line is that short lines can match to long lines and short lines, but long line can not match to short line. Thus, the long lines and short lines are distinguished, the lines with length exceeding the penalty area width (defined in \autoref{tab:field}) are treated as long lines, the rest are short lines. With this classification, long lines are limited to the four field lines on the border and one field line in the center. The benefit is discernible, not only the process of \textit{nearest line neighbor search} can be speeded up for long lines, but also the threshold in the matching criteria can be enlarged, since the ambiguity is reduced. 
+Another important property of finding correspondence of the lines is that short lines can match to long lines and short lines, but long lines can not match to short lines. Thus, the long lines and short lines are distinguished, the lines with length exceeding the penalty area width (defined in \autoref{tab:field}) are treated as long lines, the rest are short lines. With this classification, long lines are limited to the four field lines on the border and the one field line in the center. The benefit is discernible, not only the process of \textit{nearest line neighbor search} can be speeded up for long lines, but also the threshold in the matching criteria can be enlarged, since the ambiguity is reduced. 
 
-While each line detected from a vertical or horizontal field lines can have a correspondence, the lines detected from the center circle can hardly have. The center circle can be treated as consisting of infinite short lines, and each line can be of different length. The algorithm implemented checks if a short line is in the vicinity of the center circle, if so, the line is simply discarded. Therefore, in this case, localization depend more on center circle detection.
+While each line detected from a vertical or horizontal field lines can have a correspondence, the lines detected from the center circle can hardly have. The center circle can be treated as consisting of infinite short lines, and each line can be of different length. The algorithm implemented checks if a short line is in the vicinity of the center circle, if so, the line is simply discarded. Therefore, in this case, localization depends more on center circle detection.
 
 
 %To cope with this, the same methodology from junction correspondence is taken, namely local position optimization. 
@@ -656,7 +656,7 @@ As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can
 \begin{center}
   \includegraphics[width=0.7\textwidth]{line_penaltymatching_clean_crop.png}
 \end{center}
-\caption[Matching result of line and penalty area]{Matching result of line and penalty area. (The gray box indicates the detected penalty area. The line in blue indicate it is matched with the field line in red. The line in grey indicate it fails to find a correspondence)}
+\caption[Matching result of line and penalty area]{Matching result of line and penalty area. The gray box indicates the detected penalty area. The line in blue indicate it is matched with the field line in red. The line in grey indicate it fails to find a correspondence.}
 \label{fig:linematch}
 \end{figure}
 
@@ -665,7 +665,7 @@ As we discussed earlier in \autoref{par:lineLandmark}, detected penalty area can
 
 
 \subsubsection{Multiple Simultaneous Measurements}
-In practical implementation of the Kalman filter, the routine of one motion update and one sensor update described in theory may not be followed. Instead, there can be multiple motion updates without sensor updates, if no result is obtained from observation. Or on other cases, several observations are made at once, since several landmarks are extracted in the same time step. Assume the landmarks extracted from the observations are all point landmarks without orientation. According to the measurement noise model discussed in \autoref{sub:Measurement Noise Model}. The measurement noise covariance can be represented as a 2-dimensional matrix in \autoref{eq:cov}
+In practical implementation of the Kalman filter, the routine of one motion update and one sensor update described in theory may not hold. Instead, there can be multiple motion updates without sensor updates, if no result is obtained from the observation. Or on other cases, several observations are made at once, since several landmarks are extracted in the same time step. Assuming the landmarks extracted from the observations are all point landmarks without orientation, according to the measurement noise model discussed in subsection \ref{sub:Measurement Noise Model}, the measurement noise covariance can be represented as a 2-dimensional matrix in \autoref{eq:cov}
 \begin{equation}
   \label{eq:cov}
   R = 
@@ -674,5 +674,5 @@ In practical implementation of the Kalman filter, the routine of one motion upda
     0 & r_y^2
   \end{bmatrix}
 \end{equation}
-The stochastically correct sensor update for $n$ detected landmarks is to execute a $2n$-dimensional measurement update. However, when the landmarks are stochastically independent of each other, the off-diagonal inter-landmarks entries of the $2n \times 2n$ measurement covariance are zero. Then a single $2n$-dimensional measurement update is approximated well by $n$ $2$-dimensional updates \cite{Tasse2013}. Although, the assumption of the observed landmarks are independent of each other is not complete true in \gls{SPL} game, in this thesis work, the sensor update is performed independently for each observed landmark. As a result, it sacrifices the localization accuracy for the trade-off of increase of computation efficiency.
+The stochastically correct sensor update for $n$ detected landmarks is to execute a $2n$-dimensional measurement update. However, when the landmarks are stochastically independent of each other, the off-diagonal inter-landmarks entries of the $2n \times 2n$ measurement covariance are zero. Then a single $2n$-dimensional measurement update is approximated well by $n$ $2$-dimensional updates \cite{Tasse2013}. Although, the assumption of the observed landmarks are independent of each other is not completely true in \gls{SPL} game, in this thesis work, the sensor update is performed independently for each observed landmark. As a result, it sacrifices the localization accuracy as a trade-off to increase the computation efficiency.
 
