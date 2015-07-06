@@ -171,7 +171,7 @@ The modified Mahalanobis distance to measure distance between two Gaussian hypot
 D_{mahalanobis} = \sqrt{((\mu_2 - \mu_1)^T S_1^{-1} (\mu_2-\mu_1) + (\mu_1 - \mu_2)^T S_2^{-1} (\mu_1-\mu_2)) \cdot 0.5}
 \end{equation}
 
-An example is illustrated in \autoref{fig:gaussians}, although the Euclidean distance between the mean of the two Gaussian distributions are close ($D_{euclidean}=0.5$), the Mahalanobis distance is relatively larger ($D_{mahalanobis}=1.77$) due to the significant difference between their deviations. As a result, Mahalanobis distance is more suitable for describing the model distance than Euclidean distance.
+An example is illustrated in \autoref{fig:gaussians}, where the Gaussian distribution in blue has mean $\mu=-3.0$, deviation $\delta=0.2$, and the Gaussian distribution in green has mean $\mu=-2.5$, deviation $\delta=2.0$. Although the Euclidean distance between the mean of the two Gaussian distributions are close ($D_{euclidean}=0.5$), the Mahalanobis distance is relatively larger ($D_{mahalanobis}=1.77$) due to the significant difference between their deviations. As a result, Mahalanobis distance is more suitable for describing the model distance than Euclidean distance.
 
 
 \begin{figure}[!htbp]
