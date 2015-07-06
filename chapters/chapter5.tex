@@ -23,7 +23,7 @@ For the observed line landmarks, they are currently not contributing to the voti
 
 \section{Landmark Based Resampling}\label{sec:resample}
 
-Similar to the augmented particle filter's \cite{thrun2005probabilistic} sensor reseting step to recover the situation of robot getting kidnapped, multi-hypotheses Kalman filter uses sensor reseting based on landmarks to recover from position tracking failure. Assume uni-modal kalman filter for position tracking, the filter can lose track of the robot's position when the robot is hit by another robot which results in an error in robot's orientation; or the robot is kidnapped by a referee during manual replacement, etc. Augmented particle filter initiates the sensor resetting step to generate random particles when the fluctuation of the weights from the particles is high, multi-hypotheses Kalman filter designed in this thesis will start resampling when an observed landmark fails to match the one on the field. Here, a correspondence match failure is regarded as a signal for potential loss of position tracking. 
+Similar to the augmented particle filter's \cite{thrun2005probabilistic} sensor reseting step to recover the situation of robot getting kidnapped, multi-hypotheses Kalman filter uses sensor reseting based on landmarks to recover from position tracking failure. Assume uni-modal Kalman filter for position tracking, the filter can lose track of the robot's position when the robot is hit by another robot which results in an error in robot's orientation; or the robot is kidnapped by a referee during manual replacement, etc. Augmented particle filter initiates the sensor resetting step to generate random particles when the fluctuation of the weights from the particles is high, multi-hypotheses Kalman filter designed in this thesis will start resampling when an observed landmark fails to match the one on the field. Here, a correspondence match failure is regarded as a signal for potential loss of position tracking. 
 
 The resampling is achieved by calculating all the possible poses of the robot with respect to the observation of the landmark. The landmarks which can trigger resampling are the landmarks with orientation, \ie{} center circle with center line and all kinds of junctions. The landmarks without orientation like lines, center circle without center line and penalty area can generate infinite possible robot positions, therefore currently they are not used for resampling. The problem of calculating the possible poses can be formulated as follows:
 
@@ -102,24 +102,24 @@ By using the rotation matrix representation stated in \autoref{eq:rot}, the rota
 \end{bmatrix}
 \end{equation}
 
-Therefore, given the correspondence of $l_R$ and $l_G$,  the robot x-y position is $P_R^G$ and orientation is $\theta_{G} - \theta_{L}$. The number of possible robot poses generated depends on the occurrence of the landmarks in the field. For example, a mismatch of a ``T'' junction would trigger resampling which would generate 14 possible robot poses. The weight for the newly generated hypothesis model is 1 divided by the number of occurrences of the landmarks in the field. So, in the case for resampling by ``T'' junction, the weight for the new hypothesis model is $1/14 = 0.0714$. However, the model resampled by center circle is an execution as only one model will be generated, the weight of this model will be directly proportional to the detection confidence of the center circle.
+Therefore, given the correspondence of $l_R$ and $l_G$,  the robot x-y position is $P_R^G$ and orientation is $\theta_{G} - \theta_{L}$. The number of possible robot poses generated depends on the occurrence of the landmarks in the field. For example, a mismatch of a ``T'' junction would trigger resampling which would generate 14 possible robot poses. The weight for the newly generated hypothesis model is 1 divided by the number of occurrences of the landmarks in the field. So, in the case for resampling by ``T'' junction, the weight for the new hypothesis model is $1/14 = 0.0714$. However, the model resampled by center circle is an execution as only one model will be generated. The weight of this model will be directly proportional to the detection confidence of the center circle.
 
 \subsection{``L'' Junction Look Up Table}
 \label{sub:Junction Look Up Table}
-A special case worths discussing is the observation of the ``L'' junctions, as there are 36 occurrences of ``L'' junctions in the field, a match failure can resample as much as 36 possible robot position, the weight for the newly generated hypothesis model will be $1/36=0.027$ which is extremely low. Such low weight model can be easily pruned in the pruning step which we will discuss in \autoref{sec:pruning}. However, due to the high occurrence of ``L'' junction, the possibility of observing more than one ``L'' junctions at the same frame is also high. When more than one ``L'' junctions are observed in one frame, the number of possible positions can also be reduced. The implementation to generate possible positions by multiple ``L'' junction is shown in following steps:
+A special case worths discussing is the observation of the ``L'' junctions, as there are 36 occurrences of ``L'' junctions in the field, a match failure can resample as much as 36 possible robot positions, the weight for the newly generated hypothesis model will be $1/36=0.027$ which is extremely low. Such low weight model can be easily pruned in the pruning step which we will discuss in \autoref{sec:pruning}. However, due to the large number of occurrences of ``L'' junctions, the possibility of observing more than one ``L'' junctions at the same frame is also high. When more than one ``L'' junctions are observed in one frame, the number of possible positions can also be reduced. Given the ``L'' junctions observed, the implementation to generate possible positions due to multiple ``L'' junctions is described in the following steps:
 
 \begin{enumerate}
   \item Take one observed ``L'' junction, use \autoref{eq:reverseTrans4} and \autoref{eq:reverseTrans5} to generate 36 possible robot positions based on all the ``L'' junctions in the field. 
   \item Take another observed ``L'' junction, at each robot position generated in Step 1, project the ``L'' junction to the physical world frame.
-  \item Check if at the place where the observed ``L'' junction  is projected exists an  ``L'' junction in the field. If so, this generated robot position is valid, otherwise it is an invalid position.
-  \item If there are  remaining ``L'' junctions in observation, repeat from Step 2. Otherwise, the possible robot positions which are valid are returned.
+  \item Check if at the place where the observed ``L'' junction is projected, there exists an  ``L'' junction in the field. If so, this generated robot position is valid, otherwise it is an invalid position.
+  \item If there are remaining ``L'' junctions in observation, steps from Step 2 are repeated. Otherwise, the possible robot positions which are valid are returned.
 \end{enumerate}
 
-To speed up the computation, Step 3 above is implemented using a pre-computed look up table. Given a pose $(x_l, y_l, \theta_l)$ of the ``L'' junction in physical world frame,  the look up table will return boolean value true or false, depend on whether in the range of $(x_l, y_l, \theta_l)$ exists an ``L'' junction. Although it is a 3-dimensional look up table, the resolution can be configured coarse, it will not consume too much memory. In return, the checking of 36 ``L'' junctions in physical world frame can be done together at once. A visualization example of the look up table is illustrated in \autoref{fig:lcornerLUT}. Since it is a 3-dimensional look up table, \autoref{fig:lcornerLUT} only shows the look up table when the angle dimension is at \SI{90}{\degree}. It means, if given an ``L'' junction in physical world frame with angle being \SI{90}{\degree}, only the ``L'' junctions which fall into the bright area is valid. %The correctness can be verified by checking in correspond with \autoref{fig:ljunctions}.
+To speed up the computation, Step 3 above is implemented using a pre-computed look up table. Given a pose $(x_l, y_l, \theta_l)$ of the ``L'' junction in physical world frame,  the look up table will return boolean value, \ie{} true or false, depending on whether in the vicinity of pose $(x_l, y_l, \theta_l)$, there exists an ``L'' junction. Although it is a 3-dimensional look up table, the resolution can be configured coarse, it will not consume too much memory. In return, the checking of 36 ``L'' junctions in physical world frame can be done together at once. A visualization example of the look up table is illustrated in \autoref{fig:lcornerLUT}. Since it is a 3-dimensional look up table, \autoref{fig:lcornerLUT} only shows the look up table when the angle dimension is at \SI{90}{\degree}. It means, if given an ``L'' junction in physical world frame with angle being \SI{90}{\degree}, only the ``L'' junctions which fall into the bright area is valid. %The correctness can be verified by checking in correspond with \autoref{fig:ljunctions}.
 
 \begin{figure}
 \begin{center}
-	\includegraphics[width=0.7\textwidth]{fieldwithLcornerslut.png}
+	\includegraphics[width=0.8\textwidth]{fieldwithLcornerslut.png}
 \end{center}
 \caption[``L'' junction look up table]{``L'' junction look up table with angle dimension at \SI{90}{\degree}. Bright parts indicate true, dark parts indicate false}
 \label{fig:lcornerLUT}
@@ -148,11 +148,11 @@ While the resampling step generates hypothesis models into the Gaussian sum dist
 
 \subsection{Pruning by Weight}
 \label{sub:Pruning by Weight}
-When the weight of hypothesis model is lower than a certain threshold, this model is considered to have little contribution of the distribution that it can be removed. Moreover, the maximum number of models is limited to a number $N$ set by the localization algorithm. Once the maximum number of models is exceeded, the models are sorted by weight from high to low in a list. Only first $N$ models in the list will remain, the others will be deleted.
+When the weight of hypothesis model is lower than a certain threshold, this model is considered to have little contribution to the distribution, so that it can be removed. Moreover, the maximum number of models is limited to a number $N$ set by the localization algorithm. Once the maximum number of models is exceeded, the models are sorted by weight from high to low in a list. Only first $N$ models in the list will remain, the others will be deleted.
 
 \subsection[Pruning by Mahalanobis Distance]{Pruning by Mahalanobis Distance \cite{de2000mahalanobis}}
 \label{sub:Prunning Mahalanobis Distance}
-When the hypothesis models are close enough to each other, in other word, they represent almost the same probability distribution, they could also be merged into one. One way is to apply Euclidean distance directly between the mean of the models to calculate the distance as shown in \autoref{eq:euclidean}. $\mu_1$ and $\mu_2$ represent the mean of two different Gaussian distributions.
+When the hypothesis models are close enough to each other, in other words, they represent almost the same probability distribution, they could also be merged into one. One way is to apply Euclidean distance directly between the mean of the models to calculate the distance as shown in \autoref{eq:euclidean}. $\mu_1$ and $\mu_2$ represent the mean of two different Gaussian distributions.
 
 \begin{equation}
 \label{eq:euclidean}
@@ -171,15 +171,24 @@ The modified Mahalanobis distance to measure distance between two Gaussian hypot
 D_{mahalanobis} = \sqrt{((\mu_2 - \mu_1)^T S_1^{-1} (\mu_2-\mu_1) + (\mu_1 - \mu_2)^T S_2^{-1} (\mu_1-\mu_2)) \cdot 0.5}
 \end{equation}
 
-An example is illustrated in \autoref{fig:gaussians}, although the Euclidean distance between the mean of the two Gaussian distributions are close ($D_{euclidean}=0.5$), the Mahalanobis distance is relatively large ($D_{mahalanobis}=1.77$) due to the significant difference between their deviations. As a result, Mahalanobis distance is more suitable for describing the model distance than Euclidean distance.
+An example is illustrated in \autoref{fig:gaussians}, although the Euclidean distance between the mean of the two Gaussian distributions are close ($D_{euclidean}=0.5$), the Mahalanobis distance is relatively larger ($D_{mahalanobis}=1.77$) due to the significant difference between their deviations. As a result, Mahalanobis distance is more suitable for describing the model distance than Euclidean distance.
 
-\begin{figure}[tbh]
+
+\begin{figure}[!htbp]
 \begin{center}
-	\includegraphics[width=0.65\textwidth]{twogaussian.png}
+  \input{./tikz/gaussian.tikz}
 \end{center}
 \caption{Visualization of two Gaussian distributions}
 \label{fig:gaussians}
 \end{figure}
+
+%\begin{figure}[tbh]
+%\begin{center}
+%	\includegraphics[width=0.65\textwidth]{twogaussian.png}
+%\end{center}
+%\caption{Visualization of two Gaussian distributions}
+%\label{fig:gaussians}
+%\end{figure}
 
 To prune hypothesis models, the Mahalanobis distance is calculated between each pair of the models. If the Mahalanobis distance is under certain threshold, the two models are considered to be close to each other, and the one with lower weight will be removed. If both weights are the same, the model with higher covariance will be removed.
 
@@ -187,5 +196,5 @@ To prune hypothesis models, the Mahalanobis distance is calculated between each 
 \subsection{Pruning by Distance to Best Model}
 \label{sub:Pruning by Distance to Best Model}
 
-As we discussed in \autoref{sec:robotpose}, the model whichever is the ``best'' is chosen to represent the robot position. To further prune hypothesis models, the models which are very close to ``best'' model are also removed. This distance is measured simply by Euclidean distance and the threshold is set to be a small value \SI{2}{\cm}.
+As we discussed in \autoref{sec:robotpose}, the model whichever is the ``best'' is chosen to represent the robot position. To further prune hypothesis models, the models which are very close to the ``best'' model are also removed. This distance is measured simply by Euclidean distance and the threshold is set to be a small value \SI{2}{\cm}.
 
