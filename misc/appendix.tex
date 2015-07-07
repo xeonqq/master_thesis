@@ -1,24 +1,24 @@
 \chapter{Appendix}\label{testdat}
 
 \section{Speed Profiles of Localization Algorithms}\label{sec:profiles}
-The following program profiles are the total time (seconds) for executing the log file refered in \autoref{sec:Benchmark} with repect to each localization algorithm. The total execution time is indicated at the top left corner of the profile. Each box inside the profile is the function which is invoked by the localization algorithm, and the size of the box corresponds to the occupation of execution time. The execution of the log is performed on a laptop with Intel(R) Core(TM) i5-4200U CPU@1.60GHz and 4GB memory. 
+The following program profiles are the total time (seconds) for executing the log file refered in \autoref{sec:Benchmark} with repect to each localization algorithm. For the purpose of benchmark, the execution of the log is performed on a NAO V4 robot without other CPU intensive modules running. The total execution time is indicated at the top left corner of the profile. Each box inside the profile is the function which is invoked by the localization algorithm, and the size of the box corresponds to the occupation of execution time. 
 
 \begin{figure}[h!]
   \includegraphics[angle=90,  width=\textwidth, height=\textheight]{particle_nao_profile.png}
-  \caption{Program profile of particle filter localization for executing the perception log.}
-    \label{fig:profile_partcile}
+  \caption{Program profile of particle filter localization for executing the perception log on the NAO robot.}
+  \label{fig:profile_partcile}
 \end{figure}
 
 \begin{figure}[h!]
   \includegraphics[angle=90, width=\textwidth, height=\textheight]{rprop_nao_profile.png}
-    \caption{Program profile of optimization based localization for executing the perception log. }
-    \label{fig:profile_rprop}
+  \caption{Program profile of optimization based localization for executing the perception log on the NAO robot.}
+  \label{fig:profile_rprop}
 \end{figure}
 
 \begin{figure}[h!]
   \includegraphics[angle=90, width=\textwidth, height=\textheight]{kalman_nao_profile.png}
-    \caption{Program profile of multi-hypotheses Kalman filter localization for executing the perception log.}
-    \label{fig:profile_kalman}
+  \caption{Program profile of multi-hypotheses Kalman filter localization for executing the perception log on the NAO robot.}
+  \label{fig:profile_kalman}
 \end{figure}
 
 

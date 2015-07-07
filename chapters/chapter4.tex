@@ -267,7 +267,7 @@ In the \gls{SPL} soccer field, there are 36 ``L'' junctions, 14 ``T'' junctions,
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.8\textwidth]{fieldLcorners.png}
+  \includegraphics[width=0.95\textwidth]{fieldLcorners.png}
   \caption[All L junctions in the field]{All L junctions in the field, the blue pointer indicates the position of the ``L'' junctions as well as their directions}
   \label{fig:ljunctions}
 \end{figure}
@@ -513,8 +513,11 @@ The measurement noise indicates how accurate the measurement made for each featu
   \item noise of the camera matrix.
   \item blur of the image due to motion.
   \item discretization of the physical environment into the pixels of an image.
+  \item distortion of the image due to rolling shutter of the camera.
   \item image acquisition noise.
 \end{itemize}
+While many kinds of noise listed above result from the hardware intrinsic of the camera, to compensate these error, specific error models have to be developed for each kind. In this thesis, we focus only on developing the noise model for noise from the camera matrix.
+
 Since all the landmarks are measured in robot frame, the further the landmarks from the robot (the origin of robot frame coordinate) are, the larger the measurement noise will be. Because, the error introduced by the camera matrix will be magnified when the detected landmarks are projected from image plane to robot frame. This phenomenon is demonstrated in \autoref{fig:landmarkImagePlane} and \autoref{fig:landmarkRobotFrame}. For example, the line (both sides) which is being detected from the penalty area in \autoref{fig:landmarkImagePlane} become two lines with big gap (shown in \autoref{fig:landmarkRobotFrame}) when projected to the robot frame. Both lines suffered significant error in distance.\\
 
 \begin{figure}[h!]

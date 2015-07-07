@@ -158,14 +158,14 @@ When the hypothesis models are close enough to each other, in other words, they 
 \label{eq:euclidean}
 D_{euclidean} = \sqrt{(\mu_1 - \mu_2)^T(\mu_1 - \mu_2)}= \sqrt{(x_{1}-x_{2})^2 + (y_{1}-y_{2})^2 + (\theta_{1}-\theta_{2})^2}
 \end{equation}
-However, the drawback of using Euclidean distance is that the covariance information of the distribution is not utilized. In this thesis, 
-the method used to measure distance between two hypothesis models is an adapted version of Mahalanobis distance. Mahalanobis distance is defined as follows in \autoref{eq:mahalanobis} \cite{de2000mahalanobis}, which uses covariance as one factor to calculate the distance. In \autoref{eq:mahalanobis}, $x$ is the observation, $\mu$ is the mean of the distribution and $S$ is the covariance matrix.
+However, the drawback of using Euclidean distance is that the covariance information of the distribution is not utilized. In this thesis, an adapted version of Mahalanobis distance is proposed to measure the distance between two hypothesis models. Mahalanobis distance is defined as follows in \autoref{eq:mahalanobis} \cite{de2000mahalanobis}, which uses covariance as one factor to calculate the distance. In \autoref{eq:mahalanobis}, $x$ is the observation, $\mu$ is the mean of the distribution and $S$ is the covariance matrix.
 \begin{equation}
 \label{eq:mahalanobis}
 D_M(x) = \sqrt{(x - \mu)^T S^{-1} (x-\mu)}
 \end{equation}
 
-The modified Mahalanobis distance to measure distance between two Gaussian hypothesis models is defined in \autoref{eq:mahalanobismod}.
+In order to measure the distance between two Gaussian distributions, assume the mean of one Gaussian distribution is the observation for the other distribution, therefore, 
+the adapted Mahalanobis distance to measure distance between two Gaussian hypothesis models is defined as following:
 \begin{equation}
 \label{eq:mahalanobismod}
 D_{mahalanobis} = \sqrt{((\mu_2 - \mu_1)^T S_1^{-1} (\mu_2-\mu_1) + (\mu_1 - \mu_2)^T S_2^{-1} (\mu_1-\mu_2)) \cdot 0.5}

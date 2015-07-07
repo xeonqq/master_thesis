@@ -64,7 +64,7 @@ By the intrinsics of the Rprop algorithm, optimization based localization impose
 The major drawback pertains to the optimization based localization is that when the size of look up table is big, the requests to the look up table can often cause CPU cache misses if the data requested in memory is not contiguous. Since the line points in observation are often scattered over the field, and the look up table is constructed row by row along the field, a request to the look up table by these line points will often result in the penalty of cache misses. Moreover, two look up tables have to be requested repeatedly for several iterations during the optimization step, which magnifies the overhead.
 
 Taking the experience during implementing optimization based localization, the principle is to implement the computational heavy part using lower level programming language to gain performance and the other parts in higher level language to have design flexibility.
-For multi-hypotheses Kalman filter, the code pertaining to motion update and sensor update are implemented in \cpp{}. The other parts of code regarding observation pre-processing and feature detection are implemented using the combination of python, Numpy and Cython. The interface between \cpp{} code and python code is bridged by Cython. The performance of this design turns out to be satisfactory. As illustrated in \autoref{tab:timecomp}, it is 27.8\% faster than the speed of particle filter.
+For multi-hypotheses Kalman filter, the code pertaining to motion update and sensor update are implemented in \cpp{}. The other parts of code regarding observation pre-processing and feature detection are implemented using the combination of python, Numpy and Cython. The interface between \cpp{} code and python code is bridged by Cython. The performance of this design turns out to be satisfactory. As illustrated in \autoref{tab:timecomp}, it is 22.61\% faster than the speed of particle filter.
 
 \section{Benchmarks}
 \label{sec:Benchmark}
@@ -271,7 +271,7 @@ Concerning the ability to recover from kidnapped situation, from the three appro
 
 \subsection{Efficiency}
 \label{sub:Efficiency}
-Last but not the least, the average execution time per perception frame of the log is measured for each algorithm to compare the efficiency. The log is not executed on the robot but on a normal laptop with Intel(R) Core(TM) i5-4200U CPU@1.60GHz and 4GB memory, since the aim is to compare the efficiency between the algorithms. And in addition we know particle filter algorithm could be run seamlessly on the robot together with other necessary \gls{SPL} modules. So the log execution time of particle filter can be regarded as a base line for other algorithms. \autoref{tab:timecomp} depicts the execution time for each localization algorithm\footnote{For detailed profiles of algorithm execution time, refer to Appendix \ref{sec:profiles}}. Within \autoref{tab:timecomp}, multi-hypotheses Kalman filter localization out-performs the other localization algorithms in computation speed, optimization based localization being the slowest.
+Last but not the least, the average execution time per perception frame of the log is measured for each algorithm to compare the efficiency. For the purpose of benchmark, the NAO robot is configured only to run the localization algorithm. In this thesis, the execution time of particle filter can be regarded as a base line for other algorithms, as we know that particle filter algorithm could be run seamlessly on the robot together with other necessary \gls{SPL} modules. \autoref{tab:timecomp} depicts the average execution time per perception frame for each localization algorithm\footnote{For detailed profiles of algorithm execution time, refer to Appendix \ref{sec:profiles}}. Within \autoref{tab:timecomp}, multi-hypotheses Kalman filter localization out-performs the other localization algorithms in computation speed, optimization based localization being the slowest.
 
 
 % \begin{table}[h!]
@@ -289,7 +289,7 @@ Last but not the least, the average execution time per perception frame of the l
 
 \begin{table}[h!]
   \centering
-  \caption{Average execution time per frame of the perception log for different localization algorithms}
+  \caption{Average execution time per frame of the perception log for different localization algorithms running on the NAO robot.}
   \label{tab:timecomp}
   \begin{tikzpicture}
     \begin{axis}[
