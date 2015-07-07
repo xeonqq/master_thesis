@@ -148,7 +148,7 @@ While the resampling step generates hypothesis models into the Gaussian sum dist
 
 \subsection{Pruning by Weight}
 \label{sub:Pruning by Weight}
-When the weight of hypothesis model is lower than a certain threshold, this model is considered to have little contribution to the distribution, so that it can be removed. Moreover, the maximum number of models is limited to a number $N$ set by the localization algorithm. Once the maximum number of models is exceeded, the models are sorted by weight from high to low in a list. Only first $N$ models in the list will remain, the others will be deleted.
+When the weight of hypothesis model is lower than a certain threshold, this model is considered to have little contribution to the distribution, so that it can be removed. Moreover, the maximum number of models is limited to a number $N$ set by the localization algorithm. Once the maximum number of models is exceeded, the models are sorted by weight from high to low in a list. Only first $N$ models in the list will remain, the others will be deleted. In this thesis, the maximum number of models is set to be 16.
 
 \subsection[Pruning by Mahalanobis Distance]{Pruning by Mahalanobis Distance \cite{de2000mahalanobis}}
 \label{sub:Prunning Mahalanobis Distance}

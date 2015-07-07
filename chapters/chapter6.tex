@@ -59,7 +59,7 @@ For the purpose of debugging and benchmarks, the robot can store the perception 
 \label{sec:Optimization}
 As illustrated in \autoref{sub:hardware}, the motherboard that the robot equips is an embedded platform with only limited computational power. This requires the localization algorithms developed to be computationally efficient in order to run in real time in \gls{SPL} game. In this section, the methods used to enhance the performance of the two localization algorithms, namely optimization based localization and multi-hypotheses Kalman filter localization, will be discussed.
 
-By the intrinsics of the Rprop algorithm, optimization based localization imposes significant overhead in computation. On the one hand, it uses all the detected line points instead of line segments to calculate the measurement error, on the other hand, the optimization procedure takes several iterations to converge to the optimal result. Although the error function being used by Rprop has been implemented by an error look up table and an error gradient look up table, which saves the on-line computation time by pre-calculating the error and error gradient off-line, the computation time is still high. Initially the implementation is using the combination of python and Numpy. After optimizing the computation heavy part using Cython and reducing the number of optimization iterations, the computation speed has increased by 84\%. However, with this speed up after optimization, it is still 5 times slower than the implementation of particle filter as illustrated in \autoref{tab:timecomp}, which is far from acceptable to run on the robot.
+By the intrinsics of the Rprop algorithm, optimization based localization imposes significant overhead in computation. On the one hand, it uses all the detected line points instead of line segments to calculate the measurement error, on the other hand, the optimization procedure takes several iterations to converge to the optimal result. Although the error function being used by Rprop has been implemented by an error look up table and an error gradient look up table, which saves the on-line computation time by pre-calculating the error and error gradient off-line, the computation time is still high. Initially the implementation is using the combination of python and Numpy. After optimizing the computation heavy part using Cython and reducing the number of optimization iterations, the computation speed has increased by 84\%. However, with this speed up after optimization, it is still almost 3 times slower than the implementation of particle filter as illustrated in \autoref{tab:timecomp}, which is far from acceptable to run on the robot.
 
 The major drawback pertains to the optimization based localization is that when the size of look up table is big, the requests to the look up table can often cause CPU cache misses if the data requested in memory is not contiguous. Since the line points in observation are often scattered over the field, and the look up table is constructed row by row along the field, a request to the look up table by these line points will often result in the penalty of cache misses. Moreover, two look up tables have to be requested repeatedly for several iterations during the optimization step, which magnifies the overhead.
 
@@ -68,7 +68,7 @@ For multi-hypotheses Kalman filter, the code pertaining to motion update and sen
 
 \section{Benchmarks}
 \label{sec:Benchmark}
-To benchmark the quality of localization algorithms, we use the same perception log with ground truth as the input for the different algorithms. The log consists of 3476 perception frames and is recorded when the robot is initially placed at the side of the field and walks into the goalie position. In the end, the robot is kidnapped to a position near the center circle \footnote{The kidnapping happens at around frame 3200 of the log, where a robot position ``jump'' is illustrated by the ground truth trajectory in \autoref{fig:benchmarkParticle}}. The quality of the localization algorithm is judged by the following criteria: 
+To benchmark the quality of localization algorithms, we use the same perception log with ground truth throughout this section as the input for the different algorithms. The log consists of 3476 perception frames and is recorded when the robot is initially placed at the side of the field and walks into the goalie position. In the end, the robot is kidnapped to a position near the center circle\footnote{The kidnapping happens at around frame 3200 of the log, where a robot position ``jump'' is illustrated by the ground truth trajectory in \autoref{fig:benchmarkParticle}}. The quality of the localization algorithm is judged by the following criteria: 
 \begin{enumerate}
   \item Initial global localization.
   \item Accuracy of robot position tracking.
@@ -267,11 +267,11 @@ By comparing \autoref{fig:benchmarkParticle} and \autoref{fig:benchmarkKalman}, 
 
 From the illustrations of the localization trajectory in \autoref{fig:benchmarkParticle}, \autoref{fig:benchmarkRprop} and \autoref{fig:benchmarkKalman}, all the three localization algorithms solve the initial global localization problem and tracks the robot position after global localization. 
 
-Concerning the ability to recover from kidnapped situation, only multi-hypotheses Kalman filter localization recovered the robot position at the end of the log. That is because the robot observed an ``X'' junction near the center circle, and resampling is triggered to recover the robot position. However, ``X'', ``T'' junction detection and resampling is only used in multi-hypotheses Kalman filter localization algorithm, not in particle filter and optimization based localization, therefore the other algorithm can not recover in this case. Particle filter localization is also capable to do resampling when ``L'' junction, penalty area or center circle are seen.
+Concerning the ability to recover from kidnapped situation, from the three approaches, only multi-hypotheses Kalman filter localization recovered the robot position at the end of the log. That is because the robot observed an ``X'' junction near the center circle, and resampling is triggered to recover the robot position. However, ``X'', ``T'' junction detection and resampling is only used in multi-hypotheses Kalman filter localization algorithm, not in particle filter and optimization based localization, therefore the other algorithm can not recover in this case. Particle filter localization is also capable to do resampling when ``L'' junction, penalty area or center circle are seen.
 
 \subsection{Efficiency}
 \label{sub:Efficiency}
-Last but not the least, the average execution time per perception frame of the log is measured for each algorithm to compare the efficiency. The log is not executed on the robot but on a normal laptop, since the aim is to compare the efficiency between the algorithms. And in addition we know particle filter algorithm could be run seamlessly on the robot together with other necessary \gls{SPL} modules. So the log execution time of particle filter can be regarded as a base line for other algorithms. \autoref{tab:timecomp} depicts the execution time for each localization algorithm\footnote{For detailed profiles of algorithm execution time, refer to Appendix \ref{sec:profiles}}. Within \autoref{tab:timecomp}, multi-hypotheses Kalman filter localization out-performs the other localization algorithms in computation speed, optimization based localization being the slowest.
+Last but not the least, the average execution time per perception frame of the log is measured for each algorithm to compare the efficiency. The log is not executed on the robot but on a normal laptop with Intel(R) Core(TM) i5-4200U CPU@1.60GHz and 4GB memory, since the aim is to compare the efficiency between the algorithms. And in addition we know particle filter algorithm could be run seamlessly on the robot together with other necessary \gls{SPL} modules. So the log execution time of particle filter can be regarded as a base line for other algorithms. \autoref{tab:timecomp} depicts the execution time for each localization algorithm\footnote{For detailed profiles of algorithm execution time, refer to Appendix \ref{sec:profiles}}. Within \autoref{tab:timecomp}, multi-hypotheses Kalman filter localization out-performs the other localization algorithms in computation speed, optimization based localization being the slowest.
 
 
 % \begin{table}[h!]
@@ -289,7 +289,7 @@ Last but not the least, the average execution time per perception frame of the l
 
 \begin{table}[h!]
   \centering
-  \caption{Average execution time per perception frame for different localization algorithms}
+  \caption{Average execution time per frame of the perception log for different localization algorithms}
   \label{tab:timecomp}
   \begin{tikzpicture}
     \begin{axis}[
@@ -308,7 +308,12 @@ Last but not the least, the average execution time per perception frame of the l
       x tick label style={text width=2.2cm,align=center},
     ]
     %\addplot coordinates {(Particle filter,1.989) (Optimization based,9.952) (Multi-hypotheses Kalman filter, 1.436)};
-    \addplot coordinates {(Particle filter,0.572) (Optimization based localization,2.863) (Multi-hypotheses Kalman filter, 0.413)};
+
+    %ms per frame on my computer
+    %\addplot coordinates {(Particle filter,0.572) (Optimization based localization,2.863) (Multi-hypotheses Kalman filter, 0.413)};
+
+    %ms per frame on NAO
+    \addplot coordinates {(Particle filter,6.502) (Optimization based localization,18.761) (Multi-hypotheses Kalman filter, 5.032)};
 %\legend{used,understood,not understood}
   \end{axis}
 \end{tikzpicture}

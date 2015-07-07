@@ -41,7 +41,7 @@ The robot used in this thesis for localization algorithm development is NAO V4 r
 \begin{figure}[h!]
   \centering
   \includegraphics[width=.8\textwidth]{nao_h21_pres.png}
-  \caption{Body construction of NAO V4}
+  \caption[Body construction of NAO V4.]{Body construction of NAO V4. \cite{NAOBody}}
   \label{fig:nao body construction}
 \end{figure}
 
@@ -87,7 +87,7 @@ Almost every year the rules of the \gls{SPL} will be modified on the basis of th
 \end{tabular}
 \end{adjustbox}
 \caption[Schematic diagram of the soccer field]{Schematic diagram of the soccer field (not to scale) and corresponding dimensions in
-  mm. Note that measurements on this diagram are made to the center of lines \cite{Committee2013}}.
+  mm. Note that measurements on this diagram are made to the center of lines. \cite{Committee2013}}
 \label{tab:field}
 \end{table}
 \subsection{Problem Formulation}\label{sub:problem}
@@ -100,7 +100,7 @@ $x(t) =
   \theta_{r}(t) 
  \end{bmatrix} $ \\
 \end{center}
-where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(t)$ is the orientation of the robot at time $t$. The coordinate system of physical world frame is defined with its origin located at the center of the field as illustrated in \autoref{fig:worldframe}.
+where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(t)$ is the orientation of the robot at time $t$. As illustrated in \autoref{fig:worldframe}, the coordinate system of physical world frame is defined with its origin located at the center of the field, and its positive x-axis axle pointing to the opponent's goal.
 \begin{figure}[h]
   \centering
   \begin{tikzpicture}[
@@ -119,8 +119,11 @@ where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(
 
       \draw[dashed] (0.414, 0.508) coordinate(C) -- (0.4968, 0.58) coordinate(Ctheta); 
       \draw (C)+(0.1,0.04) node() {$\theta_{r}$};	
-      \draw pic[ draw=orange, <->, angle eccentricity=1.2, angle radius=0.8cm]
+      \draw pic[ draw=orange, ->, very thick, angle eccentricity=1.2, angle radius=0.8cm]
       {angle=yy--C--Ctheta};
+
+      \draw[dashed, ->, >=stealth'] (1.1, 0.622)  coordinate (T)  -- (0.936, 0.352); 
+      \node[above, text width = 2cm, align=center] at (T) {opponent's goal};
     \end{scope}
   \end{tikzpicture}
   \caption{The defined coordinate system of physical world frame}

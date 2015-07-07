@@ -116,7 +116,7 @@ In our motion model, to obtain the relative odometry change, $u_t$ can be treate
     \draw[line width=2.6pt] (Pos2) -- (Pos2angle); 
     \draw[line width=2.6pt] (O) -- (Pos1angle); 
 
-    \draw pic[ draw=orange, -, angle eccentricity=1.2, angle radius=1.6cm]
+    \draw pic[ draw=orange, ->, angle eccentricity=1.2, angle radius=1.6cm]
     {angle=H--Pos2--A};
 
     \draw ($(Pos2)+(25:3.4mm)$) node()[right] {$\delta_{rot}$};
@@ -233,7 +233,7 @@ Sc = \begin{bmatrix}
 \end{bmatrix}
 \end{equation}
 
-$Sc$ is a scaling matrix and $Sc^2$ is square elementwise. It intuitively means, when the robot walks \SI{1}{\meter} in x or y direction, it may have an error range of $\pm$ \SI{0.8}{\meter}. When it rotates \SI{1}{\radian}, it may have an error of $\pm$ \SI{0.8}{\radian} in orientation. The value of $Sc$ depends on the accuracy of odometry measurement from the motion module, and a better tuning of the values can be argued.
+$Sc$ is a scaling matrix and $Sc^2$ is square element-wise. The values chosen for $Sc$ was determined from a set of experiments by visual inspection. It intuitively means, when the robot walks \SI{1}{\meter} in x or y direction, it may have an error range of $\pm$ \SI{0.8}{\meter}. When it rotates \SI{1}{\radian}, it may have an error of $\pm$ \SI{0.8}{\radian} in orientation. The value of $Sc$ depends on the accuracy of odometry measurement from the motion module, and a better tuning of the values can be argued.
 
 With all the essential elements for motion model ready, we plug in the formula from \autoref{tab:ekf} and perform the \gls{EKF} prediction step for the localization algorithm. %The only thing we haven't touched yet is the initial value of $x_{t-1}$ and $P_{t-1}$, it will be discussed in ?(to be determined).  
 
@@ -260,7 +260,7 @@ One of the challenges to design Kalman filter using optimization based model is 
 
 
 \subsection{Feature Based Model}\label{sec:feature update} 
-Although the optimization method based localization outperforms the particle filter in terms of accuracy, it is not computationally efficient to run on the robot (comparison in \autoref{sec:Benchmark}). During the preparation of German Open 2015, DAInamite team developed more feature detections like center circle detection, penalty area detection and ``L'' junction detection. Provided the richness of features, the development of feature based sensor update for localization is motivated.  
+Although the optimization based localization have relatively the same accuracy as the particle filter localization, it is not computationally efficient to run on the robot (comparison in \autoref{sec:Benchmark}). During the preparation of German Open 2015, DAInamite team developed more feature detections like center circle detection, penalty area detection and ``L'' junction detection. Provided the richness of features, the development of feature based sensor update for localization is motivated.  
 
 \subsubsection{``T'' and ``X'' Junction Detection}
 In the \gls{SPL} soccer field, there are 36 ``L'' junctions, 14 ``T'' junctions, 2 ``X'' junctions. As illustrated in \autoref{fig:ljunctions}, the detection of ``L'' considers both sides of the field line as well as the line direction, but ``T''and ``X'' junctions do not consider line side and direction. The counting includes ``L'', ``T'', ``X'' junctions at center circle. Compared to ``L'' junction, ``T'' and ``X'' junctions are much stronger landmarks. Especially the ``T'' junction at the penalty area, it can significantly help the robot localize itself in front of the goal.
@@ -330,7 +330,7 @@ Under the Cartesian coordinate system in robot frame. The expected point landmar
 \begin{figure}[h!]
   \centering
   \includegraphics[width=.8\textwidth]{observation_euclidean.png}
-  \caption[Observation given in Cartesian coordinates]{Observation given in Cartesian coordinates \cite{Tasse2013}}
+  \caption[Observation given in Cartesian coordinates.]{Observation given in Cartesian coordinates. \cite{Tasse2013}}
   \label{fig:observation_euclidean}
 \end{figure}
 
@@ -434,7 +434,7 @@ Line is a special landmark, it needs two end points to describe it in Cartesian 
  
      \draw[dashed] (O) -- (0.433, 0.75) coordinate(C);
      \draw (0.216, 0.5) node() {$\rho$};	
-     \draw pic[ draw=orange, <->, angle eccentricity=1.2, angle radius=1cm]
+     \draw pic[ draw=orange, ->, angle eccentricity=1.2, angle radius=1cm]
      {angle=x--O--C};
 
      \draw (0.2,0.1) node()[right] {$\theta$};
@@ -510,9 +510,10 @@ The features that fall into this measurement model are the detected lines as wel
 \label{sub:Measurement Noise Model}
 The measurement noise indicates how accurate the measurement made for each feature is, and by assuming the noise distribution is Gaussian, the measurement noise covariance is represented by the term $R_{t}$ in \autoref{tab:ekf}. The Measurement noise in case of NAO robot in \gls{SPL} game can mainly come from:
 \begin{itemize}
-  \item noise of the camera matrix
-  \item blur of the image due to motion
-  \item resolution limitation of image
+  \item noise of the camera matrix.
+  \item blur of the image due to motion.
+  \item discretization of the physical environment into the pixels of an image.
+  \item image acquisition noise.
 \end{itemize}
 Since all the landmarks are measured in robot frame, the further the landmarks from the robot (the origin of robot frame coordinate) are, the larger the measurement noise will be. Because, the error introduced by the camera matrix will be magnified when the detected landmarks are projected from image plane to robot frame. This phenomenon is demonstrated in \autoref{fig:landmarkImagePlane} and \autoref{fig:landmarkRobotFrame}. For example, the line (both sides) which is being detected from the penalty area in \autoref{fig:landmarkImagePlane} become two lines with big gap (shown in \autoref{fig:landmarkRobotFrame}) when projected to the robot frame. Both lines suffered significant error in distance.\\
 
@@ -524,7 +525,7 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
         \draw[red,ultra thick, dashed, rounded corners] (0.179,0.59) rectangle (0.459,0.53);
     \end{scope}
 \end{tikzpicture}
-\caption[Landmarks in image plane]{Landmarks in image plane. The red box indicates the lines which detected from the front line of the penalty area.}
+\caption[Landmarks in image plane]{Landmarks in image plane. The red box indicates the parts which are detected from the front line of the penalty area.}
   \label{fig:landmarkImagePlane}
 \end{figure}
 
@@ -537,7 +538,7 @@ Since all the landmarks are measured in robot frame, the further the landmarks f
         \draw[red,ultra thick, dashed, rounded corners] (0.841,0.62) rectangle (0.918,0.284);
     \end{scope}
 \end{tikzpicture}
-\caption[Landmarks in robot frame]{Landmarks in robot frame. Grey lines indicate the detected lines after projection, the red box indicates the lines which detected from the front line of the penalty area.}
+\caption[Landmarks in robot frame]{Landmarks in robot frame. Grey lines indicate the detected lines after projection, the red box indicates the lines which are detected from the front line of the penalty area.}
   \label{fig:landmarkRobotFrame}
 \end{figure}
 

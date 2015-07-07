@@ -37,9 +37,10 @@ Particle filter, also known as \gls{MCL}, is the localization algorithm that is 
 
 \noindent\textbf{Advantages}
 \begin{itemize}
-  \item  Particle filter is easy to program
-  \item Particle filter is robust in localization 
-  \item  Particle filter works with multi-modal probability distribution and is applicable in both linear and non-linear systems
+  \item  Particle filter is easy to implement.
+  \item Particle filter is robust in localization. 
+  \item  Particle filter works with multi-modal probability distribution and is applicable in both linear and non-linear systems.
+  \item  By scaling up the number of particles, the accuracy of the result could be improved at the cost of more computational effort.
 \end{itemize}
 
 \noindent\textbf{Disadvantages}
@@ -208,7 +209,7 @@ However, particle filter or Kalman filter is not the only solution for localizat
 
 \section{Software Architecture of DAInamite}\label{sec:arch}
 DAInamite adopted modular programming pattern, so the tasks could be isolated in different modules. And more importantly, different people can focus on the development of their own modules without interfering other modules. In addition to \cpp{}, Python is mainly used in the DAInamite team's code.
-The time-critical components for motion, and vision are implemented in \cpp{}. The remaining modules such as localization, behavior, and ball-tracking are implemented in Python. The modules concerning the control of the robot will be connected to Naoqi. Naoqi is the software framework from Aldebaran, through which the NAO robot can be directly controlled. A brief illustration of the physical architecture of the software is shown in \autoref{fig:architecture}. 
+The time-critical components for motion, and vision are implemented in \cpp{}. The remaining modules such as localization, behavior, and ball-tracking are implemented in Python. The python modules communicate with the \cpp{} modules via python C-bindings. The modules concerning the control of the robot will be connected to Naoqi. Naoqi is the software framework from Aldebaran, through which the NAO robot can be directly controlled. A brief illustration of the physical architecture of the software is shown in \autoref{fig:architecture}. 
 
 \begin{figure}[h!]
   \centering
@@ -223,7 +224,7 @@ As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.9\textwidth]{vision.png}
-  \caption[The vision perception result of the robot in the field.]{The vision perception results of the robot in the field. Detected field lines are indicated by white vectors with starting point in cyan dot and end point in white dot. Field border is indicted by long green line. The two goal posts are indicted by yellow strips and the ball is indicted by an orange circle.}
+  \caption[Example for a typical vision perception result of the robot in the field.]{Example for a typical vision perception result of the robot in the field. Detected field lines are indicated by white vectors with starting point in cyan dot and end point in white dot. Field border is indicted by long green line. The two goal posts are indicted by yellow strips and the ball is indicted by an orange circle.}
   \label{fig:perception}
 \end{figure}
 
