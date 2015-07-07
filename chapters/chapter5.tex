@@ -164,7 +164,8 @@ However, the drawback of using Euclidean distance is that the covariance informa
 D_M(x) = \sqrt{(x - \mu)^T S^{-1} (x-\mu)}
 \end{equation}
 
-In order to measure the distance between two Gaussian distributions, assume the mean of one Gaussian distribution is the observation for the other distribution, therefore, 
+Given two Gaussian distributions $G_1$ and $G_2$, where $G_1$ has mean and covariance $(\mu_1,S_1)$ and $G_2$ has mean and covariance $(\mu_2,S_2)$, the formula in \autoref{eq:mahalanobis} can not be directly applied to measure the distance.
+In order to measure the distance between $G_1$ and $G_2$, assume $\mu_2$ is the observation for $G_1$, and $\mu_1$ is the observation for $G_2$, therefore, by combining two Mahalanobis distances,
 the adapted Mahalanobis distance to measure distance between two Gaussian hypothesis models is defined as following:
 \begin{equation}
 \label{eq:mahalanobismod}
