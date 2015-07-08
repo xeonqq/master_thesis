@@ -1,6 +1,6 @@
 \chapter{Introduction\label{cha:chapter1}}
 
-Robot Soccer World Cup, known as RoboCup, is an annual international robotics competition conducted since 1997. It aims to foster research and development of robotics and \gls{AI}, by offering a public appealing but challenging competition. RoboCup consists five major competition domains, they are RoboCup Soccer, RoboCup Rescue, RoboCup@Home, RoboCup Logistics and RoboCup Junior. Currently the RoboCup Soccer includes several soccer leagues to cover difference research challenges. The main concern in this thesis is the \gls{SPL} under the sub-category of RoboCup soccer, in which all the teams use identical humanoid robot NAO that is manufactured by Aldebaran Robotics. The robots should operate fully autonomously without external control. 
+Robot Soccer World Cup, known as RoboCup, is an annual international robotics competition conducted since 1997. It aims to foster research and development of robotics and \gls{AI}, by offering a public appealing but challenging competition. RoboCup consists of five major competition domains, they are RoboCup Soccer, RoboCup Rescue, RoboCup@Home, RoboCup Logistics and RoboCup Junior. Currently the RoboCup Soccer includes several soccer leagues to cover difference research challenges. The main concern in this thesis is the \gls{SPL} under the sub-category of RoboCup soccer, in which all the teams use identical humanoid robot NAO that is manufactured by Aldebaran Robotics. The robots should operate fully autonomously without external control. 
 The research regarding RoboCup \gls{SPL} has been actively conducted under various topics. DAInamite, a team from DAI-Labor, TU-Berlin, is dedicated in advancing robot technology; they have continuous research on humanoid robot NAO and their first participation in the world championship in the \gls{SPL} was in RoboCup 2013 in Eindhoven, reaching the quarter finals. The code base from DAInamite consists of several modules including motion, vision, behavior, localization, etc, which makes the NAO robot fully functional and competitive in the RoboCup game.
 The implementation of the localization algorithm proposed in this thesis will be based on the current software infrastructure of DAInamite,  
 %In addition to \cpp{}, Python is mainly used in the team's code.
@@ -8,7 +8,7 @@ The implementation of the localization algorithm proposed in this thesis will be
 %The time-critical components for motion, and vision are implemented in \cpp{}. The remaining modules such as localization,  behavior, and ball-tracking are implemented in Python.
 
 \section{Motivation\label{sec:moti}}
-Localization awareness is a central aspect for many pervasive computing applications, especially for autonomous robots playing soccer. Just like humans,  when playing soccer, we need to know where we are on the field, in order to make decisions and undertake actions. The same applies to the robots playing soccer in RoboCup. The high level decision making depends highly on the accuracy of the location of the robot, e.g. moving towards a particular direction to split the defense of the defender, or kicking the ball to the goal, or distinguishing the opponent's goal on its own. If the result of localization is inaccurate, it will not only curtail the performance of other algorithms like ball tracking and goal saving, but also prohibit developing advanced techniques for competitive enhancement like opponent modeling or passing the ball to teammates. 
+Localization awareness is a central aspect for many pervasive computing applications, especially for autonomous robots playing soccer. Just like human,  when playing soccer, we need to know where we are on the field, in order to make decisions and undertake actions. The same applies to the robots playing soccer in the RoboCup. The high level decision making depends highly on the accuracy of the location of the robot, e.g. moving towards a particular direction to split the defense of the defender, or kicking the ball to the goal, or distinguishing the opponent's goal on its own. If the result of localization is inaccurate, it will not only curtail the performance of other algorithms like ball tracking and goal saving, but also prohibit developing advanced techniques for competitive enhancement like opponent modeling or passing the ball to teammates. 
 
 %Because, for example, if the ball's position has been correctly detected, due to the inaccuracy of the self-localization of the robot, it perceives itself to be next to the ball, although it is not, so the following ball kicking decision made by the high level robot engine will have no effect. \autoref{fig:robot_perception} illustrates how the robot perceives itself at one particular time.
 %\begin{figure}[h]
@@ -25,7 +25,7 @@ The accumulated odometry errors throughout a time period will result in unaccept
 
 Besides odometry information, the NAO robot can also use its two \gls{HD} cameras to sense the surrounding environment, but without depth information. Since the cameras are not wide angle, the robot can only get local partial perception of the field at any given time.
 %, thus activly sensing the enviroment is necessary for the robot.
-With image processing, landmarks or features can be extacted from the images as another input for localization calculation. However, due to the non-uniqueness of most of the landmarks in the \gls{SPL} field and false positive results from image processing, the landmarks become severely ambiguous. On the other hand, the image could also be blurred due to the motion of the robot and the environment is dynamically changing as the other moving robots may occlude the landmark. These challenges impose significant difficulties not only in detecting the features from the noisy image, but also the knowhow of employing ambiguous landmarks for localization. 
+With image processing, landmarks or features can be extacted from the images as another input for localization calculation. However, due to the non-uniqueness of most of the landmarks in the \gls{SPL} field and false positive results from image processing, the landmarks become severely ambiguous. On the other hand, the image could also be blurred due to the motion of the robot, and the environment is dynamically changing as the other moving robots may occlude the landmark. These challenges impose significant difficulties not only in detecting the features from the noisy image, but also the knowhow of employing ambiguous landmarks for localization. 
 
 
 Furthermore, the soccer field itself is symmetrically structured, which means the two halves of the field are the same. To counter this problem, normally features outside of the field need to be considered to differentiate one side from the other.
@@ -46,7 +46,7 @@ The robot used in this thesis for localization algorithm development is NAO V4 r
 \end{figure}
 
 
-The two cameras are placed on the face, each camera can capture image of resolution $1280 \times 960$@30fps. %The opening angles of the camera are shown in \autoref{fig:nao cameras construction}.
+The two cameras are placed on the face, each camera can capture image of resolution up to $1280 \times 960$@30fps. %The opening angles of the camera are shown in \autoref{fig:nao cameras construction}.
 
 % \begin{figure}[h!]
 %   \begin{subfigure}[b]{0.5\textwidth}
@@ -119,7 +119,7 @@ where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(
 
       \draw[dashed] (0.414, 0.508) coordinate(C) -- (0.4968, 0.58) coordinate(Ctheta); 
       \draw (C)+(0.1,0.04) node() {$\theta_{r}$};	
-      \draw pic[ draw=orange, ->, very thick, angle eccentricity=1.2, angle radius=0.8cm]
+      \draw pic[ draw=orange, ->, thick, angle eccentricity=1.2, angle radius=0.8cm]
       {angle=yy--C--Ctheta};
 
       \draw[dashed, ->, >=stealth'] (1.1, 0.622)  coordinate (T)  -- (0.936, 0.352); 
