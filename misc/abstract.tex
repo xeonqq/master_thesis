@@ -1,13 +1,14 @@
 \thispagestyle{empty}
 \chapter*{Abstract}
-%\vspace*{1.0cm}
 
-%\begin{center}
-%    \textbf{Abstract}
-%\end{center}
-%
-%\vspace*{0.5cm}
+Self-localization is a crucial part for autonomous robot, particularly in the RoboCup \gls{SPL}. It is the prerequisite for the robot to accomplish the remaining decision making tasks such as passing the ball to the teammates, saving the goal, path planning and so on. In short, the robot needs to know where it is in the game field. The challenge herein is mainly to estimate the robot's position accurately. Since the robot only observes its surrounding world partially at a given time, it is sometimes not sufficient enough to determine its exact position. In addition, the robot must also identify the landmarks on the game field which could be ambiguous in most of the cases. 
 
-%\noindent
+%lies in the domain of localization is that robots have only partial observations about the surrounding world, they need to fuse sensor information to estimate its location. 
 
-Self-localization is a crucial part for autonomous robot, particularly in the RoboCup \gls{SPL}. It is the prerequisite for the robot to accomplish the remaining decision making tasks. In short, the robot needs to know where it is in the game field. The challenge lies in the domain of localization is that robots have only partial observations about the surrounding world, they need to fuse sensor information to estimate its location. Many localization algorithms have been proposed in the past years. Most of them are variants based upon Bayesian theories, the two widely used algorithms are particle filters and multi-model Kalman filters. Although particle filters are robust, multi-model Kalman filters outperforms it in terms of accuracy. In this thesis, an efficient localization algorithm will be investigated by combining the essence of particle filter and the Kalman filter to gain better performance for localization and implemented for NAO robot in the RoboCup \gls{SPL}.
+Many localization algorithms have been proposed in the past. Most of them are variants based on Bayesian theories, and the two widely used algorithms are particle filter and Kalman filter. Although, the particle filter algorithm is robust in the sense of mitigating the false positives and recovering robot from the de-localized situation,
+the Kalman filter algorithm, on the other hand outperforms 
+the former in terms of localization accuracy, and offers smooth walking trails 
+for the robot. 
+
+In this thesis, an efficient multi-hypotheses filter localization algorithm will be 
+investigated by combining the essence of particle filter and the Kalman filter to gain better performance for robot localization. The proposed localization algorithm is implemented, optimized and tested for the NAO robot in the RoboCup \gls{SPL}.
