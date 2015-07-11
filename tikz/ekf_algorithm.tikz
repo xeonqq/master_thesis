@@ -1,0 +1,48 @@
+\begin{tikzpicture}[
+  font=\sffamily,
+  every matrix/.style={ampersand replacement=\&,column sep=2cm,row sep=2cm},
+  source/.style={draw,semithick,rounded corners,fill=yellow!20,inner sep=.3cm},
+  header/.style={draw,semithick,fill=blue!20,inner sep=.3cm},
+  process/.style={draw,thick,circle,fill=blue!30},
+  container/.style={draw,thick, dashed, rounded corners,draw = #1,fill=yellow!50, fill opacity=0.3, inner sep=5pt},
+  sink/.style={source,fill=green!20},
+  datastore/.style={draw,very thick,shape=datastore,inner sep=.3cm},
+  dots/.style={gray,scale=2},
+  to/.style={->,>=stealth',shorten >=1pt,semithick,font=\sffamily\footnotesize},
+  every node/.style={align=center}]
+
+  % Position the nodes using a matrix layout
+  \matrix {
+    \node[source] (predict) 
+    {Predicted state estimate:\\ 
+      $\hat{x}_{t|t-1} = f(\hat{x}_{t-1|t-1}, u_{t})$ 
+      \vspace{0.3cm}
+      \\
+      Predicted covariance estimate:\\
+      $P_{t|t-1} =  {{F_{t}}} P_{t-1|t-1}{ {F_{t}^T}} + Q_{t}$ };
+
+      \& \node[source] (measure) 
+      {Innovation or measurement residual:\\
+        $\tilde{y}_{t} = z_{t} - h(\hat{x}_{t|t-1})$ 
+      \vspace{0.1cm}\\
+        Innovation (or residual) covariance: \\ 
+        $S_{t} = {{H_{t}}}P_{t|t-1}{{H_{t}^\top}} + R_{t}$ 
+      \vspace{0.1cm}\\
+        Near-optimal Kalman gain: \\
+        $K_{t} = P_{t|t-1}{{H_{t}^\top}}S_{t}^{-1}$ 
+      \vspace{0.1cm}\\
+        Updated state estimate: \\
+        $\hat{x}_{t|t} = \hat{x}_{t|t-1} + K_{t}\tilde{y}_{t}$ 
+      \vspace{0.1cm} \\
+        Updated covariance estimate: \\
+        $P_{t|t} = (I - K_{t} {{H_{t}}}) P_{t|t-1}$ }; \\ 
+     };
+
+   %\node[sink, above = of predict north] at (predict.north) {Prediction};
+   \node[header, above =-1.3mm of predict] {Prediction Step};
+   \node[header, above =-1.3mm of measure] {Measurement Update};
+  % Draw the arrows between the nodes and label them.
+     \draw[to] (predict) to[bend left=30] (measure);
+     \draw[to] (measure) to[bend left=30] (predict);
+    \end{tikzpicture}
+
