@@ -194,7 +194,7 @@ Once the estimated translation $\delta_{trans}$ and rotation $\delta_{rot}$ rela
   \end{algorithmic}
 \end{algorithm}
 
-The function \textit{\transfunc} in \autoref{alg:motion_update} corresponds to the transition function $f(x_{k-1}, u_{k})$ described in \gls{EKF} algorithm in \autoref{tab:ekf}. Then the related Jacobian matrix $F_t$ can be calculated by:
+The function \textit{\transfunc} in \autoref{alg:motion_update} corresponds to the transition function $f(x_{t-1}, u_{t})$ described in \gls{EKF} algorithm in \autoref{tab:ekf}. Then the related Jacobian matrix $F_t$ can be calculated by:
 \begin{equation}\label{eq:jacobianF} 
 F_t = 
 \begin{bmatrix}
