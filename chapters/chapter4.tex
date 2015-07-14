@@ -22,7 +22,7 @@ The choice of motion model and observation model is fundamental and crucial for 
   % Position the nodes using a matrix layout
   \matrix {
     \node[source] (motion) {Motion Module};
-      \& \node[source] (vision) {Vision Model};  \\
+      \& \node[source] (vision) {Vision Module};  \\
     \node[process] (motionUpdate) {Motion\\ Update}; 
     \&  \node[process] (sensorUpdate) {Sensor\\ Update}; \\
       \& \node[sink] (behavior) {Behavior Module}; \\
@@ -720,4 +720,5 @@ In practical implementation of the Kalman filter, the routine of one motion upda
   \end{bmatrix}
 \end{equation}
 The stochastically correct sensor update for $n$ detected landmarks is to execute a $2n$-dimensional measurement update. However, when the landmarks are stochastically independent of each other, the off-diagonal inter-landmarks entries of the $2n \times 2n$ measurement covariance are zero. Then a single $2n$-dimensional measurement update is approximated well by $n$ $2$-dimensional updates \cite{Tasse2013}. Although, the assumption of the observed landmarks are independent of each other is not completely true in \gls{SPL} game, in this thesis work, the sensor update is performed independently for each observed landmark. As a result, it sacrifices the localization accuracy as a trade-off to increase the computation efficiency.
+
 
