@@ -1,13 +1,9 @@
 \thispagestyle{empty}
+\hyphenation{Lo-ka-li-sie-rung}
+\hyphenation{klas-si-schen}
+\hyphenation{Kal-man}
 \chapter*{Zusammenfassung}
 
-Selbstlokalisierung ist ein entscheidender Bestandteil für autonome Roboter, insbesondere in der RoboCup
-\gls{SPL}. 
-Es ist die Voraussetzung für den Roboter zu erreichen, die verbleibende Entscheidungsaufgaben. 
-Kurz gesagt, zu wissen, wo es benötigt der Roboter in dem Spielfeld. 
-Die Herausforderung liegt im Bereich der Lokalisierung ist, dass Roboter begrenzte Informationen über die Außenwelt, um Sensorinformationen verschmelzen müssen sie seiner Lage zu schätzen. 
-Viele Lokalisierungsalgorithmen wurden in der Vergangenheit vorgeschlagen worden Jahren. Die meisten von ihnen sind Varianten, basierend auf Bayesian Theorien, die zwei weit verbreitete
-Algorithmen sind Partikelfilter und Multi-Modell-Kalman-Filter. Obwohl Partikelfilter
-sind robust, Multi-Modell-Kalman-Filtern übertrifft es in Bezug auf Genauigkeit. 
-In diesem Diplomarbeit, wird eine effiziente Lokalisierungsalgorithmus durch die Kombination der Essenz untersucht werden der Partikelfilter und das Kalman-Filter, um eine bessere Leistung für die Lokalisierung zu gewinnen und
-für NAO-Roboter im RoboCup SPL realisiert.
+Selbstlokalisierung ist unerl{\"a}sslich f{\"u}r autonome Roboter, insbesondere in der RoboCup Standard Platform League (SPL) spielt sie eine wichtige Rolle. Der Roboter muss seine Position auf dem Spielfeld kennen um Spielman{\"o}ver sinnvoll durchf{\"u}hren zu k{\"o}nnen, wie zum Beispiel einen Pass zu seinen 'Mitspielern', das Sch{\"u}tzen des Tores, das Planen von Wegen und so weiter. Die Aufgabe besteht nun haupts{\"a}chlich darin, die Position des Roboters anhand der Daten, welche seine Sensoren liefern, m{\"o}glichst genau zu sch{\"a}tzen. Jedoch nimmt der Roboter seine Umgebung zu gegebener Zeit nur teilweise wahr und in vielen F{\"a}llen reicht es nicht aus, allein die Position des Roboters zu kennen. Des weiteren muss der Roboter Orientierungspunkte auf dem Spielfeld erkennen k{\"o}nnen, welche in den meisten F{\"a}llen in uneindeutiger Weise vom Roboter wahrgenommen werden.
+
+In dieser Arbeit sollen zwei Lokalisierungsmethoden f{\"u}r den NAO-Roboter im RoboCup SPL untersucht und implementiert werden, namentlich die optimierungsbasierte Lokalisierung und die Multi-Hypothesen-Kalman-Filter Lokalisierung. Die optimierungsbasierte Lokalisierung unterscheidet sich vom klassischen Kalman-Filter in der Korrektur (measurement update), wobei die Position des Roboters durch iterative Minimierung des Messfehlers bez{\"u}glich der Feldlinienpunkte bestimmt wird. Andererseits beschreibt der Multi-Hypothesen-Kalman-Filter, stehen weitere Orientierungspunkte zur Verf{\"u}gung, eine multimodale Wahrscheinlichkeitsverteilung und kann dadurch einen gekidnappten Roboter schnell lokalisieren, dass er die Sensor-Resetting-Methode vom Partikelfilter mitverwendet. Zur gleichen Zeit erbt der Multi-Hypothesen-KalmanFilter vom klassischen Kalman-Filter die Eigenschaft, ein akkurater und effizienter Sch{\"a}tzer der Position zu sein. Die Vergleichswerte, welche in dieser Arbeit pr{\"a}sentiert werden, zeigen die klare {\"U}berlegenheit der Multi-Hypothesen-Kalman-Filter Lokalisierung gegen{\"u}ber der optimierungsbasierten Lokalisierung und der Partikelfilter Lokalisierung bez{\"u}glich Genauigkeit und Effizienz.
