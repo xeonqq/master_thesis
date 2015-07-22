@@ -9,10 +9,12 @@ For feature based multi-hypotheses Kalman filter localization, special character
 The multi-hypotheses Kalman filter localization is tested in the real game during Night of Science Frankfurt 2015 at Goethe University, and team DAInamite won one game out of three. During the game, the situation was more unpredictable and complex than the test environment, sometimes the robot could localize itself well, and sometimes not. Although the winning of a game depends on many factors, the localization has a significant influence on it. Therefore, the performance of the localization still have large space of improvement.  
 
 \section{Future Work\label{sec:future}}
-Future work will focus on improving the robustness of the localization. This can be accomplished by incorporating more landmark features like goal posts or lines which are perpendicular to each other, the lines do not have to be ``L'', ``T'', ``X'' junctions, but have the potential to form one.  
+Future work will focus on improving the robustness of the localization. This can be accomplished by incorporating more landmark features like goal posts or lines which are perpendicular to each other, the lines do not have to be ``L'', ``T'', ``X'' junctions, but have the potential to form one. On the other hand, the confidence of the robot position currently depends only on the unique landmarks. Methods which incorporate ambiguous landmarks like line landmarks or combine the states of multiple hypotheses can be investigated.
 
 Moreover, resampling step could be smarter. Currently the resampling is done by a single landmark which results in multiple possible robot positions. The resampling step can be improved by combining all the types of junctions observed to generate robot positions, which can significantly reduce the number of possible positions.
 %Virtual junction detection and update
+
+%The calculation of the position confidence currently depends only on unique landmarks, when the robot observes 
 
 Collaborative localization using ball information can also help enhance the result of localization. Since every robot which observes the ball has a belief of the ball's localization. By gathering the information of the ball, it can serve as a globally unique landmark which can help localization.
 

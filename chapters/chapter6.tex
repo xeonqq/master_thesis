@@ -35,6 +35,13 @@ In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robo
 	\label{fig:sslVision result}
 \end{figure}
 
+\noindent\textbf{Advantages of SSL-Vision}
+\begin{itemize}
+  \item Low-cost hardware for setting up SSL-Vision.
+  \item Open-source project with manual and support from community.
+  \item Able to achieve a position accuracy of better than 15 mm in RoboCup Small Size League \cite{ball2004global}.
+\end{itemize}
+
 
 \noindent\textbf{Disadvantages of SSL-Vision}
 \begin{itemize}
@@ -43,7 +50,7 @@ In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robo
   \item The system can not detect the pattern when the robot has fallen down.
 \end{itemize}
 
-\section{Logging Perception and Ground Truth}
+\section{Experiments Setup}
 \label{sub:Logging Perception and Ground Truth}
 For the purpose of debugging and benchmarks, the robot can store the perception as logs for future replay. The log contains the necessary data needed to re-run the localization algorithm on another computer. The log includes vision results, odometry, \gls{IMU}, sonar data, time stamp, robot posture, etc. In order to benchmark the quality of the localization algorithm result, the ground truth data has to be stored as well, and when the log is replayed, the ground truth data should be synchronized with the perception log. The solution for this is to store the broadcasted ground truth from SSL-Vision at the same of recording the perception, and consequently the ground truth becomes part of the perception log. The replayed perception log with ground truth is already illustrated in \autoref{fig:landmarkRobotFrame}, in which the ground truth position is indicated by red, calculated position in blue, mirrored calculated position in green.
 
@@ -71,7 +78,7 @@ For multi-hypotheses Kalman filter, the code pertaining to motion update and sen
 
 \section{Benchmarks}
 \label{sec:Benchmark}
-To benchmark the quality of localization algorithms, we use the same perception log with ground truth throughout this section as the input for the different algorithms. The log consists of 3476 perception frames and is recorded when the robot is initially placed at the side of the field and walks into the goalie position. In the end, the robot is kidnapped to a position near the center circle\footnote{The kidnapping happens at around frame 3200 of the log, where a robot position ``jump'' is illustrated by the ground truth trajectory in \autoref{fig:benchmarkParticle}}. The quality of the localization algorithm is judged by the following criteria: 
+To benchmark the quality of localization algorithms, we use the same perception log with ground truth throughout this section as the input for the different algorithms. The log consists of 3226 perception frames and is recorded when the robot is initially placed at the side of the field and walks into the goalie position. In the end, the robot is kidnapped to a position near the center circle\footnote{The kidnapping happens at around frame 2900 of the log, where a robot position ``jump'' is illustrated by the ground truth trajectory in \autoref{fig:benchmarkParticle}}. The quality of the localization algorithm is judged by the following criteria: 
 \begin{enumerate}
   \item Initial global localization.
   \item Accuracy of robot position tracking.
@@ -83,8 +90,8 @@ Three localization algorithms are compared, namely, particle filter, optimizatio
 
 \subsection{Accuracy}
 \label{sub:Accuracy}
-As illustrated in \autoref{fig:benchmarkParticle}, \autoref{fig:benchmarkRprop} and \autoref{fig:benchmarkKalman}, firstly, the resulting robot position trajectory for each algorithm is compared with the ground truth trajectory. In addition to trajectories, which only give a general impression of the quality of the corresponding localization method, the error is quantitatively measured for each dimension of the position $x$, $y$, $\theta$ respectively. 
-\autoref{fig:benchmarkParticle0},  \autoref{fig:benchmarkParticle1} and \autoref{fig:benchmarkParticle2} show the particle filter localization result at each time frame, as well as its corresponding error with the ground truth. Similarly for optimization based localization and multi-hypotheses Kalman filter localization,  the results and errors are shown in \autoref{fig:benchmarkRprop0},  \autoref{fig:benchmarkRprop1}, \autoref{fig:benchmarkRprop2} and \autoref{fig:benchmarkKalman0},  \autoref{fig:benchmarkKalman1}, \autoref{fig:benchmarkKalman2} respectively. The average error and error deviation for each localization algorithm is shown in \autoref{tab:statistics}.
+As illustrated in Figure \ref{fig:benchmarkParticle}, \ref{fig:benchmarkRprop} and \ref{fig:benchmarkKalman}, firstly, the resulting robot position trajectory for each algorithm is compared with the ground truth trajectory. In addition to trajectories, which only give a general impression of the quality of the corresponding localization method, the error is quantitatively measured for each dimension of the position $x$, $y$, $\theta$ respectively. 
+Figure \ref{fig:benchmarkParticle0}, \ref{fig:benchmarkParticle1} and \ref{fig:benchmarkParticle2} show the particle filter localization result at each time frame, as well as its corresponding error with the ground truth. Similarly for optimization based localization and multi-hypotheses Kalman filter localization,  the results and errors are shown in Figure \ref{fig:benchmarkRprop0}, \ref{fig:benchmarkRprop1}, \ref{fig:benchmarkRprop2} and Figure \ref{fig:benchmarkKalman0},  \ref{fig:benchmarkKalman1}, \ref{fig:benchmarkKalman2} respectively. The average error and standard deviation for each localization algorithm result are shown in \autoref{tab:statistics} and \ref{tab:statistics_std}. Average error and standard deviation are calculated for each dimension of the robot position $x, y, \theta$.
 
 
 %\autoref{fig:benchmarkKalman0},  \autoref{fig:benchmarkKalman1} and \autoref{fig:benchmarkKalman2} show the localization result from multi-hypotheses Kalman filter compared with ground truth in $x$, $y$, $\theta$ dimension respectively, as well as the corresponding error.
@@ -247,20 +254,39 @@ As illustrated in \autoref{fig:benchmarkParticle}, \autoref{fig:benchmarkRprop} 
  \label{fig:benchmarkKalman2}
 \end{figure}
 %%%%%%%%%%%%%Kalman%%%%%%%%%%%%%%%%%%%%%%%
-From \autoref{tab:statistics}, we can see that multi-hypotheses Kalman filter out-performs the other localization algorithms in term of accuracy. Optimization based localization tracks the robot position with high accuracy at the beginning, but diverges into a wrong localization when the robot get kidnapped, which results in its large average error in the end.
-By comparing \autoref{fig:benchmarkParticle} and \autoref{fig:benchmarkKalman}, another benefit of Kalman filter based localization is that the trajectory of the position is more smooth than the one from particle filter.
+From \autoref{tab:statistics} and \ref{tab:statistics_std}, we can see that multi-hypotheses Kalman filter out-performs the other localization algorithms in term of accuracy, but particle filter has less standard deviation in x and y dimension compared to multi-hypotheses Kalman filter. Optimization based localization tracks the robot position with high accuracy at the beginning, but diverges into a wrong localization when the robot get kidnapped, which results in its large average error in the end.
+By comparing \autoref{fig:benchmarkParticle} and \ref{fig:benchmarkKalman}, another benefit of Kalman filter based localization is that the trajectory of the position is more smooth than the one from particle filter.
 \begin{table}[h!]
   \centering
-  \caption{Accuracy comparison between different localization algorithms}
+  \caption{Accuracy comparison between different localization algorithm results}
   \label{tab:statistics}
   \begin{adjustbox}{max width=\textwidth}
-    \begin{tabular}{l|l|l|l|l|l|l|l|l}
-      Average error  \& deviation & x (\SI{}{\meter})                   &  deviation     & y  (\SI{}{\meter})                   & deviation        & $\theta$  (\SI{}{\radian})            &deviation    & total error         &deviation           \\
-      &                     & x (\SI{}{\meter})&                     &  y (\SI{}{\meter})&                     &  $\theta$ (\SI{}{\radian}) &                     & total error\\ \hline
-      %Particle Filter                & 0.278 & 0.349 & 0.302 & 0.305 & 0.326 & 0.384 & 0.445 & 0.430   \\ \hline
-      Particle filter                & 0.454& 0.576 & 0.403 & 0.543 & 0.351 & 0.432 & 0.662 & 0.747   \\ \hline
-      Optimization based            & 0.367 & 0.327 & 0.505 & 0.908 & 0.569 & 0.778 & 0.683 & 0.925   \\ \hline
-      Multi-hypotheses Kalman filter & 0.316 & 0.393 & 0.246 & 0.389 & 0.211 & 0.239 & 0.426 & 0.534  
+    \begin{tabular}{l|l|l|l}
+      Average error  & $x$ (\SI{}{\meter})                       & $y$  (\SI{}{\meter})                         & $\theta$  (\SI{}{\radian})           \\\hline
+ %   & distance  (\SI{}{\meter})                   \\\hline
+      Particle filter                & 0.363  & 0.323 & 0.296 \\ \hline
+ %& 0.543    \\ \hline
+      Optimization based             & 0.366  & 0.534 & 0.604   \\ \hline
+%& 0.704    \\ \hline
+      Multi-hypotheses Kalman filter & 0.331  & 0.255 & 0.225  %& 0.444   
+    \end{tabular}
+  \end{adjustbox}
+\end{table}
+
+\begin{table}[h!]
+  \centering
+  \caption{Standard deviation comparison between different localization algorithm results}
+  \label{tab:statistics_std}
+  \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{l|l|l|l}
+      Standard deviation                 &   $x$ (\SI{}{\meter})                   &   $y$ (\SI{}{\meter})      & $\theta$  (\SI{}{\radian})         \\\hline
+             %& distance  (\SI{}{\meter})            \\\hline
+      Particle filter                & 0.371  & 0.372  & 0.326 \\ \hline
+ %& 0.465   \\ \hline
+      Optimization based             & 0.338 & 0.936 & 0.796  \\ \hline
+  %&0.956   \\ \hline
+      Multi-hypotheses Kalman filter  & 0.404 & 0.402  & 0.243  
+ %& 0.550  
     \end{tabular}
   \end{adjustbox}
 \end{table}
@@ -268,7 +294,7 @@ By comparing \autoref{fig:benchmarkParticle} and \autoref{fig:benchmarkKalman}, 
 \subsection{Functionality}
 \label{sub:Functionality}
 
-From the illustrations of the localization trajectory in \autoref{fig:benchmarkParticle}, \autoref{fig:benchmarkRprop} and \autoref{fig:benchmarkKalman}, all the three localization algorithms solve the initial global localization problem and tracks the robot position after global localization. 
+From the illustrations of the localization trajectory in \autoref{fig:benchmarkParticle}, \ref{fig:benchmarkRprop} and \ref{fig:benchmarkKalman}, all the three localization algorithms solve the initial global localization problem and tracks the robot position after global localization. 
 
 Concerning the ability to recover from kidnapped situation, from the three approaches, only multi-hypotheses Kalman filter localization recovered the robot position at the end of the log. That is because the robot observed an ``X'' junction near the center circle, and resampling is triggered to recover the robot position. However, ``X'', ``T'' junction detection and resampling is only used in multi-hypotheses Kalman filter localization algorithm, not in particle filter and optimization based localization, therefore the other algorithm can not recover in this case. Particle filter localization is also capable to do resampling when ``L'' junction, penalty area or center circle are seen.
 

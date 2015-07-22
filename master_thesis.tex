@@ -73,6 +73,15 @@
 \newacronym{GPU}{GPU}{Graphics Processing Unit}
 \newacronym{CPU}{CPU}{Central Processing Unit}
 
+\renewcommand*{\figureformat}{%
+  \figurename~\thefigure%
+%  \autodot% DELETED
+}
+\renewcommand*{\tableformat}{%
+  \tablename~\thetable%
+%  \autodot% DELETED
+}
+
 
 \newcommand{\etal}{\textit{et al}.}
 \newcommand{\ie}{\textit{i}.\textit{e}.}
@@ -121,10 +130,10 @@
 \thispagestyle{empty}
 
 \listoffigures
-\thispagestyle{empty}
+%\thispagestyle{empty}
 
 \listoftables
-\thispagestyle{empty}
+%\thispagestyle{empty}
 
 \printglossaries
 %\listoftables

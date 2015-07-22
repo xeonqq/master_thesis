@@ -9,7 +9,7 @@ As illustrated in subsection \ref{sub:mmkalman}, each normal probability distrib
 In this thesis, a voting buffer is used to measure the weight of each model. The voting buffer is constructed by a \gls{FIFO} circular buffer of size $60$. The basic idea is to vote $1$ to the buffer when the observed landmark is matched, and $0$ when not matched. The matching of landmark correspondence is using the nearest neighbor algorithm with threshold discussed in subsection \ref{subsub:landmarkco}. 
 The advantage of using a circular buffer is that, after $60$ observed landmarks, regardless matched or not, the old voting in the buffer will be flushed and will not be counted. In other words, it tries to approximate the current robot state by keeping the memory of the most recent history. The model weight is determined by the average value of the voting buffer. Therefore, the more matches with landmarks the Kalman model makes, the higher weight it will have. 
 
-Unlike the implementation of particle filter that the total number of particles are fixed, in multi-hypothesis Kalman filters, the number of hypothesis model is dynamic. The adjustment made here is that the weights of all the Gaussian models do not add up to 1, instead they each behave independently. So the weights of the existing hypothesis models will not be affected by the newly generated ones.
+Unlike the implementation of particle filter that the total number of particles are fixed, in multi-hypothesis Kalman filters, the number of hypothesis model is dynamic. The adjustment made here is that the weights of all the Gaussian models do not add up to 1, instead they behave independently. So the weights of the existing hypothesis models will not be affected by the newly generated ones.
 
 As discussed in subsection \ref{subsub:landmarkco}, some landmarks are unique landmarks, \ie{} center circle, and some are ambiguous landmarks, \ie{} junctions and lines. To depict the quality of the robot localization state, the vote should depend only on the globally unique landmarks instead of ambiguous landmarks. Assume a scenario, where the robot is not moving and constantly observing a ``T'' junction, and the ``T'' junction is perfectly matched with its nearest neighbor in the field. In this case, the state of the robot position is local optimal. The weight of the model will keep increasing and reach 1, but this weight is not truly describing the quality of localization state in global. 
 
@@ -150,7 +150,7 @@ While the resampling step generates hypothesis models into the Gaussian sum dist
 \label{sub:Pruning by Weight}
 When the weight of hypothesis model is lower than a certain threshold, this model is considered to have little contribution to the distribution, so that it can be removed. Moreover, the maximum number of models is limited to a number $N$ set by the localization algorithm. Once the maximum number of models is exceeded, the models are sorted by weight from high to low in a list. Only first $N$ models in the list will remain, the others will be deleted. In this thesis, the maximum number of models is set to be 16.
 
-\subsection[Pruning by Mahalanobis Distance]{Pruning by Mahalanobis Distance \cite{de2000mahalanobis}}
+\subsection[Merging by Mahalanobis Distance]{Pruning by Mahalanobis Distance }
 \label{sub:Prunning Mahalanobis Distance}
 When the hypothesis models are close enough to each other, in other words, they represent almost the same probability distribution, they could also be merged into one. One way is to apply Euclidean distance directly between the mean of the models to calculate the distance as shown in \autoref{eq:euclidean}. $\mu_1$ and $\mu_2$ represent the mean of two different Gaussian distributions.
 
@@ -158,7 +158,7 @@ When the hypothesis models are close enough to each other, in other words, they 
 \label{eq:euclidean}
 D_{euclidean} = \sqrt{(\mu_1 - \mu_2)^T(\mu_1 - \mu_2)}= \sqrt{(x_{1}-x_{2})^2 + (y_{1}-y_{2})^2 + (\theta_{1}-\theta_{2})^2}
 \end{equation}
-However, the drawback of using Euclidean distance is that the covariance information of the distribution is not utilized. In this thesis, an adapted version of Mahalanobis distance is proposed to measure the distance between two hypothesis models. Mahalanobis distance is defined as follows in \autoref{eq:mahalanobis} \cite{de2000mahalanobis}, which uses covariance as one factor to calculate the distance. In \autoref{eq:mahalanobis}, $x$ is the observation, $\mu$ is the mean of the distribution and $S$ is the covariance matrix.
+However, the drawback of using Euclidean distance is that the covariance information of the distribution is not utilized. In this thesis, an adapted version of Mahalanobis distance  is proposed to measure the distance between two hypothesis models. Mahalanobis distance is defined as follows in \autoref{eq:mahalanobis} \cite{de2000mahalanobis}, which uses covariance as one factor to calculate the distance. In \autoref{eq:mahalanobis}, $x$ is the observation, $\mu$ is the mean of the distribution and $S$ is the covariance matrix.
 \begin{equation}
 \label{eq:mahalanobis}
 D_M(x) = \sqrt{(x - \mu)^T S^{-1} (x-\mu)}
@@ -197,5 +197,5 @@ To prune hypothesis models, the Mahalanobis distance is calculated between each 
 \subsection{Pruning by Distance to Best Model}
 \label{sub:Pruning by Distance to Best Model}
 
-As we discussed in \autoref{sec:robotpose}, the model whichever is the ``best'' is chosen to represent the robot position. To further prune hypothesis models, the models which are very close to the ``best'' model are also removed. This distance is measured simply by Euclidean distance and the threshold is set to be a small value \SI{2}{\cm}.
+As we discussed in \autoref{sec:robotpose}, the model whichever is the ``best'' is chosen to represent the robot position. To further prune hypothesis models, the models which are very close to the ``best'' model are also removed. This distance is measured by Euclidean distance and the threshold is set to be a small value \SI{2}{\cm}. It means the error of maximum \SI{2}{\cm} in robot position is tolerated by the localization algorithm.
 

@@ -1,0 +1,107 @@
+\begin{thebibliography}{10}
+
+\bibitem{NAOBody}
+{\em Nao body version and type.}
+\newblock Available at
+  \url{http://doc.aldebaran.com/2-1/family/body_type.html#nao-version-bodytype}.
+
+\bibitem{Committee2013}
+R.~T. Committee, ``{RoboCup Standard Platform League ( NAO ) Rule Book},''
+  pp.~1--29, 2013.
+
+\bibitem{dellaert1999monte}
+F.~Dellaert, D.~Fox, W.~Burgard, and S.~Thrun, ``Monte carlo localization for
+  mobile robots,'' in {\em Robotics and Automation, 1999. Proceedings. 1999
+  IEEE International Conference on}, vol.~2, pp.~1322--1328, IEEE, 1999.
+
+\bibitem{kalman1960new}
+R.~E. Kalman, ``A new approach to linear filtering and prediction problems,''
+  {\em Journal of Fluids Engineering}, vol.~82, no.~1, pp.~35--45, 1960.
+
+\bibitem{julier1997new}
+S.~J. Julier and J.~K. Uhlmann, ``New extension of the kalman filter to
+  nonlinear systems,'' in {\em AeroSense'97}, pp.~182--193, International
+  Society for Optics and Photonics, 1997.
+
+\bibitem{van2001square}
+R.~Van Der~Merwe and E.~A. Wan, ``The square-root unscented kalman filter for
+  state and parameter-estimation,'' in {\em Acoustics, Speech, and Signal
+  Processing, 2001. Proceedings.(ICASSP'01). 2001 IEEE International Conference
+  on}, vol.~6, pp.~3461--3464, IEEE, 2001.
+
+\bibitem{Wan2000}
+E.~a. Wan and R.~{Van Der Merwe}, ``{The unscented Kalman filter for nonlinear
+  estimation},'' {\em Technology}, vol.~v, pp.~153--158, 2000.
+
+\bibitem{alspach1972nonlinear}
+D.~L. Alspach and H.~W. Sorenson, ``Nonlinear bayesian estimation using
+  gaussian sum approximations,'' {\em Automatic Control, IEEE Transactions on},
+  vol.~17, no.~4, pp.~439--448, 1972.
+
+\bibitem{Quinlan2010}
+M.~J. Quinlan and R.~H. Middleton, ``{Multiple model Kalman filters: A
+  localization technique for RoboCup soccer},'' {\em Lecture Notes in Computer
+  Science (including subseries Lecture Notes in Artificial Intelligence and
+  Lecture Notes in Bioinformatics)}, vol.~5949 LNAI, pp.~276--287, 2010.
+
+\bibitem{Jochmann2012}
+G.~Jochmann, S.~Kerner, S.~Tasse, and O.~Urbann, ``{Efficient multi-hypotheses
+  unscented kalman filtering for robust localization},'' {\em Lecture Notes in
+  Computer Science (including subseries Lecture Notes in Artificial
+  Intelligence and Lecture Notes in Bioinformatics)}, vol.~7416 LNCS,
+  pp.~222--233, 2012.
+
+\bibitem{Gohring2009}
+D.~Gohring, H.~Mellmann, and H.-D. Burkhard, ``{Constraint based world modeling
+  in mobile robotics},'' {\em 2009 IEEE International Conference on Robotics
+  and Automation}, 2009.
+
+\bibitem{Lauer2006}
+M.~Lauer, S.~Lange, M.~Riedmiller, and M.~R. {Martin Lauer, Sascha Lange},
+  ``{Calculating the perfect match: an efficient and accurate approach for
+  robot self-localization},'' {\em Robocup 2005: Robot soccer world cup
+  \ldots}, vol.~4020, no.~c, pp.~142--153, 2006.
+
+\bibitem{thrun2005probabilistic}
+S.~Thrun, W.~Burgard, and D.~Fox, {\em Probabilistic robotics}.
+\newblock MIT press, 2005.
+
+\bibitem{Riedmiller1993}
+M.~Riedmiller and H.~Braun, ``{A direct adaptive method for faster
+  backpropagation learning: the RPROP algorithm},'' {\em IEEE International
+  Conference on Neural Networks}, 1993.
+
+\bibitem{Tasse2013}
+S.~Tasse, M.~Hofmann, and O.~Urbann, ``{On Sensor Model Design Choices for
+  Humanoid Robot Localization},'' {\em RoboCup 2012: Robot Soccer World Cup
+  XVI}, pp.~380--390, 2013.
+
+\bibitem{Bhuman}
+{\em The official 2014 B-Human code release.}
+\newblock Available at \url{https://github.com/bhuman/BHumanCodeRelease.git}.
+
+\bibitem{Bentley1975}
+J.~L. Bentley, ``{Multidimensional binary search trees used for associative
+  searching},'' {\em Communications of the ACM}, vol.~18, no.~9, pp.~509--517,
+  1975.
+
+\bibitem{de2000mahalanobis}
+R.~De~Maesschalck, D.~Jouan-Rimbaud, and D.~L. Massart, ``The mahalanobis
+  distance,'' {\em Chemometrics and intelligent laboratory systems}, vol.~50,
+  no.~1, pp.~1--18, 2000.
+
+\bibitem{zickler2010ssl}
+S.~Zickler, T.~Laue, O.~Birbach, M.~Wongphati, and M.~Veloso, ``Ssl-vision: The
+  shared vision system for the robocup small size league,'' in {\em RoboCup
+  2009: Robot Soccer World Cup XIII}, pp.~425--436, Springer, 2010.
+
+\bibitem{sslvision_yuan}
+{\em SSL-Vision modified for Standed Platfrom league}.
+\newblock Available at \url{https://github.com/xuyuan/ssl-vision}.
+
+\bibitem{ball2004global}
+D.~Ball, G.~Wyeth, and S.~Nuske, ``A global vision system for a robot soccer
+  team,'' in {\em 2004 Australasian Conference on Robotics and Automation},
+  Australian Robotics and Automation Association Inc, 2004.
+
+\end{thebibliography}
