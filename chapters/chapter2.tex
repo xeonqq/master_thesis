@@ -55,12 +55,12 @@ Particle filter, also known as \gls{MCL}, is the localization algorithm that is 
 \subsubsection{Kalman Filter}\label{sub:kalman}
 Kalman filter was invented by Swerling (1958) and Kalman (1960) as a technique for filtering and prediction in linear Gaussian systems. In Kalman filter, it assumes the belief of a state conforms to a Gaussian distribution.
 
-A Gaussian distribution for random a single variable x has the form in \autoref{eq:gaus}.
+A Gaussian distribution for a single random variable $x$ has the form in \autoref{eq:gaus}.
 \begin{equation}
 \label{eq:gaus}
 f(x, \mu, \sigma) = \frac{1}{{\sigma \sqrt {2\pi } }}e^{{{ - \left( {x - \mu } \right)^2 } \mathord{\left/ {\vphantom {{ - \left( {x - \mu } \right)^2 } {2\sigma ^2 }}} \right. \kern-\nulldelimiterspace} {2\sigma ^2 }}}
 \end{equation}
-The parameter $\mu$ in this definition is the mean or expectation of the distribution. The parameter $\sigma$ is its standard deviation; its variance is therefore $\sigma ^2$. The larger the variance, the wider the distribution spreads. However, in the problem domain of the robot localization, the state of the robot is a vector with three variables 2D coordinate and orientation. To represent a multivariate Gaussian distribution, the following definition is used:
+The parameter $\mu$ in this definition is the mean or expectation of the distribution. The parameter $\sigma$ is its standard deviation; its variance is therefore $\sigma ^2$. The larger the variance is, the wider the distribution spreads. However, in the problem domain of the robot localization, the state of the robot is a vector with three variables: 2D coordinate and orientation. To represent a multivariate Gaussian distribution, the following definition is used:
 \begin{equation}
 \label{eq:}
 f_{x}(x_1,\ldots, x_k) = \frac{1}{\sigma \sqrt {(2\pi)^k|P|}}exp(-\frac{1}{2}(x-\mu)^TP^{-1}(x-\mu))
@@ -84,7 +84,7 @@ Where
 \label{eq:Q}
 w_t \sim N(0,Q_t)
 \end{equation}
-At time $t$ an observation (or measurement) $z_t$ of the true state $x_t$ is made according to \autoref{eq:stateobser}.
+At time $t$, an observation (or measurement) $z_t$ of the true state $x_t$ is made according to \autoref{eq:stateobser}.
 \begin{equation}
 \label{eq:stateobser}
 z_t = H_tx_t + v_t
@@ -104,7 +104,7 @@ Since Kalman filter is a variant of Bayes filter, it follows the prediction-corr
 Predicted (a priori) state estimate & $\hat{x}_{t\mid t-1} = F_{t}\hat{x}_{t-1\mid t-1} + B_{t} u_{t}$ \\
 Predicted (a priori) covariance estimate & $P_{t\mid t-1} =  F_{t} P_{t-1\mid t-1} F_{t}^{\text{T}} + Q_{t}$\\
 &\\
-\textit{Measurement Update} & \\
+\textit{Measurement Update (correction)} & \\
 Innovation or measurement residual & $\tilde{y}_t = z_t - H_t\hat{x}_{t\mid t-1}$ \\
 Innovation (or residual) covariance & $S_t = H_t P_{t\mid t-1} H_t^\text{T} + R_t$ \\
 Optimal Kalman gain & $K_t = P_{t\mid t-1}H_t^\text{T}S_t^{-1}$ \\
@@ -125,11 +125,11 @@ Updated (a posteriori) covariance estimate & $P_{t|t} = (I - K_t H_t) P_{t|t-1}$
 \noindent\textbf{Disadvantages}
 \begin{itemize}
   \item  Kalman filter works well only with linear system dynamics. In the SPL, neither the motion model nor the observation model of the robot is linear, thus the state transition equation defined above cannot be straightforwardly used. Other techniques to deal with non-linearity proposed in \gls{EKF} and \gls{UKF} need to be applied.
-  \item  Kalman filter works with uni-modal probability distribution, in other words, uni-modal means there is only a single highest value in the probability distribution under consideration. However, due to the ambiguity of the vision data input, there could be multiple locations which are the potential candidates. In this case, the probability distribution is multi-modal.
+  \item  Kalman filter works with uni-modal probability distribution, in other words, uni-modal means there is only one peak in the probability distribution under consideration. However, due to the ambiguity of the vision data input, there could be multiple locations which are the potential candidates. In this case, the probability distribution is multi-modal.
 \end{itemize}
 
 \subsubsection{Kalman Filter Variants}
-In our robot system, the sensor model and motion model for robot localization are not linear, thus the Kalman filter is not able to tackle. In order to deal with nonlinearity, Kalman filter variants like \gls{EKF} and \gls{UKF} are formulated. \gls{EKF} adapted the technique from Talyor series expansion to linearize the model at the point of its prior mean, and can capture the posterior mean and covariance accurately to the first order from the nonlinearity. On the other hand, \gls{UKF} approximates a guassian distribution by generating $2L+1$ number of sigma points ($L$ is the dimension of the state). By applying transformation on each sigma point and calculate the mean and covariance based on the sigma points, it is proposed in \cite{Wan2000} that a higher estimation accuracy than \gls{EKF} can be obtained. In this thesis, considering the efficiency in calculation of using \gls{EKF}, the localization algorithm based on \gls{EKF} will be developed.
+In our robot system, the sensor model and motion model for robot localization are not linear, thus the Kalman filter is not able to tackle. In order to deal with nonlinearity, Kalman filter variants like \gls{EKF} and \gls{UKF} are formulated. \gls{EKF} adapted the technique from Talyor series expansion to linearize the model at the point of its prior mean, and can capture the posterior mean and covariance accurately to the first order from the nonlinearity. On the other hand, \gls{UKF} approximates a guassian distribution by generating $2L+1$ number of sigma points ($L$ is the dimension of the state). By applying transformation on each sigma point and calculating the mean and covariance based on the sigma points, it is proposed in \cite{Wan2000} that a higher estimation accuracy than \gls{EKF} can be obtained. In this thesis, considering the efficiency in calculation of using \gls{EKF}, the localization algorithm based on \gls{EKF} will be developed.
 
 \gls{EKF} requires the state transition and observation models not to be linear functions of the state but instead differentiable. So the state transition and observation can be expressed as follows: 
 \begin{equation}
@@ -150,7 +150,7 @@ The full \gls{EKF} algorithm is described in \autoref{tab:ekf}.
 Predicted state estimate & $\hat{x}_{t|t-1} = f(\hat{x}_{t-1|t-1}, u_{t})$ \\
 Predicted covariance estimate & $P_{t|t-1} =  {{F_{t}}} P_{t-1|t-1}{ {F_{t}^\top}} + Q_{t}$ \\
 &\\
-\textit{Measurement Update} & \\
+\textit{Measurement Update (correction)} & \\
 Innovation or measurement residual & $\tilde{y}_{t} = z_{t} - h(\hat{x}_{t|t-1})$ \\
 Innovation (or residual) covariance & $S_{t} = {{H_{t}}}P_{t|t-1}{{H_{t}^\top}} + R_{t}$ \\
 Near-optimal Kalman gain & $K_{t} = P_{t|t-1}{{H_{t}^\top}}S_{t}^{-1}$ \\
@@ -196,12 +196,12 @@ During the measurement update, the weight $\alpha_i$ is updated using the method
 \alpha_{i}(x) = \nu\alpha_i'\frac{1}{\sigma \sqrt {(2\pi)^k|P_\eta|}}exp(-\frac{1}{2}\eta^{-1}P_\eta^{-1}\eta)
 \end{equation}
 
-Where $\eta = (z_t - z\widehat{}_i)$indicate the $m$-dimensional innovation vector between the measured observation $z_t$ and the expected observation $z\widehat{}_i$ for the fixed correspondence according the $i$'th model. $P_\eta$ is the sum of the measurement and the prediction covariance, and $\nu$ is a normalization factor.
+Where $\eta = (z_t - z\widehat{}_i)$ indicate the $m$-dimensional innovation vector between the measured observation $z_t$ and the expected observation $z\widehat{}_i$ for the fixed correspondence according the $i$'th model. $P_\eta$ is the sum of the measurement and the prediction covariance, and $\nu$ is a normalization factor.
 
-There exists two situations to be considered for measurement update for multi-model Kalman filter. One is when the observation is unambiguous, which means when goal post or unique land marks have been detected, so only one approximation of the robot state will be generated from the vision. In this case, the measurement update will be applied on each Gaussian term and result in the same number of terms as before. Another case is when the vision measurement is ambiguous, for example, it generates more than one approximations of the robot state from the vision, because the landmarks are not unique or cannot provide enough information. In this case, supposing initially the system has $M$ Gaussian models, and the robot observes a landmark which has $N$ occurrence in the field, then the models will be split into $M \times N$ Gaussian models after update. With ambiguous measurement update, the terms of Gaussian are increasing multiplicatively. Model merge equations and decisions has been proposed in \cite{Quinlan2010}, in which several Gaussian models are merged into one if some metrics are met. In \cite{Jochmann2012}, for efficiency, the author only takes the Gaussian models with maximum likelihood, and compensates the information which is lost when models are pruned by introducing filter resetting technique to reproduce the missing models, which is an ingredient taken from particle filter theory.
+There exists two situations to be considered for measurement update for multi-model Kalman filter. One is when the observation is unambiguous, which means when goal post or unique land marks have been detected, so only one approximation of the robot state will be generated from the vision. In this case, the measurement update will be applied on each Gaussian term and result in the same number of terms as before. Another case is when the vision measurement is ambiguous, for example, it generates more than one approximations of the robot state from the vision, because the landmarks are not unique or cannot provide enough information. In this case, supposing initially the system has $M$ Gaussian models, and the robot observes a landmark which has $N$ occurrences in the field, then the models will be split into $M \times N$ Gaussian models after update. With ambiguous measurement update, the terms of Gaussian are increasing multiplicatively. Model merge equations and decisions has been proposed in \cite{Quinlan2010}, in which several Gaussian models are merged into one if certain metrics are met. In \cite{Jochmann2012}, for efficiency, the author only takes the Gaussian models with maximum likelihood, and compensates the information which is lost when models are pruned by introducing filter resetting technique to reproduce the missing models, which is an ingredient taken from particle filter theory.
 
 \section{State of the Art of Robot Localization in RoboCup}\label{sec:2.2}
-Most localization algorithms applied in RoboCup \gls{SPL} falls into the class of either particle filter or Kalman filter based localization. Quinlan and Middleton from Team RoboEireann use multiple model Kalman filters for robot localization \cite{Quinlan2010}. They split the Gaussian model when ambiguous measurement happens to cover the multi-modal hypothesis distribution. The problem of this strategy is that the multiplicatively increasing number of Kalman models during model split, therefore a model merge step is proposed to combine the models. Team NaoDevil also developed their localization using a multi-hypothesis \gls{UKF}. However, instead of model splitting, they adopt sensor resetting technique which is commonly used in particle filter \cite{Jochmann2012}. It argues that the  pruning technique in \cite{Quinlan2010} will delete temporarily low possibility Gaussian model which may become more probable in the long term.
+Most localization algorithms applied in RoboCup \gls{SPL} falls into the class of either particle filter or Kalman filter based localization. Quinlan and Middleton from Team RoboEireann use multiple model Kalman filters for robot localization \cite{Quinlan2010}. They split the Gaussian model when ambiguous measurement happens to cover the multi-modal hypothesis distribution. The problem of this strategy is the multiplicatively increasing number of Kalman models during model split, therefore a model merge step is proposed to combine the models. Team NaoDevil also developed their localization using a multi-hypothesis \gls{UKF}. However, instead of model splitting, they adopt sensor resetting technique which is commonly used in particle filter \cite{Jochmann2012}. It argues that the  pruning technique in \cite{Quinlan2010} will delete temporarily low possibility Gaussian model which may become more probable in the long term.
 
 However, particle filter or Kalman filter is not the only solution for localization, team Berlin United also proposed a constraint based world modeling for localization \cite{Gohring2009} to overcome the reduction of landmarks such as beacons or colored goals in RoboCup. They build robot position constrains using the geometry property of the lines in the field. In midsize league, a localization method based on optimization approach \cite{Lauer2006} is proposed, it tries to calculate the perfect match of the vision with the field.
 
@@ -219,7 +219,7 @@ The time-critical components for motion, and vision are implemented in \cpp{}. T
 \end{figure}
 
 \section{Vision Perception}\label{sec:vision}
-As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent module. In reality, localization is running as a separate thread at \unit[30]{Hz}. Localization module will be able to get odometry information from motion module and vision perception result from vision module. To reduce the computation burden, the raw images being processed from the cameras are of resolution $640 \times 480$. From the images, the vision module extracts features such as field lines, field border, orange balls, yellow goals as shown in \autoref{fig:perception}. The localization module is concerned only with the features from the vision result instead of the raw image.
+As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent module. In reality, localization is running as a separate thread at \unit[30]{Hz}. Localization module will be able to get odometry information from motion module and vision results from vision module. To reduce the computation burden, the raw images being processed from the cameras are of resolution $640 \times 480$. From the images, the vision module extracts features such as field lines, field border, orange balls, yellow goals as shown in \autoref{fig:perception}. The localization module is concerned only with the features from the vision results instead of the raw image.
 
 \begin{figure}[h!]
   \centering
@@ -230,7 +230,7 @@ As seen in \autoref{fig:architecture}, localization is one sub-module of pyagent
 
 The detected lines result from both sides of the white field line, and each detected line is a vector with direction. For example, the line with number 11 in \autoref{fig:perception} is a vector with its start point indicated by blue and end point indicated by white. Along the direction of the line vector, the right side of it is always the white line.
 
-Among most of the localization methods used in \gls{SPL} game, the vision results are first transformed from image plane to camera frame, and then projected from the camera frame into the robot local frame in order to do further processing. In the team DAInamite, the camera frame and robot local frame are defined as illustrated in \autoref{fig:cameramatrix}, where the camera frame has its origin at the place of the camera, and the robot local frame is defined by torso projection on the ground. The camera matrix defines the location and orientation of the camera frame relative to robot local frame.
+Among most of the localization methods used in \gls{SPL} game, the vision results are first transformed from image plane to camera frame, and then projected from the camera frame into the robot local frame in order to do further processing. In the team DAInamite, the camera frame and robot local frame are defined as illustrated in \autoref{fig:cameramatrix}, where the camera frame has its origin at the place of the camera, and the robot local frame is defined by torso projection on the ground. The camera matrix defines the location and orientation of the camera frame relative to the robot local frame.
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.8\textwidth]{camera-matrix.png}

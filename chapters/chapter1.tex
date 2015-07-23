@@ -65,14 +65,14 @@ The two cameras are placed on the face, each camera can capture image of resolut
 
 The robot runs a Gentoo version of Linux and the mother board resides in the head of the robot. The specification of the mother board is:
 \begin{itemize}
-  \item ATOM Z530 1.6 GHz CPU \footnote{It is a single core processor, with Intel Hyper-Threading technology}
+  \item ATOM Z530 1.6 GHz CPU \footnote{It is a single core processor, with Intel Hyper-Threading technology.}
   \item 1 GB RAM
   \item 2 GB Flash memory
 \item 8 GB Micro SDHC
 \end{itemize}
 
 \subsection[Standard Platform League Field]{\gls{SPL} Field}
-Every year the rules of the \gls{SPL} are modified on the basis of the old ones to make them closer to the rules of real soccer game and at the same time increase the difficulty levels of the game. Significant changes include the field size being enlarged from $6m \times 4m$ to $9m \times 6m$ in 2013, and the color of goal posts become white instead of yellow in 2015. The schematic diagram of the soccer field and corresponding dimensions is depicted in \autoref{tab:field}.
+Every year the rules of the \gls{SPL} are modified on the basis of the old ones to make them closer to the rules of real soccer game and at the same time increase the difficulty levels of the game. Significant changes include the field size being enlarged from $6m \times 4m$ to $9m \times 6m$ in 2013, and the color of goal posts become white instead of yellow in 2015. The schematic diagram of the soccer field and corresponding dimensions are depicted in \autoref{tab:field}.
 
 \begin{table}[h]
 \begin{adjustbox}{max width=\textwidth}
@@ -86,7 +86,7 @@ Every year the rules of the \gls{SPL} are modified on the basis of the old ones 
 \multicolumn{1}{|l|}{}   & \multicolumn{1}{l|}{}                  & \multicolumn{1}{l|}{}               & \multicolumn{1}{l|}{} & \multicolumn{1}{l|}{I}  & \multicolumn{1}{l|}{Border strip width}     & \multicolumn{1}{l|}{700}           
 \end{tabular}
 \end{adjustbox}
-\caption[Schematic diagram of the soccer field]{Schematic diagram of the soccer field (not to scale) and corresponding dimensions in
+\caption[Schematic diagram of the soccer field.]{Schematic diagram of the soccer field (not to scale) and corresponding dimensions in
   mm. Note that measurements on this diagram are made to the center of lines. \cite{Committee2013}}
 \label{tab:field}
 \end{table}
@@ -126,7 +126,7 @@ where ($x_{r}(t)$, $y_{r}(t)$) denote the Cartesian coordinates and $\theta_{r}(
       \node[above, text width = 2cm, align=center] at (T) {opponent's goal};
     \end{scope}
   \end{tikzpicture}
-  \caption{The defined coordinate system of physical world frame}
+  \caption{The defined coordinate system of physical world frame.}
   \label{fig:worldframe}
 \end{figure}
 
@@ -140,7 +140,7 @@ For robots in \gls{SPL}, the localization is intended to achieve the following t
 \end{itemize}
 As stated in \autoref{sec:moti}, the environment the robot resides in is inherently unpredictable, the sensors are limited in what they can perceive, the joint motors are also to some extent unpredictable. Hence, a probabilistic representation is used to describe the uncertainty of the robot's location, the probability distribution over the state $x(t)$ is called belief, written as $Bel(x_{t})$.
 
-In order to estimate the state $x(t)$ and the belief $Bel(x_{t})$, localization algorithm takes the detected objects from vision in the field as one of the inputs. The DAInamite's vision module can detect yellow goal post, center circle, penalty area, lines in the field and boundary of the field, and by projecting the landmarks from the image frame to the robot's local frame, distances to the robot can be estimated. Furthermore, the odometry information is also fed into the localization algorithm. The odometry of the robot is obtained from the motion module by calculating the body kinematics, given that the robot has at least one foot placed on the ground.
+In order to estimate the state $x(t)$ and the belief $Bel(x_{t})$, the localization algorithm takes the detected objects from vision in the field as one of the inputs. The DAInamite's vision module can detect yellow goal post, center circle, penalty area, lines in the field and boundary of the field, and by projecting the landmarks from the image frame to the robot's local frame, distances to the robot can be estimated. Furthermore, the odometry information is also fed into the localization algorithm. The odometry of the robot is obtained from the motion module by calculating the body kinematics, given that the robot has at least one foot placed on the ground.
 \section{Thesis Outline\label{sec:outline}}
 
 The rest of the thesis is structured as follows:

@@ -3,7 +3,10 @@ In this thesis, two localization algorithms are implemented, namely optimization
 %based on the two sensor models discussed in \autoref{sec:sensor update}
 In this chapter, the two localization algorithms will be analyzed and benchmarked along with the particle filter localization algorithm from team DAInamite.
 
-\section{Ground Truth}\label{sub:ground truth}
+
+\section{Experiments Setup}
+\label{sub:Logging Perception and Ground Truth}
+\subsection{Ground Truth}\label{sub:ground truth}
 To assess the quality of the localization algorithm, the true position of the robot needed to be obtained in order to do the comparisons and benchmarks with the position calculated by the algorithm. The true position of the robot or the so called \textit{ground truth} can not be obtained from the robot itself, since it does not have built in \gls{GPS} or other position tracking sensors. Moreover, the accuracy within centimeters is required for this purpose. 
 
 The approach adopted in this thesis is SSL-Vision \cite{zickler2010ssl}, the vision system used in RoboCup Small Size League to obtain the position of the robots. SSL-Vision requires a camera mounted on the ceiling, and a marker with specific pattern on top of the robot. By detecting the marker and the field through the ceiling camera, the ground truth can be obtained. For NAO robot, since its head could be scanning left and right, the marker can not be directly attached on its head, otherwise the robot's orientation obtained is not correct. To counter this, a plastic support is printed using a 3D printer. As illustrated by \autoref{fig:collage}, the support is worn by the robot from the back, and the marker is attached on the top of the support.
@@ -11,7 +14,7 @@ The approach adopted in this thesis is SSL-Vision \cite{zickler2010ssl}, the vis
 \begin{figure}[h!]
   \centering
   \includegraphics[width=.7\textwidth]{sslvision-collage.png}
-  \caption{The 3D printed support and the pattern marker}
+  \caption{The 3D printed support and the pattern marker.}
   \label{fig:collage}
 \end{figure}
 
@@ -21,17 +24,17 @@ In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robo
         \centering
         \begin{subfigure}[h]{0.59\textwidth}
                 \includegraphics[width=\textwidth]{gt2.png}
-                \caption{calibration result}
+                \caption{Calibration result.}
                 \label{fig:calibration}
         \end{subfigure}%
         ~ %add desired spacing between images, e.g. ~, \quad, \qquad, \hfill etc.
           %(or a blank line to force the subfigure onto a new line)
         \begin{subfigure}[h]{0.41\textwidth}
                 \includegraphics[width=\textwidth]{gt1crop.png}
-                \caption{position in field}
+                \caption{Position in field.}
                 \label{fig:position}
         \end{subfigure}%
-	\caption[SSL-Vision color and camera calibration result, and robot position result]{SSL-Vision color and camera calibration result (a), robot position result (b)}
+	\caption[SSL-Vision color and camera calibration result, and robot position result.]{SSL-Vision color and camera calibration result (a), robot position result (b).}
 	\label{fig:sslVision result}
 \end{figure}
 
@@ -50,9 +53,8 @@ In the SSL-Vision software \cite{sslvision_yuan}, first set the field size, robo
   \item The system can not detect the pattern when the robot has fallen down.
 \end{itemize}
 
-\section{Experiments Setup}
-\label{sub:Logging Perception and Ground Truth}
-For the purpose of debugging and benchmarks, the robot can store the perception as logs for future replay. The log contains the necessary data needed to re-run the localization algorithm on another computer. The log includes vision results, odometry, \gls{IMU}, sonar data, time stamp, robot posture, etc. In order to benchmark the quality of the localization algorithm result, the ground truth data has to be stored as well, and when the log is replayed, the ground truth data should be synchronized with the perception log. The solution for this is to store the broadcasted ground truth from SSL-Vision at the same of recording the perception, and consequently the ground truth becomes part of the perception log. The replayed perception log with ground truth is already illustrated in \autoref{fig:landmarkRobotFrame}, in which the ground truth position is indicated by red, calculated position in blue, mirrored calculated position in green.
+\subsection{Perception Log}
+For the purpose of debugging and benchmarks, the robot can store the perception as logs for future replay. The log contains the necessary data needed to re-run the localization algorithm on another computer. The log includes vision results, odometry, \gls{IMU}, sonar data, time stamp, robot posture, etc. In order to benchmark the quality of the localization algorithm result, the ground truth data has to be stored as well, and when the log is replayed, the ground truth data should be synchronized with the perception log. The solution for this is to store the broadcasted ground truth from SSL-Vision at the same time of recording the perception, and consequently the ground truth becomes part of the perception log. The replayed perception log with ground truth is already illustrated in \autoref{fig:landmarkRobotFrame}, in which the ground truth position is indicated by red, calculated position in blue, mirrored calculated position in green.
 
 %\begin{figure}[h!]
 %  \centering

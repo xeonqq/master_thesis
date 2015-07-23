@@ -1,5 +1,5 @@
 \chapter{Multi-Hypotheses Kalman Filter\label{cha:chapter5}}
-While the Kalman filter can only deal with uni-modal probability distribution, it does not suffice to handle the ambiguous landmarks that occur in robot's observation, which requires a multi-modal distribution. Therefore, a multi-hypotheses Kalman filter is adapted to handle the ambiguous situations by describing the robot position in the field by a Gaussian sum distribution.
+While the Kalman filter can only deal with uni-modal probability distribution, it does not suffice to handle the ambiguous landmarks that occur in robot's observation, which requires a multi-modal distribution. Therefore, a multi-hypotheses Kalman filter is adopted to handle the ambiguous situations by describing the robot position in the field by a Gaussian sum distribution.
 The problem of multi-hypotheses Kalman filter lies mainly in the domain of when and where to add new hypothesises into the Gaussian sum distribution, as well as when to prune or merge certain hypotheses to restrain the number of hypotheses within a limit, so it does not consume too much of the computation resources.
 
 
@@ -115,7 +115,7 @@ A special case worths discussing is the observation of the ``L'' junctions, as t
   \item If there are remaining ``L'' junctions in observation, steps from Step 2 are repeated. Otherwise, the possible robot positions which are valid are returned.
 \end{enumerate}
 
-To speed up the computation, Step 3 above is implemented using a pre-computed look up table. Given a pose $(x_l, y_l, \theta_l)$ of the ``L'' junction in physical world frame,  the look up table will return boolean value, \ie{} true or false, depending on whether in the vicinity of pose $(x_l, y_l, \theta_l)$, there exists an ``L'' junction. Although it is a 3-dimensional look up table, the resolution can be configured coarse, it will not consume too much memory. In return, the checking of 36 ``L'' junctions in physical world frame can be done together at once. A visualization example of the look up table is illustrated in \autoref{fig:lcornerLUT}. Since it is a 3-dimensional look up table, \autoref{fig:lcornerLUT} only shows the look up table when the angle dimension is at \SI{90}{\degree}. It means, if given an ``L'' junction in physical world frame with angle being \SI{90}{\degree}, only the ``L'' junctions which fall into the bright area is valid. %The correctness can be verified by checking in correspond with \autoref{fig:ljunctions}.
+To speed up the computation, Step 3 above is implemented using a pre-computed look up table. Given a pose $(x_l, y_l, \theta_l)$ of the ``L'' junction in physical world frame,  the look up table will return boolean value, \ie{} true or false, depending on whether in the vicinity of pose $(x_l, y_l, \theta_l)$, there exists an ``L'' junction. Although it is a 3-dimensional look up table, the resolution can be configured coarse, so it will not consume too much memory. In return, the checking of 36 ``L'' junctions in physical world frame can be done together at once. A visualization example of the look up table is illustrated in \autoref{fig:lcornerLUT}. Since it is a 3-dimensional look up table, \autoref{fig:lcornerLUT} only shows the look up table when the angle dimension is at \SI{90}{\degree}. It means, if given an ``L'' junction in physical world frame with angle being \SI{90}{\degree}, only the ``L'' junctions which fall into the bright area is valid. %The correctness can be verified by checking in correspond with \autoref{fig:ljunctions}.
 
 \begin{figure}
 \begin{center}
@@ -150,7 +150,7 @@ While the resampling step generates hypothesis models into the Gaussian sum dist
 \label{sub:Pruning by Weight}
 When the weight of hypothesis model is lower than a certain threshold, this model is considered to have little contribution to the distribution, so that it can be removed. Moreover, the maximum number of models is limited to a number $N$ set by the localization algorithm. Once the maximum number of models is exceeded, the models are sorted by weight from high to low in a list. Only first $N$ models in the list will remain, the others will be deleted. In this thesis, the maximum number of models is set to be 16.
 
-\subsection[Merging by Mahalanobis Distance]{Pruning by Mahalanobis Distance }
+\subsection{Merging by Mahalanobis Distance}
 \label{sub:Prunning Mahalanobis Distance}
 When the hypothesis models are close enough to each other, in other words, they represent almost the same probability distribution, they could also be merged into one. One way is to apply Euclidean distance directly between the mean of the models to calculate the distance as shown in \autoref{eq:euclidean}. $\mu_1$ and $\mu_2$ represent the mean of two different Gaussian distributions.
 

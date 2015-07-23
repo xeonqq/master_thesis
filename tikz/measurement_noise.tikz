@@ -13,11 +13,13 @@
 \begin{axis}[
 xlabel={distance to landmark $(m)$},
 ylabel={measurement noise $(m)$},
-xmin=0, xmax=8,
-ymin=0, ymax=4,
+xmin=0, xmax=9,
+ymin=0, ymax=5,
 axis on top,
-width=12cm,
-height=7cm
+width=11cm,
+height=6cm,
+legend style={at={(0.03,0.97)}, anchor=north west},
+legend entries={{Camera matrix angle error=0.02 radian}}
 ]
 \addplot [blue]
 coordinates {
@@ -101,11 +103,21 @@ coordinates {
 (7.701,3.44337124748525)
 (7.801,3.55354651264172)
 (7.901,3.66618059113782)
+(8.001,3.78131688486064)
+(8.101,3.89899982322435)
+(8.201,4.01927489375925)
+(8.301,4.1421886738001)
+(8.401,4.26778886332015)
+(8.501,4.39612431895941)
+(8.601,4.52724508929822)
+(8.701,4.66120245142952)
+(8.801,4.79804894888609)
+(8.901,4.93783843098157)
 
 };
-\path [draw=black, fill opacity=0] (axis cs:13,4)--(axis cs:13,4);
+\path [draw=black, fill opacity=0] (axis cs:13,5)--(axis cs:13,5);
 
-\path [draw=black, fill opacity=0] (axis cs:8,13)--(axis cs:8,13);
+\path [draw=black, fill opacity=0] (axis cs:9,13)--(axis cs:9,13);
 
 \path [draw=black, fill opacity=0] (axis cs:13,0)--(axis cs:13,0);
 
